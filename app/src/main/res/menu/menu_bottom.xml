@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/mitList"
+        android:icon="@drawable/ic_baseline_list"
+        android:title="清單" />
+    <item
+        android:id="@+id/mitDetail"
+        android:icon="@drawable/ic_baseline_preview"
+        android:title="檢視"
+        android:visible="true" />
+    <item
+        android:id="@+id/mitEdit"
+        android:icon="@drawable/ic_baseline_edit"
+        android:title="編輯" />
+</menu>
