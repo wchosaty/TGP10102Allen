@@ -1,6 +1,7 @@
 package idv.tgp10102.allen.fragment;
 
 
+
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -12,11 +13,11 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.SearchView;
 import android.widget.TextView;
 
 import java.io.File;
@@ -32,8 +33,8 @@ public class ListFragment extends Fragment {
     private static final String TAG = "Tag_ListFragment";
     private Activity activity;
     private RecyclerView recyclerView;
-    private List<String> memberlist;
-    private File dirMember;
+    private List<Travel> travelList;
+    private SearchView searchView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -43,59 +44,87 @@ public class ListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_list, container, false);
+
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         activity = getActivity();
-        memberlist = new ArrayList<>();
         load();
         findViews(view);
-        handleRcyclerView();
+        handleView();
     }
 
     private void load() {
-
-        dirMember = activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
-        File f = new File(dirMember.toString());
-        File[] files= f.listFiles();
-        StringBuilder s;
-        if(files.length>0){
-            for (int i = 0; i < files.length; i++) {
-                memberlist.add(String.valueOf(new StringBuilder(files[i].getName().trim())));
-            }
-        }
+        ComMethod.getMemberList(activity);
     }
 
     private void findViews(View view) {
-        recyclerView =  view.findViewById(R.id.recyclerView);
+        recyclerView = view.findViewById(R.id.recyclerView);
+        searchView = view.findViewById(R.id.searchView_List);
+    }
+
+
+    private void handleView() {
+        recyclerView.setAdapter(new MyAdapter(activity, getTravelList()));
+        recyclerView.setLayoutManager(new LinearLayoutManager(activity));
+
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                MyAdapter adapter =(MyAdapter) recyclerView.getAdapter();
+                if(adapter != null){
+                    // 如果搜尋條件為空字串，就顯示原始資料；否則就顯示搜尋後結果
+                    if(newText.isEmpty()){
+                        adapter.setAdapterMembers(travelList);
+                    }else {
+                        List<Travel> searchList = new ArrayList<>();
+                        for(Travel travel : travelList){
+                            if(travel.getStringName().toString().toUpperCase().contains(newText.toUpperCase())) {
+                                searchList.add(travel);
+                            }
+                        }
+                        adapter.setAdapterMembers(searchList);
+                    }
+                    adapter.notifyDataSetChanged();
+                    return true;
+                }
+
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+        });
     }
 
     private List<Travel> getTravelList() {
 
-        List<Travel> travelList = new ArrayList<>();
-        if(memberlist.size() <= 0){
+        List<Travel> list = new ArrayList<>();
+        if(ComMethod.memberList.size() <= 0){
             return null;
         }
-        for (int i = 0; i < memberlist.size(); i++) {
+        for (int i = 0; i < ComMethod.memberList.size(); i++) {
 
-            StringBuilder sbTemp = new StringBuilder(String.valueOf(memberlist.get(i)));
+            StringBuilder sbTemp = new StringBuilder(String.valueOf(ComMethod.memberList.get(i)));
             Travel travel = ComMethod.loadTravel(activity,sbTemp.toString());
-            travelList.add(travel);
+            list.add(travel);
         }
-        return travelList;
+        return travelList = list;
     }
 
 
-    private void handleRcyclerView() {
-        recyclerView.setAdapter(new MyAdapter(activity, getTravelList()));
-        recyclerView.setLayoutManager(new LinearLayoutManager(activity));
-    }
-
-    class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
+    static class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         Context context;
         List<Travel> list;
+
+        public void setAdapterMembers(List<Travel> travels) {
+            this.list = travels;
+        }
 
         public MyAdapter(Context context, List<Travel> list) {
             this.context = context;
@@ -110,6 +139,13 @@ public class ListFragment extends Fragment {
             return new ViewHolder(itemView);
         }
 
+        private List<StringBuilder> getImageViewList(Travel travel) {
+            List<StringBuilder> list = new ArrayList<>();
+
+            list.add(travel.getStringFilePath1());
+            return list;
+        }
+
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             final Travel travel = list.get(position);
@@ -118,20 +154,13 @@ public class ListFragment extends Fragment {
             File filePicPath = null;
             try {
                 filePicPath = new File(travel.getStringFilePath1().toString());
-                holder.ivPic1.setImageBitmap( EditFragment.bitmapToImageFilePath(bitmap,filePicPath) );
-                filePicPath = new File(travel.getStringFilePath2().toString());
-                holder.ivPic2.setImageBitmap( EditFragment.bitmapToImageFilePath(bitmap,filePicPath) );
-                filePicPath = new File(travel.getStringFilePath3().toString());
-                holder.ivPic3.setImageBitmap( EditFragment.bitmapToImageFilePath(bitmap,filePicPath) );
-                filePicPath = new File(travel.getStringFilePath4().toString());
-                holder.ivPic4.setImageBitmap( EditFragment.bitmapToImageFilePath(bitmap,filePicPath) );
+                holder.ivPic1.setImageBitmap( ComMethod.bitmapToImageFilePath(bitmap,filePicPath) );
 
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
             holder.tvName.setText(travel.getStringName());
-            holder.tvMessage.setText(travel.getStringMessage());
 
         }
 
@@ -141,17 +170,13 @@ public class ListFragment extends Fragment {
         }
 
         class ViewHolder extends RecyclerView.ViewHolder {
-            TextView tvName,tvMessage;
-            ImageView ivPic1,ivPic2,ivPic3,ivPic4;
+            TextView tvName;
+            ImageView ivPic1;
 
             public ViewHolder(@NonNull View itemView) {
                 super(itemView);
                 tvName = itemView.findViewById(R.id.tvName_item);
-                tvMessage = itemView.findViewById(R.id.tvMessage_item);
                 ivPic1 = itemView.findViewById(R.id.iv1_item);
-                ivPic2 = itemView.findViewById(R.id.iv2_item);
-                ivPic3 = itemView.findViewById(R.id.iv3_item);
-                ivPic4 = itemView.findViewById(R.id.iv4_item);
 
             }
         }

@@ -10,22 +10,31 @@ import android.graphics.BitmapFactory;
 import android.graphics.ImageDecoder;
 import android.net.Uri;
 import android.os.Bundle;
-
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.Lifecycle;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.viewpager2.widget.ViewPager2;
 
 import android.os.Environment;
+import android.text.style.UpdateAppearance;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.yalantis.ucrop.UCrop;
@@ -49,12 +58,10 @@ import idv.tgp10102.allen.Travel;
 public class EditFragment extends Fragment {
     private static final String TAG = "Tag EditFragment";
     private Activity activity;
-    private ImageView imageView1,imageView2,imageView3,imageView4;
+    private AutoCompleteTextView etName;
     private EditText etMessage;
-    private EditText etName;
-    private ImageButton ibSave;
-    private ImageButton ibLoad;
-    private List<StringBuilder> memberList;
+    private ImageButton ibSave,ibLoad,ibDelete,ibShare,ibToClose,ibToOpen;
+    private ArrayAdapter<String> adapter;
 
     private File dir;
     private File dirMember;
@@ -62,6 +69,10 @@ public class EditFragment extends Fragment {
     private File fileDest;
     private Uri srcUri;
     private int handleRequestCode = 0;
+    private ViewPager2 viewPager2;
+    private TextView tvPageNumber;
+    private CardView cvButtonBarToOpen,cvButtonBarToClose;
+    public static List<String> photosList;
     private ContentResolver contentResolver;
 
     private ActivityResultLauncher<Uri> takePicLauncher;
@@ -81,16 +92,97 @@ public class EditFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         activity = getActivity();
-        memberList = new ArrayList<>();
+        photosList = new ArrayList<>();
 
         findViews(view);
+        ComMethod.getMemberList(activity);
+        handleInitialAndVisibility();
+
         contentResolver = activity.getContentResolver();
         takePicLauncher = getLauncher();
         cropPicLauncher = getCropPicLauncher();
-        handleBtload();
 
+        handleAutoCompleteTextView();
+
+        handleBtload();
         handleBtTakePic();
         handleBtSave();
+        handleBtDelete();
+
+
+        ibShare.setOnClickListener(v -> {
+            tvPageNumber.setText(""+(viewPager2.getCurrentItem()+1));
+
+        });
+
+    }
+
+
+    private void createNewViewPager2() {
+        viewPager2.setAdapter(new MyViewPager2Adapter((FragmentActivity) activity,photosList));
+    }
+
+    private void handleAutoCompleteTextView() {
+            ComMethod.getMemberList(activity);
+            List<String> listTemp = new ArrayList<>();
+            for(String temp: ComMethod.memberList){
+                listTemp.add(temp.toString());
+            }
+            adapter = new ArrayAdapter<>(activity,R.layout.name_view,listTemp);
+            etName.setAdapter(adapter);
+    }
+
+    private void delete(){
+
+        int position = -1;
+        boolean flag = false;
+        String deleteName = null;
+        if(Objects.equals(etName.toString(),null)){
+            Toast.makeText(activity, "FileName is null.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        File dirMember = activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
+        ComMethod.getMemberList(activity);
+        if(ComMethod.memberList.size()>0){
+            for (int i = 0; i < ComMethod.memberList.size(); i++) {
+                if(Objects.equals(etName.getText().toString(),ComMethod.memberList.get(i).toString())){
+                    position = i;
+                    flag = true;
+                    deleteName = etName.getText().toString();
+                    break;
+                }
+            }
+            if(!flag){
+                Toast.makeText(activity, "No Find File ", Toast.LENGTH_SHORT).show();
+            }
+        }
+        //有該member資料
+        if ((position >= 0) && flag){
+            file =new File(dirMember,""+deleteName);
+            etMessage.setText(file.toString());
+            File[] subFileList = file.listFiles();
+            if(subFileList != null){
+                for(File temp : subFileList) {
+                    temp.delete();
+                }
+            }
+            //再刪除本資料
+            if(file.delete()){
+                Toast.makeText(activity, "Delete Successful", Toast.LENGTH_SHORT).show();
+                    File fileObjectPath = new File(activity.getFilesDir(), deleteName);
+                    fileObjectPath.delete();
+                etName.setText("");
+                etMessage.setText("");
+            }
+        }
+    }
+
+    private void handleBtDelete() {
+        ibDelete.setOnClickListener(view -> {
+            delete();
+            handleAutoCompleteTextView();
+        });
+
     }
 
     private void handleBtload() {
@@ -112,33 +204,34 @@ public class EditFragment extends Fragment {
         }
         etName.setText(travel.getStringName());
         etMessage.setText(travel.getStringMessage());
-
-        imageView1.setImageResource(R.drawable.ic_baseline_add_circle_outline);
-        imageView2.setImageResource(R.drawable.ic_baseline_add_circle_outline);
-        imageView3.setImageResource(R.drawable.ic_baseline_add_circle_outline);
-        imageView4.setImageResource(R.drawable.ic_baseline_add_circle_outline);
+        UpdatePhotosList(travel);
+        viewPager2.setAdapter(new MyViewPager2Adapter((FragmentActivity) activity,photosList));
+//        imageView1.setImageResource(R.drawable.ic_baseline_add_circle_outline);
+//        imageView2.setImageResource(R.drawable.ic_baseline_add_circle_outline);
+//        imageView3.setImageResource(R.drawable.ic_baseline_add_circle_outline);
+//        imageView4.setImageResource(R.drawable.ic_baseline_add_circle_outline);
 
         Bitmap bitmap = null;
         File filePicPath = null;
 
-        try {
-//            etMessage.setText(travel.getStringFilePath1().toString());
+//        try {
+//
+//            //1
+//            filePicPath = new File(travel.getStringFilePath1().toString());
+//            imageView1.setImageBitmap(bitmapToImageFilePath(bitmap, filePicPath));
+//            //2
+//            filePicPath = new File(travel.getStringFilePath2().toString());
+//            imageView2.setImageBitmap(bitmapToImageFilePath(bitmap, filePicPath));
+//            //3
+//            filePicPath = new File(travel.getStringFilePath3().toString());
+//            imageView3.setImageBitmap(bitmapToImageFilePath(bitmap, filePicPath));
+//            //4
+//            filePicPath = new File(travel.getStringFilePath4().toString());
+//            imageView4.setImageBitmap(bitmapToImageFilePath(bitmap, filePicPath));
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
-            //1
-            filePicPath = new File(travel.getStringFilePath1().toString());
-            imageView1.setImageBitmap(bitmapToImageFilePath(bitmap, filePicPath));
-            //2
-            filePicPath = new File(travel.getStringFilePath2().toString());
-            imageView2.setImageBitmap(bitmapToImageFilePath(bitmap, filePicPath));
-            //3
-            filePicPath = new File(travel.getStringFilePath3().toString());
-            imageView3.setImageBitmap(bitmapToImageFilePath(bitmap, filePicPath));
-            //4
-            filePicPath = new File(travel.getStringFilePath4().toString());
-            imageView4.setImageBitmap(bitmapToImageFilePath(bitmap, filePicPath));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
 
@@ -148,6 +241,7 @@ public class EditFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 save();
+                handleAutoCompleteTextView();
             }
         });
     }
@@ -159,19 +253,7 @@ public class EditFragment extends Fragment {
             Toast.makeText(activity, "Name null...", Toast.LENGTH_SHORT).show();
             return;
         }
-        dirMember = activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
-
-
-        File f = new File(dirMember.toString());
-        File[] files= f.listFiles();
-        StringBuilder s;
-        if(files.length>0){
-            for (int i = 0; i < files.length; i++) {
-                memberList.add(new StringBuilder(files[i].getName().trim()));
-            }
-
-        }
-
+        ComMethod.getMemberList(activity);
 
         File fileTemp = new File(sbTemp.toString());
         Travel tCheck = ComMethod.loadTravel(activity,fileTemp.toString());
@@ -183,7 +265,6 @@ public class EditFragment extends Fragment {
         }
 
         try(
- //               FileOutputStream fos = activity.openFileOutput(FILENAME,MODE_PRIVATE);
                 //Object儲存資料夾
                 FileOutputStream fos = activity.openFileOutput(sbTemp.toString(),MODE_PRIVATE);
                 ObjectOutputStream oos = new ObjectOutputStream(fos);
@@ -228,18 +309,13 @@ public class EditFragment extends Fragment {
             file.delete();
             travel.setStringFilePath4(sbFile);
 
-            etName.setText(null);
-            etMessage.setText(null);
-            imageView1.setImageResource(R.drawable.ic_baseline_add_circle_outline);
-            imageView2.setImageResource(R.drawable.ic_baseline_add_circle_outline);
-            imageView3.setImageResource(R.drawable.ic_baseline_add_circle_outline);
-            imageView4.setImageResource(R.drawable.ic_baseline_add_circle_outline);
-
-
             travel.setStringName(sbName);
             travel.setStringMessage(sbMessage);
             oos.writeObject(travel);
-////
+
+            etName.setText(null);
+            etMessage.setText(null);
+
             Toast.makeText(activity, "Save.....", Toast.LENGTH_SHORT).show();
 
         }catch (Exception e){
@@ -272,35 +348,36 @@ public class EditFragment extends Fragment {
         }
 
 
-    public static Bitmap bitmapToImageFilePath(Bitmap bitmap,File filepath) throws IOException{
-        ImageDecoder.Source source = null;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
-            source = ImageDecoder.createSource(filepath);
-            bitmap = ImageDecoder.decodeBitmap(source);
-        }else{
-            bitmap = BitmapFactory.decodeFile(filepath.toString());
-        }
-        return bitmap;
-    }
 
-    public void switchSelectBitmap(Bitmap bitmap,int code){
-        switch (code){
-            case (REQUEST_P1):
-                imageView1.setImageBitmap(bitmap);
-                break;
-            case (REQUEST_P2):
-                imageView2.setImageBitmap(bitmap);
-                break;
-            case (REQUEST_P3):
-                imageView3.setImageBitmap(bitmap);
-                break;
-            case (REQUEST_P4):
-                imageView4.setImageBitmap(bitmap);
-                break;
-            default:
-                break;
-        }
-    }
+//    public static Bitmap bitmapToImageFilePath(Bitmap bitmap,File filepath) throws IOException{
+//        ImageDecoder.Source source = null;
+//        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+//            source = ImageDecoder.createSource(filepath);
+//            bitmap = ImageDecoder.decodeBitmap(source);
+//        }else{
+//            bitmap = BitmapFactory.decodeFile(filepath.toString());
+//        }
+//        return bitmap;
+//    }
+
+//    public void switchSelectBitmap(Bitmap bitmap,int code){
+//        switch (code){
+//            case (REQUEST_P1):
+//                imageView1.setImageBitmap(bitmap);
+//                break;
+//            case (REQUEST_P2):
+//                imageView2.setImageBitmap(bitmap);
+//                break;
+//            case (REQUEST_P3):
+//                imageView3.setImageBitmap(bitmap);
+//                break;
+//            case (REQUEST_P4):
+//                imageView4.setImageBitmap(bitmap);
+//                break;
+//            default:
+//                break;
+//        }
+//    }
 
     private  ActivityResultLauncher<Uri> getLauncher(){
         return registerForActivityResult(new ActivityResultContracts.TakePicture(),
@@ -334,7 +411,7 @@ public class EditFragment extends Fragment {
                         }else{
                             bitmap = BitmapFactory.decodeStream(contentResolver.openInputStream(resultUri));
                         }
-                        switchSelectBitmap(bitmap,handleRequestCode);
+//                        switchSelectBitmap(bitmap,handleRequestCode);
 
                     }catch (IOException e){
                         Log.e(TAG,e.toString());
@@ -357,43 +434,109 @@ public class EditFragment extends Fragment {
     }
 
     private void findViews(View view) {
-        imageView1 = view.findViewById(R.id.iv1_edit);
-        imageView2 = view.findViewById(R.id.iv2_edit);
-        imageView3 = view.findViewById(R.id.iv3_edit);
-        imageView4 = view.findViewById(R.id.iv4_edit);
 
         etName = view.findViewById(R.id.etName);
         etMessage = view.findViewById(R.id.etMessage);
         ibSave = view.findViewById(R.id.ibSave);
         ibLoad = view.findViewById(R.id.ibLoad);
+        ibDelete = view.findViewById(R.id.ibDelete);
+        ibShare = view.findViewById(R.id.ibShare);
+
+        viewPager2 = view.findViewById(R.id.viewPager2);
+        tvPageNumber = view.findViewById(R.id.tvPageNumber_edit);
+        cvButtonBarToOpen = view.findViewById(R.id.cvPhotoButtonOpenBar);
+        cvButtonBarToClose = view.findViewById(R.id.cvPhotoButtonCloseBar);
+        ibToClose = view.findViewById(R.id.ibBarOpenToclose);
+        ibToOpen = view.findViewById(R.id.ibBarCloseToOpen);
+
+    }
+
+    private void handleInitialAndVisibility() {
+        cvButtonBarToOpen.setVisibility(View.INVISIBLE);
+        cvButtonBarToClose.setVisibility(View.VISIBLE);
+
+        ibToOpen.setOnClickListener(view->{
+            cvButtonBarToOpen.setVisibility(View.VISIBLE);
+            cvButtonBarToClose.setVisibility(View.INVISIBLE);
+        });
+        ibToClose.setOnClickListener(view ->{
+            cvButtonBarToOpen.setVisibility(View.INVISIBLE);
+            cvButtonBarToClose.setVisibility(View.VISIBLE);
+        });
+
     }
 
     private void handleBtTakePic() {
 
-        imageView1.setOnClickListener(view -> {
-            onButtonTakeClick(view,REQUEST_P1);
-        });
-
-        imageView2.setOnClickListener(view -> {
-            onButtonTakeClick(view,REQUEST_P2);
-        });
-
-        imageView3.setOnClickListener(view -> {
-            onButtonTakeClick(view,REQUEST_P3);
-        });
-        imageView4.setOnClickListener(view -> {
-            onButtonTakeClick(view,REQUEST_P4);
-        });
+//        imageView1.setOnClickListener(view -> {
+//            onButtonTakeClick(REQUEST_P1);
+//        });
+//
+//        imageView2.setOnClickListener(view -> {
+//            onButtonTakeClick(REQUEST_P2);
+//        });
+//
+//        imageView3.setOnClickListener(view -> {
+//            onButtonTakeClick(REQUEST_P3);
+//        });
+//        imageView4.setOnClickListener(view -> {
+//            onButtonTakeClick(REQUEST_P4);
+//        });
 
     }
 
-    public void onButtonTakeClick(View imageViewPic ,int takePicCodePos){
+    public void onButtonTakeClick(int takePicCodePos){
         handleRequestCode = takePicCodePos;
         file = createFile(takePicOrigin);
         srcUri = FileProvider.getUriForFile(activity,
                 activity.getPackageName()+".fileProvider",file);
 
         takePicLauncher.launch(srcUri);
+    }
+
+    private void UpdatePhotosList (Travel travel) {
+        photosList = new ArrayList<>();
+        if( !Objects.equals(travel.getStringFilePath1().toString(),null) ){
+            photosList.add(travel.getStringFilePath1().toString());
+        }
+        if( !Objects.equals(travel.getStringFilePath2().toString(),null) ){
+            photosList.add(travel.getStringFilePath2().toString());
+        }
+        if( !Objects.equals(travel.getStringFilePath3().toString(),null) ){
+            photosList.add(travel.getStringFilePath3().toString());
+        }
+        if( !Objects.equals(travel.getStringFilePath4().toString(),null) ){
+            photosList.add(travel.getStringFilePath4().toString());
+        }
+
+        if(photosList.isEmpty()){
+            photosList.add("-1");
+        }
+
+    }
+
+    class MyViewPager2Adapter extends FragmentStateAdapter {
+        private List<String> list;
+
+        public MyViewPager2Adapter(@NonNull FragmentActivity fragmentActivity,List<String> list) {
+            super(fragmentActivity);
+            this.list = list;
+        }
+
+
+        @NonNull
+        @Override
+        public Fragment createFragment(int position) {
+           StringBuilder s = new StringBuilder(photosList.get(position));
+           cvButtonBarToOpen.setVisibility(View.VISIBLE);
+           cvButtonBarToClose.setVisibility(View.INVISIBLE);
+           return new AddPhotosFragment(s);
+        }
+
+        @Override
+        public int getItemCount() {
+            return photosList == null ? 0 : photosList.size();
+        }
     }
 
 }

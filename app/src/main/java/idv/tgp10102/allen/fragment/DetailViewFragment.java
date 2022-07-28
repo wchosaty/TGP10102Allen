@@ -1,6 +1,5 @@
 package idv.tgp10102.allen.fragment;
 
-import static idv.tgp10102.allen.MainActivity.FILENAME;
 import static idv.tgp10102.allen.MainActivity.REQUEST_P1;
 import static idv.tgp10102.allen.MainActivity.REQUEST_P2;
 import static idv.tgp10102.allen.MainActivity.REQUEST_P3;
@@ -50,7 +49,7 @@ public class DetailViewFragment extends Fragment {
     private ImageView imageView1,imageView2,imageView3,imageView4;
     private ConstraintLayout constraintLayout;
     private ImageView conLayIvBigPic;
-    private List<String> memberlist;
+    private List<String> memberList;
 
     private File dirMember;
 
@@ -68,7 +67,7 @@ public class DetailViewFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         activity = getActivity();
-        memberlist = new ArrayList<>();
+        memberList = new ArrayList<>();
         findViews(view);
         load();
         handleImageViewToBigPic();
@@ -76,11 +75,11 @@ public class DetailViewFragment extends Fragment {
 
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        hadleSpinner();
 
+    @Override
+    public void onResume() {
+        super.onResume();
+         hadleSpinner();
     }
 
     private void findViews(View view) {
@@ -96,7 +95,7 @@ public class DetailViewFragment extends Fragment {
     }
 
     private void hadleSpinner() {
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(activity,R.layout.item_spinner,memberlist);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(activity,R.layout.item_spinner,memberList);
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -136,16 +135,16 @@ public class DetailViewFragment extends Fragment {
         try {
             //1
             filePicPath = new File(travel.getStringFilePath1().toString());
-            imageView1.setImageBitmap(EditFragment.bitmapToImageFilePath(bitmap, filePicPath));
+            imageView1.setImageBitmap(ComMethod.bitmapToImageFilePath(bitmap, filePicPath));
             //2
             filePicPath = new File(travel.getStringFilePath2().toString());
-            imageView2.setImageBitmap(EditFragment.bitmapToImageFilePath(bitmap, filePicPath));
+            imageView2.setImageBitmap(ComMethod.bitmapToImageFilePath(bitmap, filePicPath));
             //3
             filePicPath = new File(travel.getStringFilePath3().toString());
-            imageView3.setImageBitmap(EditFragment.bitmapToImageFilePath(bitmap, filePicPath));
+            imageView3.setImageBitmap(ComMethod.bitmapToImageFilePath(bitmap, filePicPath));
             //4
             filePicPath = new File(travel.getStringFilePath4().toString());
-            imageView4.setImageBitmap(EditFragment.bitmapToImageFilePath(bitmap, filePicPath));
+            imageView4.setImageBitmap(ComMethod.bitmapToImageFilePath(bitmap, filePicPath));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -204,19 +203,19 @@ public class DetailViewFragment extends Fragment {
             switch (code){
                 case(REQUEST_P1):
                     filePicPath = new File(travel.getStringFilePath1().toString());
-                    conLayIvBigPic.setImageBitmap(EditFragment.bitmapToImageFilePath(bitmap, filePicPath));
+                    conLayIvBigPic.setImageBitmap(ComMethod.bitmapToImageFilePath(bitmap, filePicPath));
                     break;
                 case(REQUEST_P2):
                     filePicPath = new File(travel.getStringFilePath2().toString());
-                    conLayIvBigPic.setImageBitmap(EditFragment.bitmapToImageFilePath(bitmap, filePicPath));
+                    conLayIvBigPic.setImageBitmap(ComMethod.bitmapToImageFilePath(bitmap, filePicPath));
                     break;
                 case(REQUEST_P3):
                     filePicPath = new File(travel.getStringFilePath3().toString());
-                    conLayIvBigPic.setImageBitmap(EditFragment.bitmapToImageFilePath(bitmap, filePicPath));
+                    conLayIvBigPic.setImageBitmap(ComMethod.bitmapToImageFilePath(bitmap, filePicPath));
                     break;
                 case(REQUEST_P4):
                     filePicPath = new File(travel.getStringFilePath4().toString());
-                    conLayIvBigPic.setImageBitmap(EditFragment.bitmapToImageFilePath(bitmap, filePicPath));
+                    conLayIvBigPic.setImageBitmap(ComMethod.bitmapToImageFilePath(bitmap, filePicPath));
                     break;
                 default:
                     break;
@@ -232,13 +231,14 @@ public class DetailViewFragment extends Fragment {
         dirMember = activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
         File f = new File(dirMember.toString());
         File[] files= f.listFiles();
+
         StringBuilder s;
         if(files.length>0){
             for (int i = 0; i < files.length; i++) {
-                memberlist.add(String.valueOf(new StringBuilder(files[i].getName().trim())));
+                memberList.add(String.valueOf(new StringBuilder(files[i].getName().trim())));
             }
-        }
 
+        }
     }
 
 }
