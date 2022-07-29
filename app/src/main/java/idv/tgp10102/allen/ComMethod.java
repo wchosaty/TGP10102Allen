@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import idv.tgp10102.allen.fragment.Member;
+
 
 public class ComMethod {
     private static final String TAG = "Tag_ComMethod";
@@ -44,18 +46,18 @@ public class ComMethod {
             }
         }
     }
-
-    public static Travel loadTravel(Context context,String s){
+    public static Member loadMember(Context context, String s){
         try(
                 FileInputStream fis = context.openFileInput(s);
                 ObjectInputStream ois = new ObjectInputStream(fis);
         )
         {
-            return (Travel) ois.readObject();
+            return (Member) ois.readObject();
         }catch (Exception e){
             e.printStackTrace();
             Log.e(TAG, Arrays.toString(e.getStackTrace()));
             return null;
         }
     }
+
 }

@@ -27,13 +27,12 @@ import java.util.List;
 
 import idv.tgp10102.allen.ComMethod;
 import idv.tgp10102.allen.R;
-import idv.tgp10102.allen.Travel;
 
 public class ListFragment extends Fragment {
     private static final String TAG = "Tag_ListFragment";
     private Activity activity;
     private RecyclerView recyclerView;
-    private List<Travel> travelList;
+    private List<Member> memberList;
     private SearchView searchView;
 
     @Override
@@ -67,7 +66,7 @@ public class ListFragment extends Fragment {
 
 
     private void handleView() {
-        recyclerView.setAdapter(new MyAdapter(activity, getTravelList()));
+        recyclerView.setAdapter(new MyAdapter(activity, getMemberList()));
         recyclerView.setLayoutManager(new LinearLayoutManager(activity));
 
 
@@ -78,12 +77,12 @@ public class ListFragment extends Fragment {
                 if(adapter != null){
                     // 如果搜尋條件為空字串，就顯示原始資料；否則就顯示搜尋後結果
                     if(newText.isEmpty()){
-                        adapter.setAdapterMembers(travelList);
+                        adapter.setAdapterMembers(memberList);
                     }else {
-                        List<Travel> searchList = new ArrayList<>();
-                        for(Travel travel : travelList){
-                            if(travel.getStringName().toString().toUpperCase().contains(newText.toUpperCase())) {
-                                searchList.add(travel);
+                        List<Member> searchList = new ArrayList<>();
+                        for(Member member : memberList){
+                            if(member.getStringName().toString().toUpperCase().contains(newText.toUpperCase())) {
+                                searchList.add(member);
                             }
                         }
                         adapter.setAdapterMembers(searchList);
@@ -102,31 +101,31 @@ public class ListFragment extends Fragment {
         });
     }
 
-    private List<Travel> getTravelList() {
+    private List<Member> getMemberList() {
 
-        List<Travel> list = new ArrayList<>();
+        List<Member> list = new ArrayList<>();
         if(ComMethod.memberList.size() <= 0){
             return null;
         }
         for (int i = 0; i < ComMethod.memberList.size(); i++) {
 
             StringBuilder sbTemp = new StringBuilder(String.valueOf(ComMethod.memberList.get(i)));
-            Travel travel = ComMethod.loadTravel(activity,sbTemp.toString());
-            list.add(travel);
+            Member member = ComMethod.loadMember(activity,sbTemp.toString());
+            list.add(member);
         }
-        return travelList = list;
+        return memberList = list;
     }
 
 
     static class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         Context context;
-        List<Travel> list;
+        List<Member> list;
 
-        public void setAdapterMembers(List<Travel> travels) {
-            this.list = travels;
+        public void setAdapterMembers(List<Member> list) {
+            this.list = list;
         }
 
-        public MyAdapter(Context context, List<Travel> list) {
+        public MyAdapter(Context context, List<Member> list) {
             this.context = context;
             this.list = list;
         }
@@ -139,28 +138,28 @@ public class ListFragment extends Fragment {
             return new ViewHolder(itemView);
         }
 
-        private List<StringBuilder> getImageViewList(Travel travel) {
+        private List<StringBuilder> getImageViewList(Member member) {
             List<StringBuilder> list = new ArrayList<>();
 
-            list.add(travel.getStringFilePath1());
+            list.add(member.getStringPhotosPath());
             return list;
         }
 
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            final Travel travel = list.get(position);
+            final Member member = list.get(position);
 
             Bitmap bitmap = null;
             File filePicPath = null;
             try {
-                filePicPath = new File(travel.getStringFilePath1().toString());
+                filePicPath = new File(member.getStringPhotosPath().toString());
                 holder.ivPic1.setImageBitmap( ComMethod.bitmapToImageFilePath(bitmap,filePicPath) );
 
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
-            holder.tvName.setText(travel.getStringName());
+            holder.tvName.setText(member.getStringName());
 
         }
 

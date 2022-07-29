@@ -52,7 +52,7 @@ public class AddPhotosFragment extends Fragment {
             return;
         }
         if(Objects.equals(this.photoPath,"-1")){
-            ivAddPhoto.setImageResource(R.drawable.baseline_add_a_photo_black_18);
+            ivAddPhoto.setImageResource(R.drawable.baseline_add_black_48);
         }else{
             File filePicPath = new File(this.photoPath.toString());
             Bitmap bitmap = null;

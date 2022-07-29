@@ -13,10 +13,21 @@
         android:layout_marginTop="15dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ibDelete" />
+        app:layout_constraintTop_toBottomOf="@+id/ibDeleteMember" />
+
+    <TextView
+        android:id="@+id/tvSysMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="5dp"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/etName"
+        tools:text="Message" />
 
     <ImageButton
-        android:id="@+id/ibSave"
+        android:id="@+id/ibSaveMember"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginTop="90dp"
@@ -33,11 +44,11 @@
         android:layout_marginEnd="10dp"
         android:background="?selectableItemBackground"
         android:src="@drawable/baseline_file_open_black_24"
-        app:layout_constraintEnd_toStartOf="@+id/ibSave"
-        app:layout_constraintTop_toTopOf="@+id/ibSave" />
+        app:layout_constraintEnd_toStartOf="@+id/ibSaveMember"
+        app:layout_constraintTop_toTopOf="@+id/ibSaveMember" />
 
     <ImageButton
-        android:id="@+id/ibDelete"
+        android:id="@+id/ibDeleteMember"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginEnd="10dp"
@@ -48,24 +59,24 @@
 
 
     <ImageButton
-        android:id="@+id/ibShare"
+        android:id="@+id/ibUploadCloud"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginEnd="10dp"
         android:background="?selectableItemBackground"
         android:src="@drawable/baseline_cloud_upload_black_24"
-        app:layout_constraintEnd_toStartOf="@+id/ibAdd"
-        app:layout_constraintTop_toTopOf="@+id/ibAdd" />
+        app:layout_constraintEnd_toStartOf="@+id/ibCreateNewMember"
+        app:layout_constraintTop_toTopOf="@+id/ibCreateNewMember" />
 
     <ImageButton
-        android:id="@+id/ibAdd"
+        android:id="@+id/ibCreateNewMember"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginEnd="10dp"
         android:background="?selectableItemBackground"
         android:src="@drawable/baseline_post_add_black_24"
-        app:layout_constraintEnd_toStartOf="@+id/ibDelete"
-        app:layout_constraintTop_toTopOf="@+id/ibDelete" />
+        app:layout_constraintEnd_toStartOf="@+id/ibDeleteMember"
+        app:layout_constraintTop_toTopOf="@+id/ibDeleteMember" />
 
     <AutoCompleteTextView
         android:id="@+id/etName"
@@ -93,26 +104,15 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <TextView
-        android:id="@+id/tvPageNumber_edit"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="5dp"
-        android:layout_marginTop="10dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/etName"
-        tools:text="12" />
-
     <androidx.cardview.widget.CardView
         android:id="@+id/cvPhotoButtonCloseBar"
         android:layout_width="80dp"
         android:layout_height="50dp"
-        android:layout_marginStart="5dp"
         android:layout_marginTop="450dp"
         app:cardBackgroundColor="#736A6F"
         app:cardCornerRadius="20dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" >
+        app:layout_constraintTop_toTopOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -136,7 +136,6 @@
         android:id="@+id/cvPhotoButtonOpenBar"
         android:layout_width="300dp"
         android:layout_height="50dp"
-        android:layout_marginStart="25dp"
         android:layout_marginTop="450dp"
         app:cardBackgroundColor="#736A6F"
         app:cardCornerRadius="20dp"
@@ -163,32 +162,45 @@
                 android:id="@+id/ibCamera_photo"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
                 android:background="?selectableItemBackground"
                 android:src="@drawable/baseline_photo_camera_white_24"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/ibBarOpenToclose"
+                app:layout_constraintEnd_toStartOf="@+id/ibDelete_photo"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <ImageButton
                 android:id="@+id/ibDelete_photo"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
+                android:layout_marginEnd="20dp"
                 android:background="?selectableItemBackground"
                 android:src="@drawable/baseline_delete_white_24"
-                app:layout_constraintEnd_toStartOf="@+id/ibFile_photo"
-                app:layout_constraintStart_toEndOf="@+id/ibCamera_photo"
-                app:layout_constraintTop_toTopOf="@+id/ibCamera_photo" />
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/ibAdd_photo"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <ImageButton
                 android:id="@+id/ibFile_photo"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:layout_marginEnd="40dp"
+                android:layout_marginEnd="20dp"
                 android:background="?selectableItemBackground"
                 android:src="@drawable/baseline_photo_library_white_24"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/ibDelete_photo" />
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageButton
+                android:id="@+id/ibAdd_photo"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginEnd="20dp"
+                android:background="?selectableItemBackground"
+                android:src="@drawable/baseline_add_circle_outline_white_24"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/ibFile_photo"
+                app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 

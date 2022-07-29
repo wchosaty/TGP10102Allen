@@ -15,7 +15,6 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
 import android.os.Environment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,22 +22,16 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
 import idv.tgp10102.allen.ComMethod;
 import idv.tgp10102.allen.R;
-import idv.tgp10102.allen.Travel;
 
 public class DetailViewFragment extends Fragment {
     private static final String TAG = "Tag DetailViewFragment";
@@ -116,13 +109,13 @@ public class DetailViewFragment extends Fragment {
     private void updateData(TextView textView){
 
         StringBuilder sbTemp = new StringBuilder(String.valueOf(textView.getText()));
-        Travel travel = ComMethod.loadTravel(activity, sbTemp.toString());
+        Member member = ComMethod.loadMember(activity, sbTemp.toString());
 
-        if(travel ==null){
+        if(member ==null){
             return ;
         }
         //textView.setText(travel.getStringName());
-        tvMessage.setText(travel.getStringMessage());
+        tvMessage.setText(member.getStringMessage());
         Bitmap bitmap;
         File filePicPath;
         bitmap = null;
@@ -134,17 +127,9 @@ public class DetailViewFragment extends Fragment {
         imageView4.setImageResource(R.drawable.ic_baseline_add_circle_outline);
         try {
             //1
-            filePicPath = new File(travel.getStringFilePath1().toString());
+            filePicPath = new File(member.getStringPhotosPath().toString());
             imageView1.setImageBitmap(ComMethod.bitmapToImageFilePath(bitmap, filePicPath));
-            //2
-            filePicPath = new File(travel.getStringFilePath2().toString());
-            imageView2.setImageBitmap(ComMethod.bitmapToImageFilePath(bitmap, filePicPath));
-            //3
-            filePicPath = new File(travel.getStringFilePath3().toString());
-            imageView3.setImageBitmap(ComMethod.bitmapToImageFilePath(bitmap, filePicPath));
-            //4
-            filePicPath = new File(travel.getStringFilePath4().toString());
-            imageView4.setImageBitmap(ComMethod.bitmapToImageFilePath(bitmap, filePicPath));
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -181,9 +166,9 @@ public class DetailViewFragment extends Fragment {
             return;
         }
         StringBuilder sbTemp = new StringBuilder(String.valueOf(textSpinner.getText()));
-        Travel travel = ComMethod.loadTravel( activity, sbTemp.toString() );
+        Member member = ComMethod.loadMember( activity, sbTemp.toString() );
 
-        if(travel ==null){
+        if(member ==null){
             return ;
         }
         conLayIvBigPic.setVisibility(View.VISIBLE);
@@ -193,7 +178,7 @@ public class DetailViewFragment extends Fragment {
         imageView3.setVisibility(View.INVISIBLE);
         imageView4.setVisibility(View.INVISIBLE);
 
-        tvMessage.setText(travel.getStringMessage());
+        tvMessage.setText(member.getStringMessage());
         Bitmap bitmap;
         File filePicPath;
         bitmap = null;
@@ -202,20 +187,14 @@ public class DetailViewFragment extends Fragment {
         try {
             switch (code){
                 case(REQUEST_P1):
-                    filePicPath = new File(travel.getStringFilePath1().toString());
+                    filePicPath = new File(member.getStringPhotosPath().toString());
                     conLayIvBigPic.setImageBitmap(ComMethod.bitmapToImageFilePath(bitmap, filePicPath));
                     break;
                 case(REQUEST_P2):
-                    filePicPath = new File(travel.getStringFilePath2().toString());
-                    conLayIvBigPic.setImageBitmap(ComMethod.bitmapToImageFilePath(bitmap, filePicPath));
                     break;
                 case(REQUEST_P3):
-                    filePicPath = new File(travel.getStringFilePath3().toString());
-                    conLayIvBigPic.setImageBitmap(ComMethod.bitmapToImageFilePath(bitmap, filePicPath));
                     break;
                 case(REQUEST_P4):
-                    filePicPath = new File(travel.getStringFilePath4().toString());
-                    conLayIvBigPic.setImageBitmap(ComMethod.bitmapToImageFilePath(bitmap, filePicPath));
                     break;
                 default:
                     break;
