@@ -33,6 +33,7 @@ public class ListFragment extends Fragment {
     private Activity activity;
     private RecyclerView recyclerView;
     private List<Member> memberList;
+    private List<String> photosList;
     private SearchView searchView;
 
     @Override
@@ -57,11 +58,14 @@ public class ListFragment extends Fragment {
 
     private void load() {
         ComMethod.getMemberList(activity);
+
+
     }
 
     private void findViews(View view) {
         recyclerView = view.findViewById(R.id.recyclerView);
         searchView = view.findViewById(R.id.searchView_List);
+
     }
 
 
@@ -141,7 +145,6 @@ public class ListFragment extends Fragment {
         private List<StringBuilder> getImageViewList(Member member) {
             List<StringBuilder> list = new ArrayList<>();
 
-            list.add(member.getStringPhotosPath());
             return list;
         }
 
@@ -151,6 +154,13 @@ public class ListFragment extends Fragment {
 
             Bitmap bitmap = null;
             File filePicPath = null;
+            File f = new File(member.getStringPhotosPath().toString() );
+            File[] files= f.listFiles();
+            StringBuilder s;
+            EditFragment.currentEditList = new ArrayList<>();
+
+
+
             try {
                 filePicPath = new File(member.getStringPhotosPath().toString());
                 holder.ivPic1.setImageBitmap( ComMethod.bitmapToImageFilePath(bitmap,filePicPath) );

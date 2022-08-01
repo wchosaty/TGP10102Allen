@@ -52,11 +52,12 @@ import idv.tgp10102.allen.R;
 
 public class EditFragment extends Fragment {
     private static final String TAG = "Tag EditFragment";
+    public static Boolean resultFlag = false;
     private Activity activity;
     private AutoCompleteTextView etName;
     private EditText etMessage;
     private ImageButton ibSave,ibLoad,ibDelete,ibUploadCould,ibCreateNew;
-    private ImageButton ibToClose,ibToOpen,ibAddPhoto,ibTakePic;
+    private ImageButton ibToClose,ibToOpen,ibAddPhoto,ibTakePic,ibDeletePhoto,ibSelectPhoto;
     private ArrayAdapter<String> adapter;
     private MyViewPager2Adapter myViewPager2Adapter;
 
@@ -71,7 +72,6 @@ public class EditFragment extends Fragment {
     private ViewPager2 viewPager2;
     private TextView tvSysMessage;
     private CardView cvButtonBarToOpen,cvButtonBarToClose;
-    public static List<String> photosSavedList;
     public static List<String> currentEditList;
 
     public final static String EMPTY = "-1";
@@ -95,7 +95,6 @@ public class EditFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         activity = getActivity();
-        photosSavedList = new ArrayList<>();
         findViews(view);
         ComMethod.getMemberList(activity);
         handleInitialAndVisibility();
@@ -106,12 +105,6 @@ public class EditFragment extends Fragment {
 
         handleAutoCompleteTextView();
         handleButton();
-
-
-//        ibUploadCould.setOnClickListener(v -> {
-//            tvPageNumber.setText(""+(viewPager2.getCurrentItem()+1));
-//
-//        });
 
     }
 
@@ -126,24 +119,29 @@ public class EditFragment extends Fragment {
                 currentEditList.add(EMPTY);
                 break;
             case REQUEST_P3:
-                currentEditList = photosSavedList;
-                break;
-            case REQUEST_P4:
                 currentEditList.set(position,s);
                 break;
         }
     }
+
+
 
     private void handleButton() {
         ibCreateNew.setOnClickListener(v ->{
             upDateCurrentEditList(REQUEST_P1,null,0);
             etName.setText("");
             etMessage.setText("");
-//            myViewPager2Adapter = new MyViewPager2Adapter((FragmentActivity) activity,currentEditList);
             viewPager2.setAdapter(myViewPager2Adapter);
         });
+
         ibAddPhoto.setOnClickListener(v -> {
             upDateCurrentEditList(REQUEST_P2,null,null);
+            viewPager2.setAdapter(myViewPager2Adapter);
+            viewPager2.setCurrentItem(viewPager2.getAdapter().getItemCount());
+        });
+
+        ibDeletePhoto.setOnClickListener(v -> {
+           currentEditList.remove(viewPager2.getCurrentItem());
             viewPager2.setAdapter(myViewPager2Adapter);
             viewPager2.setCurrentItem(viewPager2.getAdapter().getItemCount());
         });
@@ -154,7 +152,6 @@ public class EditFragment extends Fragment {
         handleBtDelete();
 
     }
-
 
     private void handleAutoCompleteTextView() {
             ComMethod.getMemberList(activity);
@@ -202,14 +199,16 @@ public class EditFragment extends Fragment {
             }
             //再刪除本資料
             if(file.delete()){
-                Toast.makeText(activity, "Delete Successful", Toast.LENGTH_SHORT).show();
+                tvSysMessage.setText(R.string.delete);
                     File fileObjectPath = new File(activity.getFilesDir(), deleteName);
                     fileObjectPath.delete();
                 etName.setText("");
                 etMessage.setText("");
+                upDateCurrentEditList(REQUEST_P1,null,null);
             }
         }
     }
+
 
     private void handleBtDelete() {
         ibDelete.setOnClickListener(view -> {
@@ -229,62 +228,28 @@ public class EditFragment extends Fragment {
 
         String sName = etName.getText().toString().trim();
         if( Objects.equals(sName,null) ){
-            tvSysMessage.setText(R.string.name_null);
+            tvSysMessage.setText(R.string.name_nofind);
             return;
         }
         StringBuilder sbTemp = new StringBuilder(sName);
-        String sDebug = sName.toString();
         Member member = ComMethod.loadMember(activity,sbTemp.toString());
 
         if(member ==null){
-            tvSysMessage.setText(R.string.file_nodata);
+            Toast.makeText(activity, R.string.file_nodata, Toast.LENGTH_SHORT).show();
             return ;
         }
         dirMember = activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
-        File f = new File(dirMember.toString() + "/" + sName );
-        File[] files= f.listFiles();
         StringBuilder s;
         currentEditList = new ArrayList<>();
-        if(files.length>0){
-            for (int i = 0; i < files.length; i++) {
-                photosSavedList.add(String.valueOf(new StringBuilder( files[i].getName() )));
-
-                currentEditList.add(f.toString() +"/"+photosSavedList.get(i).toString());
-            }
-            if(!Objects.equals(photosSavedList,null)  && ( photosSavedList.size() > 0) ){
-//                upDateCurrentEditList(REQUEST_P3,null,null);
+        currentEditList = member.getMyPhotosPashList();
+        if(currentEditList.size() > 0){
+            if(!Objects.equals(currentEditList,null)  && ( currentEditList.size() > 0) ){
                 viewPager2.setAdapter(myViewPager2Adapter);
             }
         }
 
-
         etName.setText(member.getStringName());
         etMessage.setText(member.getStringMessage());
-        UpdatePhotosSavedList(member);
-
-//        viewPager2.setAdapter(new MyViewPager2Adapter((FragmentActivity) activity,photosList));
-//        imageView1.setImageResource(R.drawable.ic_baseline_add_circle_outline);
-
-        Bitmap bitmap = null;
-        File filePicPath = null;
-
-//        try {
-//
-//            //1
-//            filePicPath = new File(travel.getStringFilePath1().toString());
-//            imageView1.setImageBitmap(bitmapToImageFilePath(bitmap, filePicPath));
-//            //2
-//            filePicPath = new File(travel.getStringFilePath2().toString());
-//            imageView2.setImageBitmap(bitmapToImageFilePath(bitmap, filePicPath));
-//            //3
-//            filePicPath = new File(travel.getStringFilePath3().toString());
-//            imageView3.setImageBitmap(bitmapToImageFilePath(bitmap, filePicPath));
-//            //4
-//            filePicPath = new File(travel.getStringFilePath4().toString());
-//            imageView4.setImageBitmap(bitmapToImageFilePath(bitmap, filePicPath));
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
 
     }
 
@@ -307,7 +272,6 @@ public class EditFragment extends Fragment {
         StringBuilder sbTemp = new StringBuilder(String.valueOf(etName.getText()));
         if( sbTemp.equals(null) ) {
             tvSysMessage.setText(R.string.name_null);
-            return;
         }
         ComMethod.getMemberList(activity);
 
@@ -315,14 +279,14 @@ public class EditFragment extends Fragment {
         Member mCheck = ComMethod.loadMember(activity,fileTemp.toString());
 
         if(mCheck == null){
-            tvSysMessage.setText(R.string.create_new);
+            Toast.makeText(activity, R.string.create_new, Toast.LENGTH_SHORT).show();
         }else{
-            tvSysMessage.setText(R.string.modify_file);
+            Toast.makeText(activity, R.string.modify_file, Toast.LENGTH_SHORT).show();
         }
         if( Objects.equals(currentEditList,null)
                 || (currentEditList.size()<=0)
                 || (Objects.equals(currentEditList.get(0), EMPTY)) ) {
-            tvSysMessage.setText(R.string.file_nodata);
+            Toast.makeText(activity, R.string.file_nodata, Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -339,21 +303,27 @@ public class EditFragment extends Fragment {
 
             //建立資料夾
             dirMember = activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS + "/"+sbTemp.toString());
-
+            int count = 0;
             File fileCrop = null ;
             File fileOrigin = null ;
-            StringBuilder sbFile = null;
-            int count = 0;
             file = new File(dirMember,sbTemp.toString());
+            List<String> stringList = new ArrayList<>();
 
             for(int i=0; i < currentEditList.size(); i++){
                 if( Objects.equals(currentEditList.get(0), EMPTY) ) {
                     break;
                 }
-
+                StringBuilder stringCount = new StringBuilder();
+                if(count<10){
+                    stringCount.append("0");
+                }
+                stringCount.append(""+count);
                 fileCrop =new File(dir,""+takePicCrop+ "_" + count +".jpg");
                 fileOrigin =new File(dir,""+takePicOrigin+ "_" + count +".jpg");
-                fileDest = new File(dirMember,""+System.currentTimeMillis()+ count++ +".jpg");
+                fileDest = new File(dirMember,""+etName.getText().toString() +"_"+ stringCount +".jpg");
+                //pathList
+                stringList.add(fileDest.toString());
+
                 //先考慮裁切檔案
                 if( currentEditList.get(i).contains("Crop") ){
                     copyPicture(fileCrop, new StringBuilder(fileDest.toString()));
@@ -361,13 +331,11 @@ public class EditFragment extends Fragment {
 
                 fileCrop.delete();
                 fileOrigin.delete();
+                count++;
             }
 
-
-            sbFile = new StringBuilder(file.toString());
-
-            member.setStringPhotosPath(sbFile);
-
+            member.setMyPhotosPashList(stringList);
+            member.setStringPhotosPath(new StringBuilder(dirMember.toString()));
 
             member.setStringName(sbName);
             member.setStringMessage(sbMessage);
@@ -376,7 +344,7 @@ public class EditFragment extends Fragment {
             etName.setText(null);
             etMessage.setText(null);
 
-            tvSysMessage.setText(R.string.save);
+            Toast.makeText(activity, R.string.save, Toast.LENGTH_SHORT).show();
 
         }catch (Exception e){
             Log.e(TAG,e.toString());
@@ -406,38 +374,6 @@ public class EditFragment extends Fragment {
         }
 
         }
-
-
-
-//    public static Bitmap bitmapToImageFilePath(Bitmap bitmap,File filepath) throws IOException{
-//        ImageDecoder.Source source = null;
-//        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
-//            source = ImageDecoder.createSource(filepath);
-//            bitmap = ImageDecoder.decodeBitmap(source);
-//        }else{
-//            bitmap = BitmapFactory.decodeFile(filepath.toString());
-//        }
-//        return bitmap;
-//    }
-
-//    public void switchSelectBitmap(Bitmap bitmap,int code){
-//        switch (code){
-//            case (REQUEST_P1):
-//                imageView1.setImageBitmap(bitmap);
-//                break;
-//            case (REQUEST_P2):
-//                imageView2.setImageBitmap(bitmap);
-//                break;
-//            case (REQUEST_P3):
-//                imageView3.setImageBitmap(bitmap);
-//                break;
-//            case (REQUEST_P4):
-//                imageView4.setImageBitmap(bitmap);
-//                break;
-//            default:
-//                break;
-//        }
-//    }
 
     private  ActivityResultLauncher<Uri> getLauncher(){
         return registerForActivityResult(new ActivityResultContracts.TakePicture(),
@@ -471,12 +407,11 @@ public class EditFragment extends Fragment {
                         }else{
                             bitmap = BitmapFactory.decodeStream(contentResolver.openInputStream(resultUri));
                         }
-
                         File fliePathTemp =new File(dir,""+takePicCrop+ "_" + pagerNumber +".jpg");
-                        upDateCurrentEditList(REQUEST_P4,fliePathTemp.toString(),pagerNumber);
+                        upDateCurrentEditList(REQUEST_P3,fliePathTemp.toString(),pagerNumber);
 
                         viewPager2.setAdapter(myViewPager2Adapter);
-                        viewPager2.setCurrentItem(viewPager2.getAdapter().getItemCount());
+                        viewPager2.setCurrentItem( viewPager2.getAdapter().getItemCount() );
 
                     }catch (IOException e){
                         Log.e(TAG,e.toString());
@@ -485,11 +420,13 @@ public class EditFragment extends Fragment {
         );
     }
 
+
     private void crop() {
         final Uri dstUri = Uri.fromFile(createFile(takePicCrop));
         UCrop uCrop = UCrop.of(srcUri,dstUri);
         Intent intent = uCrop.getIntent(activity);
         cropPicLauncher.launch(intent);
+
     }
 
     private  File createFile(String fileName) {
@@ -511,6 +448,8 @@ public class EditFragment extends Fragment {
 
         ibAddPhoto = view.findViewById(R.id.ibAdd_photo);
         ibTakePic = view.findViewById(R.id.ibCamera_photo);
+        ibDeletePhoto = view.findViewById(R.id.ibDelete_photo);
+        ibSelectPhoto =view.findViewById(R.id.ibSelectFile_photo);
 
         viewPager2 = view.findViewById(R.id.viewPager2);
         cvButtonBarToOpen = view.findViewById(R.id.cvPhotoButtonOpenBar);
@@ -521,8 +460,7 @@ public class EditFragment extends Fragment {
     }
 
     private void handleInitialAndVisibility() {
-        pagerNumber = 0;
-        myViewPager2Adapter = new MyViewPager2Adapter((FragmentActivity) activity,currentEditList);
+        myViewPager2Adapter = new MyViewPager2Adapter(this, currentEditList);
         viewPager2.setAdapter(myViewPager2Adapter);
 
         cvButtonBarToOpen.setVisibility(View.INVISIBLE);
@@ -540,12 +478,10 @@ public class EditFragment extends Fragment {
     }
 
     private void handleBtTakePic() {
-       pagerNumber = viewPager2.getCurrentItem()+1;
         ibTakePic.setOnClickListener(v -> {
             pagerNumber = viewPager2.getCurrentItem();
             onButtonTakeClick(pagerNumber);
         });
-
     }
 
     public void onButtonTakeClick(int takePicCodePos){
@@ -557,24 +493,12 @@ public class EditFragment extends Fragment {
         takePicLauncher.launch(srcUri);
     }
 
-    private void UpdatePhotosSavedList (Member member) {
-        photosSavedList = new ArrayList<>();
-
-//        if(!Objects.equals(member.getStringPhotosPath().toString(),null) ){
-//            photosList.add(member.getStringPhotosPath().toString());
-//        }
-//
-//        if(photosList.isEmpty()){
-//            photosList.add("-1");
-//        }
-
-    }
 
     class MyViewPager2Adapter extends FragmentStateAdapter {
         private List<String> list;
 
-        public MyViewPager2Adapter(@NonNull FragmentActivity fragmentActivity,List<String> list) {
-            super(fragmentActivity);
+        public MyViewPager2Adapter(@NonNull Fragment fragment, List<String> list) {
+            super(fragment);
             this.list = list;
         }
 
@@ -582,11 +506,10 @@ public class EditFragment extends Fragment {
             this.list = list;
         }
 
-
         @NonNull
         @Override
         public Fragment createFragment(int position) {
-           StringBuilder s = new StringBuilder(currentEditList.get(position));
+           String s = new String(currentEditList.get(position));
            cvButtonBarToOpen.setVisibility(View.VISIBLE);
            cvButtonBarToClose.setVisibility(View.INVISIBLE);
            return new AddPhotosFragment(s);

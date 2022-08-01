@@ -8,4 +8,6 @@
     <string name="modify_file">Modify file</string>
     <string name="save">save</string>
     <string name="file_nodata">File no Data</string>
+    <string name="delete">Delete Successful</string>
+    <string name="name_nofind">No Find!</string>
 </resources>

@@ -1,19 +1,21 @@
 package idv.tgp10102.allen.fragment;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class Member implements Serializable {
     private StringBuilder stringMessage;
     private StringBuilder stringName;
     private StringBuilder stringPhotosPath;
-    private Integer memberPhotoCount;
+    private List<String> myPhotosPathList;
+    private String nickname;
 
-    public Integer getMemberPhotoCount() {
-        return memberPhotoCount;
+    public List<String> getMyPhotosPashList() {
+        return myPhotosPathList;
     }
 
-    public void setMemberPhotoCount(Integer memberPhotoCount) {
-        this.memberPhotoCount = memberPhotoCount;
+    public void setMyPhotosPashList(List<String> myPhotosPathList) {
+        this.myPhotosPathList = myPhotosPathList;
     }
 
     public StringBuilder getStringMessage() {

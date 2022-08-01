@@ -12,20 +12,25 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import org.w3c.dom.Text;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 
 import idv.tgp10102.allen.ComMethod;
+import idv.tgp10102.allen.MainActivity;
 import idv.tgp10102.allen.R;
 
 public class AddPhotosFragment extends Fragment {
     private Activity activity;
     private ImageView ivAddPhoto;
-    private StringBuilder photoPath;
+    private String photoPath;
 
-    public AddPhotosFragment(StringBuilder photoPath) {
+    public AddPhotosFragment(String photoPath) {
         this.photoPath = photoPath;
     }
 
@@ -48,20 +53,27 @@ public class AddPhotosFragment extends Fragment {
     }
 
     private void updatePhotosView() {
-        if(Objects.equals(this.photoPath,null)){
+        if (Objects.equals(this.photoPath, null)) {
             return;
         }
-        if(Objects.equals(this.photoPath,"-1")){
-            ivAddPhoto.setImageResource(R.drawable.baseline_add_black_48);
-        }else{
-            File filePicPath = new File(this.photoPath.toString());
-            Bitmap bitmap = null;
-            try {
-                ivAddPhoto.setImageBitmap(ComMethod.bitmapToImageFilePath(bitmap, filePicPath));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+
+        ivAddPhoto.setImageResource(R.drawable.baseline_add_black_48);
+        File filePicPath = new File(this.photoPath.toString());
+        Bitmap bitmap = null;
+        //設定預設圖片尺寸
+        if(Objects.equals(photoPath,"-1")){
+            ViewGroup.LayoutParams params = ivAddPhoto.getLayoutParams();
+            params.height = 300;
+            params.width = 300;
+            ivAddPhoto.setLayoutParams(params);
         }
+
+        try {
+            ivAddPhoto.setImageBitmap(ComMethod.bitmapToImageFilePath(bitmap, filePicPath));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     private void findViews(View view) {

@@ -19,9 +19,6 @@ public class MainActivity extends AppCompatActivity {
             REQUEST_P1 = 1,REQUEST_P2 = 2,
             REQUEST_P3 = 3,REQUEST_P4 = 4;
     private BottomNavigationView bottomNavigationView;
-    public static final String FILENAME ="travel";
-    public static final String MEMBER_NAME ="member";
-    public static final String LISTMAP_NAME ="SourceListMap";
 
 
     @Override

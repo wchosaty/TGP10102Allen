@@ -10,82 +10,101 @@
         android:id="@+id/viewPager2"
         android:layout_width="300dp"
         android:layout_height="300dp"
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ibDeleteMember" />
+        app:layout_constraintTop_toBottomOf="@+id/cardViewButton" />
 
     <TextView
         android:id="@+id/tvSysMessage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="15dp"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="3dp"
         android:textSize="16sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/etName"
+        app:layout_constraintTop_toBottomOf="@+id/cvPhotoButtonOpenBar"
         tools:text="Message" />
 
-    <ImageButton
-        android:id="@+id/ibSaveMember"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginTop="90dp"
-        android:layout_marginEnd="20dp"
-        android:background="?selectableItemBackground"
-        android:src="@drawable/baseline_save_black_24"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardViewButton"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        app:cardCornerRadius="20dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/etMessage">
 
-    <ImageButton
-        android:id="@+id/ibLoad"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginEnd="10dp"
-        android:background="?selectableItemBackground"
-        android:src="@drawable/baseline_file_open_black_24"
-        app:layout_constraintEnd_toStartOf="@+id/ibSaveMember"
-        app:layout_constraintTop_toTopOf="@+id/ibSaveMember" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#FAF6F6">
 
-    <ImageButton
-        android:id="@+id/ibDeleteMember"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginEnd="10dp"
-        android:background="?selectableItemBackground"
-        android:src="@drawable/baseline_delete_black_24"
-        app:layout_constraintEnd_toStartOf="@+id/ibLoad"
-        app:layout_constraintTop_toTopOf="@+id/ibLoad" />
+            <ImageButton
+                android:id="@+id/ibSaveMember"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="10dp"
+                android:background="?selectableItemBackground"
+                android:src="@drawable/baseline_save_black_24"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
+            <ImageButton
+                android:id="@+id/ibLoad"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="8dp"
+                android:background="?selectableItemBackground"
+                android:src="@drawable/baseline_file_open_black_24"
+                app:layout_constraintEnd_toStartOf="@+id/ibSaveMember"
+                app:layout_constraintTop_toTopOf="@+id/ibSaveMember" />
 
-    <ImageButton
-        android:id="@+id/ibUploadCloud"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginEnd="10dp"
-        android:background="?selectableItemBackground"
-        android:src="@drawable/baseline_cloud_upload_black_24"
-        app:layout_constraintEnd_toStartOf="@+id/ibCreateNewMember"
-        app:layout_constraintTop_toTopOf="@+id/ibCreateNewMember" />
+            <ImageButton
+                android:id="@+id/ibDeleteMember"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="8dp"
+                android:background="?selectableItemBackground"
+                android:src="@drawable/baseline_delete_black_24"
+                app:layout_constraintEnd_toStartOf="@+id/ibLoad"
+                app:layout_constraintTop_toTopOf="@+id/ibLoad" />
 
-    <ImageButton
-        android:id="@+id/ibCreateNewMember"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginEnd="10dp"
-        android:background="?selectableItemBackground"
-        android:src="@drawable/baseline_post_add_black_24"
-        app:layout_constraintEnd_toStartOf="@+id/ibDeleteMember"
-        app:layout_constraintTop_toTopOf="@+id/ibDeleteMember" />
+            <ImageButton
+                android:id="@+id/ibUploadCloud"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="8dp"
+                android:background="?selectableItemBackground"
+                android:src="@drawable/baseline_cloud_upload_black_24"
+                app:layout_constraintEnd_toStartOf="@+id/ibCreateNewMember"
+                app:layout_constraintTop_toTopOf="@+id/ibCreateNewMember" />
+
+            <ImageButton
+                android:id="@+id/ibCreateNewMember"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="8dp"
+                android:background="?selectableItemBackground"
+                android:src="@drawable/baseline_post_add_black_24"
+                app:layout_constraintEnd_toStartOf="@+id/ibDeleteMember"
+                app:layout_constraintTop_toTopOf="@+id/ibDeleteMember" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+
 
     <AutoCompleteTextView
         android:id="@+id/etName"
         android:layout_width="250dp"
         android:layout_height="50dp"
         android:layout_marginStart="10dp"
-        android:layout_marginTop="25dp"
-        android:ems="10"
+        android:layout_marginTop="15dp"
         android:completionThreshold="1"
+        android:ems="10"
         android:hint="輸入標題......"
         android:textSize="20sp"
         app:layout_constraintStart_toStartOf="parent"
@@ -97,22 +116,21 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="15dp"
         android:layout_marginEnd="15dp"
-        android:layout_marginBottom="50dp"
         android:hint="輸入描述....."
         android:textSize="16sp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/etName" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cvPhotoButtonCloseBar"
         android:layout_width="80dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="450dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="5dp"
         app:cardBackgroundColor="#736A6F"
         app:cardCornerRadius="20dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/viewPager2">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -136,12 +154,12 @@
         android:id="@+id/cvPhotoButtonOpenBar"
         android:layout_width="300dp"
         android:layout_height="50dp"
-        android:layout_marginTop="450dp"
+        android:layout_marginTop="5dp"
         app:cardBackgroundColor="#736A6F"
         app:cardCornerRadius="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/viewPager2">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -181,7 +199,7 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <ImageButton
-                android:id="@+id/ibFile_photo"
+                android:id="@+id/ibSelectFile_photo"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_marginEnd="20dp"
@@ -199,7 +217,7 @@
                 android:background="?selectableItemBackground"
                 android:src="@drawable/baseline_add_circle_outline_white_24"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/ibFile_photo"
+                app:layout_constraintEnd_toStartOf="@+id/ibSelectFile_photo"
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
