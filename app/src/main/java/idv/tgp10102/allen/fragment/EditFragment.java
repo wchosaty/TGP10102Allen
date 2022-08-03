@@ -17,7 +17,6 @@ import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -70,7 +69,7 @@ public class EditFragment extends Fragment {
     private Uri srcUri;
     private int handleRequestCode = 0;
     private ViewPager2 viewPager2;
-    private TextView tvSysMessage;
+    private TextView tvPagerNumber;
     private CardView cvButtonBarToOpen,cvButtonBarToClose;
     public static List<String> currentEditList;
 
@@ -96,7 +95,7 @@ public class EditFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         activity = getActivity();
         findViews(view);
-        ComMethod.getMemberList(activity);
+        ComMethod.getMemberStringList(activity);
         handleInitialAndVisibility();
 
         contentResolver = activity.getContentResolver();
@@ -150,13 +149,17 @@ public class EditFragment extends Fragment {
         handleBtTakePic();
         handleBtSave();
         handleBtDelete();
-
     }
 
     private void handleAutoCompleteTextView() {
-            ComMethod.getMemberList(activity);
+            ComMethod.getMemberStringList(activity);
+            if(Objects.equals(null,ComMethod.memberStringList)){
+                return;
+            }
             List<String> listTemp = new ArrayList<>();
-            for(String temp: ComMethod.memberList){
+
+            for(String temp: ComMethod.memberStringList){
+
                 listTemp.add(temp.toString());
             }
             adapter = new ArrayAdapter<>(activity,R.layout.name_view,listTemp);
@@ -173,10 +176,10 @@ public class EditFragment extends Fragment {
             return;
         }
         File dirMember = activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
-        ComMethod.getMemberList(activity);
-        if(ComMethod.memberList.size()>0){
-            for (int i = 0; i < ComMethod.memberList.size(); i++) {
-                if(Objects.equals(etName.getText().toString(),ComMethod.memberList.get(i).toString())){
+        ComMethod.getMemberStringList(activity);
+        if(ComMethod.memberStringList.size()>0){
+            for (int i = 0; i < ComMethod.memberStringList.size(); i++) {
+                if(Objects.equals(etName.getText().toString(),ComMethod.memberStringList.get(i).toString())){
                     position = i;
                     flag = true;
                     deleteName = etName.getText().toString();
@@ -199,7 +202,7 @@ public class EditFragment extends Fragment {
             }
             //再刪除本資料
             if(file.delete()){
-                tvSysMessage.setText(R.string.delete);
+                Toast.makeText(activity, R.string.delete, Toast.LENGTH_SHORT).show();
                     File fileObjectPath = new File(activity.getFilesDir(), deleteName);
                     fileObjectPath.delete();
                 etName.setText("");
@@ -228,7 +231,7 @@ public class EditFragment extends Fragment {
 
         String sName = etName.getText().toString().trim();
         if( Objects.equals(sName,null) ){
-            tvSysMessage.setText(R.string.name_nofind);
+            Toast.makeText(activity, R.string.name_nofind, Toast.LENGTH_SHORT).show();
             return;
         }
         StringBuilder sbTemp = new StringBuilder(sName);
@@ -269,13 +272,13 @@ public class EditFragment extends Fragment {
 
     private void save(){
         //檢查是否已有此Name member
-        StringBuilder sbTemp = new StringBuilder(String.valueOf(etName.getText()));
+        StringBuilder sbTemp = new StringBuilder(String.valueOf(etName.getText()).trim());
         if( sbTemp.equals(null) ) {
-            tvSysMessage.setText(R.string.name_null);
+            Toast.makeText(activity, R.string.name_null, Toast.LENGTH_SHORT).show();
         }
-        ComMethod.getMemberList(activity);
+        ComMethod.getMemberStringList(activity);
 
-        File fileTemp = new File(sbTemp.toString());
+        File fileTemp = new File(sbTemp.toString().trim());
         Member mCheck = ComMethod.loadMember(activity,fileTemp.toString());
 
         if(mCheck == null){
@@ -302,7 +305,7 @@ public class EditFragment extends Fragment {
             dir = activity.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
 
             //建立資料夾
-            dirMember = activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS + "/"+sbTemp.toString());
+            dirMember = activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS + "/"+LOCALNICKNAME+"/"+sbTemp.toString());
             int count = 0;
             File fileCrop = null ;
             File fileOrigin = null ;
@@ -322,15 +325,15 @@ public class EditFragment extends Fragment {
                 fileOrigin =new File(dir,""+takePicOrigin+ "_" + count +".jpg");
                 fileDest = new File(dirMember,""+etName.getText().toString() +"_"+ stringCount +".jpg");
                 //pathList
-                stringList.add(fileDest.toString());
+
 
                 //先考慮裁切檔案
                 if( currentEditList.get(i).contains("Crop") ){
-                    copyPicture(fileCrop, new StringBuilder(fileDest.toString()));
+                        copyPicture(fileCrop, new StringBuilder(fileDest.toString()));
                 }
-
                 fileCrop.delete();
                 fileOrigin.delete();
+                stringList.add(fileDest.toString());
                 count++;
             }
 
@@ -438,7 +441,7 @@ public class EditFragment extends Fragment {
     private void findViews(View view) {
 
         etName = view.findViewById(R.id.etName);
-        tvSysMessage = view.findViewById(R.id.tvSysMessage);
+        tvPagerNumber = view.findViewById(R.id.tvPagerNumber);
         etMessage = view.findViewById(R.id.etMessage);
         ibSave = view.findViewById(R.id.ibSaveMember);
         ibLoad = view.findViewById(R.id.ibLoad);

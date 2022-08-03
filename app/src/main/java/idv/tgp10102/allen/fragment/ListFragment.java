@@ -32,8 +32,7 @@ public class ListFragment extends Fragment {
     private static final String TAG = "Tag_ListFragment";
     private Activity activity;
     private RecyclerView recyclerView;
-    private List<Member> memberList;
-    private List<String> photosList;
+    private List<Member> memberObjectsList;
     private SearchView searchView;
 
     @Override
@@ -57,7 +56,7 @@ public class ListFragment extends Fragment {
     }
 
     private void load() {
-        ComMethod.getMemberList(activity);
+        ComMethod.getMemberStringList(activity);
 
 
     }
@@ -70,7 +69,8 @@ public class ListFragment extends Fragment {
 
 
     private void handleView() {
-        recyclerView.setAdapter(new MyAdapter(activity, getMemberList()));
+        memberObjectsList = ComMethod.getMemberObjectsList(activity);
+        recyclerView.setAdapter(new MyAdapter(activity, memberObjectsList) );
         recyclerView.setLayoutManager(new LinearLayoutManager(activity));
 
 
@@ -81,10 +81,10 @@ public class ListFragment extends Fragment {
                 if(adapter != null){
                     // 如果搜尋條件為空字串，就顯示原始資料；否則就顯示搜尋後結果
                     if(newText.isEmpty()){
-                        adapter.setAdapterMembers(memberList);
+                        adapter.setAdapterMembers(memberObjectsList);
                     }else {
                         List<Member> searchList = new ArrayList<>();
-                        for(Member member : memberList){
+                        for(Member member : memberObjectsList){
                             if(member.getStringName().toString().toUpperCase().contains(newText.toUpperCase())) {
                                 searchList.add(member);
                             }
@@ -104,22 +104,6 @@ public class ListFragment extends Fragment {
             }
         });
     }
-
-    private List<Member> getMemberList() {
-
-        List<Member> list = new ArrayList<>();
-        if(ComMethod.memberList.size() <= 0){
-            return null;
-        }
-        for (int i = 0; i < ComMethod.memberList.size(); i++) {
-
-            StringBuilder sbTemp = new StringBuilder(String.valueOf(ComMethod.memberList.get(i)));
-            Member member = ComMethod.loadMember(activity,sbTemp.toString());
-            list.add(member);
-        }
-        return memberList = list;
-    }
-
 
     static class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         Context context;
@@ -142,27 +126,17 @@ public class ListFragment extends Fragment {
             return new ViewHolder(itemView);
         }
 
-        private List<StringBuilder> getImageViewList(Member member) {
-            List<StringBuilder> list = new ArrayList<>();
-
-            return list;
-        }
-
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             final Member member = list.get(position);
 
             Bitmap bitmap = null;
             File filePicPath = null;
-            File f = new File(member.getStringPhotosPath().toString() );
-            File[] files= f.listFiles();
             StringBuilder s;
             EditFragment.currentEditList = new ArrayList<>();
 
-
-
             try {
-                filePicPath = new File(member.getStringPhotosPath().toString());
+                filePicPath = new File(member.getMyPhotosPashList().get(0).toString() );
                 holder.ivPic1.setImageBitmap( ComMethod.bitmapToImageFilePath(bitmap,filePicPath) );
 
             } catch (IOException e) {

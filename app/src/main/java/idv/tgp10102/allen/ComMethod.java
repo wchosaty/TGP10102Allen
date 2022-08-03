@@ -1,12 +1,15 @@
 package idv.tgp10102.allen;
 
 
+import static idv.tgp10102.allen.MainActivity.LOCALNICKNAME;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageDecoder;
 import android.os.Environment;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -21,7 +24,7 @@ import idv.tgp10102.allen.fragment.Member;
 
 public class ComMethod {
     private static final String TAG = "Tag_ComMethod";
-    public static List<String> memberList;
+    public static List<String> memberStringList;
     private File dirMember;
 
     public static Bitmap bitmapToImageFilePath(Bitmap bitmap, File filepath) throws IOException {
@@ -34,15 +37,33 @@ public class ComMethod {
         }
         return bitmap;
     }
+    public static List<Member> getMemberObjectsList(Context context) {
+        List<Member> list = new ArrayList<>();
+        if(ComMethod.memberStringList.size() <= 0){
+            return null;
+        }
+        for (int i = 0; i < ComMethod.memberStringList.size(); i++) {
 
-    public static void getMemberList(Context context){
-        File dirMember = context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
-        File f = new File(dirMember.toString());
+            StringBuilder sbTemp = new StringBuilder(String.valueOf(ComMethod.memberStringList.get(i)));
+            Member member = ComMethod.loadMember(context,sbTemp.toString());
+            //memberString(成員名稱)轉換出memberObjects(物件)
+            list.add(member);
+        }
+        return list;
+    }
+
+    public static void getMemberStringList(Context context){
+//        File dirMember = context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
+        File f = new File(MainActivity.myDirMember.toString()+"/"+LOCALNICKNAME);
+        if(!f.exists()){
+            return;
+        }
         File[] files= f.listFiles();
-        memberList = new ArrayList<>();
+
+        memberStringList = new ArrayList<>();
         if(files.length>0){
             for (int i = 0; i < files.length; i++) {
-                memberList.add(String.valueOf(new StringBuilder(files[i].getName().trim())));
+                memberStringList.add(String.valueOf(new StringBuilder(files[i].getName().trim())));
             }
         }
     }

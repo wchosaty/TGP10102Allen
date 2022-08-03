@@ -7,79 +7,68 @@
     android:layout_height="600dp"
     tools:context=".fragment.DetailViewFragment" >
 
-    <Spinner
-        android:id="@+id/spinner_detail"
-        android:layout_width="175dp"
-        android:layout_height="65dp"
+    <EditText
+        android:id="@+id/Name_detail"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:layout_marginStart="3dp"
+        android:text="TextView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView_detail"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
         android:layout_marginStart="10dp"
-        android:layout_marginTop="35dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <ImageView
-        android:id="@+id/iv1_detail"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_marginStart="50dp"
-        android:layout_marginTop="150dp"
-        android:src="@drawable/ic_baseline_add_circle_outline"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <ImageView
-        android:id="@+id/iv2_detail"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_marginTop="150dp"
-        android:layout_marginEnd="50dp"
-        android:src="@drawable/ic_baseline_add_circle_outline"
+        android:layout_marginTop="3dp"
+        android:layout_marginEnd="10dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/viewPager2_detail" />
 
-    <ImageView
-        android:id="@+id/iv3_detail"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_marginTop="50dp"
-        android:src="@drawable/ic_baseline_add_circle_outline"
-        app:layout_constraintStart_toStartOf="@+id/iv1_detail"
-        app:layout_constraintTop_toBottomOf="@+id/iv1_detail" />
-
-    <ImageView
-        android:id="@+id/iv4_detail"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_marginTop="50dp"
-        android:src="@drawable/ic_baseline_add_circle_outline"
-        app:layout_constraintEnd_toEndOf="@+id/iv2_detail"
-        app:layout_constraintTop_toBottomOf="@+id/iv2_detail" />
 
     <TextView
         android:id="@+id/tvMessage_detail"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="75dp"
         android:layout_marginStart="15dp"
         android:layout_marginEnd="15dp"
-        android:layout_marginBottom="50dp"
-        android:textSize="16sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/Name_detail"
         tools:text="Message" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/conLayoutBigPic"
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPager2_detail"
         android:layout_width="match_parent"
-        android:layout_height="500dp"
+        android:layout_height="350dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="3dp"
+        android:layout_marginEnd="5dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.495"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvMessage_detail" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/conLayoutBigView"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintStart_toStartOf="parent">
 
         <ImageView
             android:id="@+id/ivBigCrop"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginStart="2dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginEnd="2dp"
+            android:layout_marginBottom="2dp"
             android:src="@drawable/ic_baseline_add_circle_outline"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -87,6 +76,20 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.0" />
+
+        <TextView
+            android:id="@+id/tvBigMessage"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="2dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginEnd="2dp"
+            android:layout_marginBottom="2dp"
+            android:text="TextView"
+            app:layout_constraintBottom_toTopOf="@+id/ivBigCrop"
+            app:layout_constraintEnd_toStartOf="@+id/ivBigCrop"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

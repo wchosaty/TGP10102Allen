@@ -2,11 +2,11 @@
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="300dp"
-    android:layout_height="300dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:foreground="?selectableItemBackground"
-    app:cardCornerRadius="30dp"
     app:cardBackgroundColor="#BDB7B7"
+    app:cardCornerRadius="30dp"
     tools:context=".fragment.AddPhotosFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
