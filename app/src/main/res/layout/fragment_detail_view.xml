@@ -12,9 +12,9 @@
         android:layout_width="wrap_content"
         android:layout_height="50dp"
         android:layout_marginStart="3dp"
-        android:text="TextView"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="TextView" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView_detail"

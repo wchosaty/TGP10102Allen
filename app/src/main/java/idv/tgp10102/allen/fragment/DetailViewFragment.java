@@ -10,7 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.Navigation;
+import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import idv.tgp10102.allen.ComMethod;
 import idv.tgp10102.allen.R;
@@ -35,8 +36,8 @@ import idv.tgp10102.allen.R;
 public class DetailViewFragment extends Fragment {
     private static final String TAG = "Tag DetailViewFragment";
     private Activity activity;
-    private TextView tvMessage;
-    private EditText nameDetail;
+    private static TextView tvMessage;
+    private static EditText nameDetail;
     private RecyclerView recyclerViewDetail;
     private List<Member> detailObjectsList;
     public static List<String> selectPhotosPathList;
@@ -67,7 +68,13 @@ public class DetailViewFragment extends Fragment {
         handleView();
         handleImageViewToBigPic();
         handleBigPicToImagerView();
+    }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        tvMessage.setText("");
+        nameDetail.setText("");
     }
 
     private void handleView() {
@@ -76,14 +83,15 @@ public class DetailViewFragment extends Fragment {
         recyclerViewDetail.setLayoutManager(new StaggeredGridLayoutManager(1,StaggeredGridLayoutManager.HORIZONTAL));
 
         selectPhotosPathList = new ArrayList<>();
-        myDetailPager2 = new MyDetailPager2(this,selectPhotosPathList);
+//        myDetailPager2 = new MyDetailPager2(this,selectPhotosPathList);
+        myDetailPager2 = new MyDetailPager2((FragmentActivity) activity,selectPhotosPathList);
         detailPager2.setAdapter(myDetailPager2);
 
     }
 
-    public static void updateDetailList(List<String> list){
-        selectPhotosPathList = list;
-        detailPager2.setAdapter(myDetailPager2);
+    public void updateDetail(Member member){
+        nameDetail.setText(member.getStringName());
+
     }
 
     private void findViews(View view) {
@@ -159,10 +167,14 @@ public class DetailViewFragment extends Fragment {
             }
 
             holder.itemView.setOnClickListener(v -> {
-                selectPhotosPathList = member.getMyPhotosPashList();
-                myDetailPager2.setMyDetailPager2Adapter(selectPhotosPathList);
-                detailPager2.setAdapter(myDetailPager2);
-                Toast.makeText(context, ""+position, Toast.LENGTH_SHORT).show();
+                if(member != null){
+
+                    nameDetail.setText(member.getStringName());
+                    tvMessage.setText(member.getStringMessage());
+                    selectPhotosPathList = member.getMyPhotosPashList();
+                    myDetailPager2.setMyDetailPager2Adapter(selectPhotosPathList);
+                    detailPager2.setAdapter(myDetailPager2);
+                }
             });
 
         }
@@ -186,10 +198,15 @@ public class DetailViewFragment extends Fragment {
     static class MyDetailPager2 extends FragmentStateAdapter {
         private List<String> list;
 
-        public MyDetailPager2(@NonNull Fragment fragment, List<String> list) {
-            super(fragment);
+        public MyDetailPager2(@NonNull FragmentActivity fragmentActivity, List<String> list) {
+            super(fragmentActivity);
             this.list = list;
         }
+
+//        public MyDetailPager2(@NonNull Fragment fragment, List<String> list) {
+//            super(fragment);
+//            this.list = list;
+//        }
 
         public void setMyDetailPager2Adapter(List<String> list) {
             this.list = list;
@@ -201,6 +218,8 @@ public class DetailViewFragment extends Fragment {
             String s = new String(list.get(position));
             return new AddPhotosFragment(s);
         }
+
+
 
         @Override
         public int getItemCount() {
