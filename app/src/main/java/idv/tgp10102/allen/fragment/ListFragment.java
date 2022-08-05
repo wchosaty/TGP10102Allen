@@ -129,7 +129,6 @@ public class ListFragment extends Fragment {
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             final Member member = list.get(position);
-
             Bitmap bitmap = null;
             File filePicPath = null;
             StringBuilder s;

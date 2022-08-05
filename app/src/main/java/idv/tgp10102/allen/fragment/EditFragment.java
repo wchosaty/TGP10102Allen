@@ -32,6 +32,8 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.BufferedInputStream;
@@ -58,6 +60,9 @@ public class EditFragment extends Fragment {
     private ImageButton ibSave,ibLoad,ibDelete,ibUploadCould,ibCreateNew;
     private ImageButton ibToClose,ibToOpen,ibAddPhoto,ibTakePic,ibDeletePhoto,ibSelectPhoto;
     private ArrayAdapter<String> adapter;
+    private FirebaseFirestore db;
+    private FirebaseStorage storage;
+
     private MyViewPager2Adapter myViewPager2Adapter;
 
     private Integer pagerNumber;
@@ -83,6 +88,8 @@ public class EditFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        db = FirebaseFirestore.getInstance();
+        storage = FirebaseStorage.getInstance();
     }
 
     @Override
@@ -144,6 +151,11 @@ public class EditFragment extends Fragment {
             viewPager2.setAdapter(myViewPager2Adapter);
             viewPager2.setCurrentItem(viewPager2.getAdapter().getItemCount());
         });
+        
+        ibUploadCould.setOnClickListener(v -> {
+
+        });
+
 
         handleBtload();
         handleBtTakePic();
@@ -193,7 +205,7 @@ public class EditFragment extends Fragment {
         //有該member資料
         if ((position >= 0) && flag){
             file =new File(dirMember,""+deleteName);
-            etMessage.setText(file.toString());
+//            etMessage.setText(file.toString());
             File[] subFileList = file.listFiles();
             if(subFileList != null){
                 for(File temp : subFileList) {
