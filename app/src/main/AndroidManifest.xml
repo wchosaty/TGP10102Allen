@@ -6,7 +6,8 @@
     <uses-feature android:name="android.hardware.camera" android:required="true" />
     <!-- 2. 設定使用權限: 使用全螢幕Intent的權限 Android 10(+ -->
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
-
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
     <application
         android:allowBackup="true"

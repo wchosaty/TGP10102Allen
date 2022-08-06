@@ -18,6 +18,7 @@ import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import idv.tgp10102.allen.fragment.Member;
 
@@ -39,7 +40,8 @@ public class ComMethod {
     }
     public static List<Member> getMemberObjectsList(Context context) {
         List<Member> list = new ArrayList<>();
-        if(ComMethod.memberStringList.size() <= 0){
+        if(Objects.equals(ComMethod.memberStringList,null) ||
+                ComMethod.memberStringList.size() <= 0){
             return null;
         }
         for (int i = 0; i < ComMethod.memberStringList.size(); i++) {

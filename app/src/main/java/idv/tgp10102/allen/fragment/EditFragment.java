@@ -34,14 +34,17 @@ import android.widget.Toast;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -130,8 +133,6 @@ public class EditFragment extends Fragment {
         }
     }
 
-
-
     private void handleButton() {
         ibCreateNew.setOnClickListener(v ->{
             upDateCurrentEditList(REQUEST_P1,null,0);
@@ -151,11 +152,21 @@ public class EditFragment extends Fragment {
             viewPager2.setAdapter(myViewPager2Adapter);
             viewPager2.setCurrentItem(viewPager2.getAdapter().getItemCount());
         });
-        
+
         ibUploadCould.setOnClickListener(v -> {
-
+                File file = activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
+                file = new File(file, "/localnickname/BBB/BBB_01.jpg");
+                Uri sourceUri = Uri.fromFile(file);
+                String imagePath = getString(R.string.app_name) + "/"+LOCALNICKNAME+"/AA_06.jpg";
+                storage.getReference().child(imagePath).putFile(sourceUri)
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                Log.d(TAG, "putFile : isSuccessful");
+                            } else {
+                                Log.d(TAG, "putFile : fail");
+                            }
+                        });
         });
-
 
         handleBtload();
         handleBtTakePic();
@@ -262,7 +273,6 @@ public class EditFragment extends Fragment {
                 viewPager2.setAdapter(myViewPager2Adapter);
             }
         }
-
         etName.setText(member.getStringName());
         etMessage.setText(member.getStringMessage());
 
