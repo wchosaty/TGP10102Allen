@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import idv.tgp10102.allen.ComMethod;
+import idv.tgp10102.allen.Member;
 import idv.tgp10102.allen.R;
 
 public class ListFragment extends Fragment {

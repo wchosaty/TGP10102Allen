@@ -94,6 +94,19 @@
                 android:src="@drawable/baseline_post_add_black_24"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/ibDeleteMember" />
+
+            <ImageButton
+                android:id="@+id/ibShareMember"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="8dp"
+
+                android:background="?selectableItemBackground"
+                android:src="@drawable/baseline_share_black_24"
+                app:layout_constraintStart_toEndOf="@+id/ibUploadCloud"
+                app:layout_constraintTop_toTopOf="@+id/ibUploadCloud" />
+
+
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 

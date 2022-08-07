@@ -1,7 +1,6 @@
 package idv.tgp10102.allen.fragment;
 
 import static idv.tgp10102.allen.MainActivity.*;
-
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Intent;
@@ -32,19 +31,19 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -52,6 +51,7 @@ import java.util.List;
 import java.util.Objects;
 
 import idv.tgp10102.allen.ComMethod;
+import idv.tgp10102.allen.Member;
 import idv.tgp10102.allen.R;
 
 public class EditFragment extends Fragment {
@@ -60,11 +60,12 @@ public class EditFragment extends Fragment {
     private Activity activity;
     private AutoCompleteTextView etName;
     private EditText etMessage;
-    private ImageButton ibSave,ibLoad,ibDelete,ibUploadCould,ibCreateNew;
+    private ImageButton ibSave,ibLoad,ibDelete,ibUploadCould,ibCreateNew,ibShare;
     private ImageButton ibToClose,ibToOpen,ibAddPhoto,ibTakePic,ibDeletePhoto,ibSelectPhoto;
     private ArrayAdapter<String> adapter;
     private FirebaseFirestore db;
     private FirebaseStorage storage;
+    private DatabaseReference databaseReference;
 
     private MyViewPager2Adapter myViewPager2Adapter;
 
@@ -93,6 +94,7 @@ public class EditFragment extends Fragment {
         super.onCreate(savedInstanceState);
         db = FirebaseFirestore.getInstance();
         storage = FirebaseStorage.getInstance();
+        databaseReference = FirebaseDatabase.getInstance().getReference();
     }
 
     @Override
@@ -153,11 +155,12 @@ public class EditFragment extends Fragment {
             viewPager2.setCurrentItem(viewPager2.getAdapter().getItemCount());
         });
 
+        //測試Storage
         ibUploadCould.setOnClickListener(v -> {
                 File file = activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
-                file = new File(file, "/localnickname/BBB/BBB_01.jpg");
+                file = new File(file, "/localnickname/DDD/DDD_01.jpg");
                 Uri sourceUri = Uri.fromFile(file);
-                String imagePath = getString(R.string.app_name) + "/"+LOCALNICKNAME+"/AA_06.jpg";
+                String imagePath = getString(R.string.app_name) + "/"+LOCALNICKNAME+"/DDD/DDD_01.jpg";
                 storage.getReference().child(imagePath).putFile(sourceUri)
                         .addOnCompleteListener(task -> {
                             if (task.isSuccessful()) {
@@ -166,6 +169,29 @@ public class EditFragment extends Fragment {
                                 Log.d(TAG, "putFile : fail");
                             }
                         });
+        });
+
+        //測試Firestore DataBase
+        ibShare.setOnClickListener(v -> {
+            String sName = etName.getText().toString().trim();
+            Member m = ComMethod.loadMember(activity,sName);
+            if(Objects.equals(m,null)){
+                Toast.makeText(activity, "null", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+
+            db.collection(LOCALNICKNAME)
+                    .document(m.getStringName().toString())
+                    .set(m)
+                    .addOnCompleteListener(task -> {
+                        if(task.isSuccessful()){
+                            Log.d(TAG,"db : isSuccessful");
+                        }else {
+                            Log.d(TAG,"db : fail");
+                        }
+                    });
+
         });
 
         handleBtload();
@@ -258,7 +284,8 @@ public class EditFragment extends Fragment {
             return;
         }
         StringBuilder sbTemp = new StringBuilder(sName);
-        Member member = ComMethod.loadMember(activity,sbTemp.toString());
+         Member member = ComMethod.loadMember(activity,sbTemp.toString());
+
 
         if(member ==null){
             Toast.makeText(activity, R.string.file_nodata, Toast.LENGTH_SHORT).show();
@@ -360,10 +387,10 @@ public class EditFragment extends Fragment {
             }
 
             member.setMyPhotosPashList(stringList);
-            member.setStringPhotosPath(new StringBuilder(dirMember.toString()));
+            member.setStringPhotosPath(dirMember.toString());
 
-            member.setStringName(sbName);
-            member.setStringMessage(sbMessage);
+            member.setStringName(sbName.toString());
+            member.setStringMessage(sbMessage.toString());
             oos.writeObject(member);
 
             etName.setText(null);
@@ -470,6 +497,7 @@ public class EditFragment extends Fragment {
         ibDelete = view.findViewById(R.id.ibDeleteMember);
         ibUploadCould = view.findViewById(R.id.ibUploadCloud);
         ibCreateNew = view.findViewById(R.id.ibCreateNewMember);
+        ibShare = view.findViewById(R.id.ibShareMember);
 
         ibAddPhoto = view.findViewById(R.id.ibAdd_photo);
         ibTakePic = view.findViewById(R.id.ibCamera_photo);

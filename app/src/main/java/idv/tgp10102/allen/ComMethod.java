@@ -7,9 +7,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageDecoder;
-import android.os.Environment;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -20,13 +18,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import idv.tgp10102.allen.fragment.Member;
-
 
 public class ComMethod {
     private static final String TAG = "Tag_ComMethod";
     public static List<String> memberStringList;
     private File dirMember;
+    private MainActivity activity;
 
     public static Bitmap bitmapToImageFilePath(Bitmap bitmap, File filepath) throws IOException {
         ImageDecoder.Source source = null;
@@ -46,8 +43,8 @@ public class ComMethod {
         }
         for (int i = 0; i < ComMethod.memberStringList.size(); i++) {
 
-            StringBuilder sbTemp = new StringBuilder(String.valueOf(ComMethod.memberStringList.get(i)));
-            Member member = ComMethod.loadMember(context,sbTemp.toString());
+            String sbTemp = String.valueOf(ComMethod.memberStringList.get(i));
+            Member member = ComMethod.loadMember(context,sbTemp);
             //memberString(成員名稱)轉換出memberObjects(物件)
             list.add(member);
         }
@@ -55,7 +52,6 @@ public class ComMethod {
     }
 
     public static void getMemberStringList(Context context){
-//        File dirMember = context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
         File f = new File(MainActivity.myDirMember.toString()+"/"+LOCALNICKNAME);
         if(!f.exists()){
             return;
