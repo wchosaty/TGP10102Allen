@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
@@ -27,6 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import idv.tgp10102.allen.ComMethod;
 import idv.tgp10102.allen.Member;
@@ -69,10 +71,16 @@ public class DetailViewFragment extends Fragment {
         handleBigPicToImagerView();
     }
 
+
+
     private void handleView() {
         detailObjectsList = ComMethod.getMemberObjectsList(activity);
-        recyclerViewDetail.setAdapter(new MyDetailAdapter(activity, detailObjectsList));
-        recyclerViewDetail.setLayoutManager(new StaggeredGridLayoutManager(1,StaggeredGridLayoutManager.HORIZONTAL));
+        if(!Objects.equals(detailObjectsList,null)){
+            recyclerViewDetail.setAdapter(new MyDetailAdapter(activity, detailObjectsList));
+            recyclerViewDetail.setLayoutManager(new StaggeredGridLayoutManager(1,StaggeredGridLayoutManager.HORIZONTAL));
+        }
+
+
 
         selectPhotosPathList = new ArrayList<>();
 //        myDetailPager2 = new MyDetailPager2(this,selectPhotosPathList);
@@ -152,7 +160,7 @@ public class DetailViewFragment extends Fragment {
 
             holder.nameDetail.setText(member.getStringName());
             try {
-                filePicPath = new File(member.getMyPhotosPashList().get(0).toString() );
+                filePicPath = new File(member.getLocalPhotosPathList().get(0).toString() );
                 holder.ivPicDetail.setImageBitmap( ComMethod.bitmapToImageFilePath(bitmap,filePicPath) );
             } catch (IOException e) {
                 e.printStackTrace();
@@ -163,7 +171,8 @@ public class DetailViewFragment extends Fragment {
 
                     nameDetail.setText(member.getStringName());
                     tvMessage.setText(member.getStringMessage());
-                    selectPhotosPathList = member.getMyPhotosPashList();
+                    selectPhotosPathList= new ArrayList<>();
+                    selectPhotosPathList=member.getLocalPhotosPathList();
                     myDetailPager2.setMyDetailPager2Adapter(selectPhotosPathList);
                     detailPager2.setAdapter(myDetailPager2);
                 }

@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -24,6 +25,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import idv.tgp10102.allen.ComMethod;
 import idv.tgp10102.allen.Member;
@@ -35,6 +37,7 @@ public class ListFragment extends Fragment {
     private RecyclerView recyclerView;
     private List<Member> memberObjectsList;
     private SearchView searchView;
+    private EditText edUser;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -65,14 +68,16 @@ public class ListFragment extends Fragment {
     private void findViews(View view) {
         recyclerView = view.findViewById(R.id.recyclerView);
         searchView = view.findViewById(R.id.searchView_List);
+        edUser = view.findViewById(R.id.etUser_List);
 
     }
 
-
     private void handleView() {
         memberObjectsList = ComMethod.getMemberObjectsList(activity);
-        recyclerView.setAdapter(new MyAdapter(activity, memberObjectsList) );
-        recyclerView.setLayoutManager(new LinearLayoutManager(activity));
+        if(! Objects.equals(memberObjectsList,null) ){
+            recyclerView.setAdapter(new MyAdapter(activity, memberObjectsList) );
+            recyclerView.setLayoutManager(new LinearLayoutManager(activity));
+        }
 
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -135,8 +140,9 @@ public class ListFragment extends Fragment {
             StringBuilder s;
             EditFragment.currentEditList = new ArrayList<>();
 
+
             try {
-                filePicPath = new File(member.getMyPhotosPashList().get(0).toString() );
+                filePicPath = new File(member.getLocalPhotosPathList().get(0).toString() );
                 holder.ivPic1.setImageBitmap( ComMethod.bitmapToImageFilePath(bitmap,filePicPath) );
 
             } catch (IOException e) {

@@ -34,7 +34,9 @@ import android.widget.Toast;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.BufferedInputStream;
@@ -155,12 +157,22 @@ public class EditFragment extends Fragment {
             viewPager2.setCurrentItem(viewPager2.getAdapter().getItemCount());
         });
 
-        //測試Storage
+        //測試上傳Storage
         ibUploadCould.setOnClickListener(v -> {
-                File file = activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
-                file = new File(file, "/localnickname/DDD/DDD_01.jpg");
-                Uri sourceUri = Uri.fromFile(file);
-                String imagePath = getString(R.string.app_name) + "/"+LOCALNICKNAME+"/DDD/DDD_01.jpg";
+            Member member = ComMethod.loadMember(activity,etName.getText().toString().trim());
+            if(member ==null){
+                Toast.makeText(activity, R.string.file_nodata, Toast.LENGTH_SHORT).show();
+                return ;
+            }
+
+            File file = activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
+            List<String> cloudList = new ArrayList<>();
+            for(int i=0; i<member.getLocalChildPathList().size();i++){
+
+                File childFile = new File(file, member.getLocalPhotoParentPath()+"/"+member.getLocalChildPathList().get(i));
+                Uri sourceUri = Uri.fromFile(childFile);
+                String imagePath = getString(R.string.app_name) + member.getLocalPhotoParentPath()+"/"+member.getLocalChildPathList().get(i);
+                cloudList.add(imagePath);
                 storage.getReference().child(imagePath).putFile(sourceUri)
                         .addOnCompleteListener(task -> {
                             if (task.isSuccessful()) {
@@ -169,9 +181,49 @@ public class EditFragment extends Fragment {
                                 Log.d(TAG, "putFile : fail");
                             }
                         });
+            }
+            member.setCloudChildPhotosPathList(cloudList);
+            //要修改Nickname
+            db.collection(getString(R.string.app_name)+LOCALNICKNAME)
+                    .document(member.getStringName().toString())
+                    .set(member)
+                    .addOnCompleteListener(task -> {
+                        if(task.isSuccessful()){
+                            Log.d(TAG,"db : isSuccessful");
+                        }else {
+                            Log.d(TAG,"db : fail");
+                        }
+                    });
+
         });
 
-        //測試Firestore DataBase
+        //下載Storage
+//        ibUploadCould.setOnClickListener(v -> {
+//            final int MEGABYTE = 2 * 1024 * 1024;
+//            String imagePath = getString(R.string.app_name) + "/"+LOCALNICKNAME+"/DDD/DDD_00.jpg";
+//            StorageReference imageRef = storage.getReference().child(imagePath);
+//            File file = activity.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS+"/DDD0");
+//            //目前多層先建好路徑資料
+//
+//            File fileDw = new File(file, "DDD_00.jpg");
+//            imageRef.getFile(fileDw)
+//                    .addOnCompleteListener(task -> {
+//                        if (task.isSuccessful() && task.getResult() != null) {
+//                            upDateCurrentEditList(REQUEST_P1,null,null);
+//                            currentEditList.set(0,fileDw.toString());
+//                            Log.d(TAG,"下載成功");
+//                            viewPager2.setAdapter(myViewPager2Adapter);
+//                            viewPager2.setCurrentItem( viewPager2.getAdapter().getItemCount() );
+//                            Log.d(TAG,"viewPager2更新成功");
+//
+//                        } else {
+//                            Log.d(TAG,"Load fail");
+//                        }
+//                    });
+//        });
+
+
+        //測試上傳Firestore DataBase
         ibShare.setOnClickListener(v -> {
             String sName = etName.getText().toString().trim();
             Member m = ComMethod.loadMember(activity,sName);
@@ -179,7 +231,6 @@ public class EditFragment extends Fragment {
                 Toast.makeText(activity, "null", Toast.LENGTH_SHORT).show();
                 return;
             }
-
 
             db.collection(LOCALNICKNAME)
                     .document(m.getStringName().toString())
@@ -191,8 +242,26 @@ public class EditFragment extends Fragment {
                             Log.d(TAG,"db : fail");
                         }
                     });
-
         });
+
+        //下載DataBase
+//        ibShare.setOnClickListener(v -> {
+//            db.collection(LOCALNICKNAME).document("W").get()
+//                    .addOnCompleteListener(task -> {
+//                        if (task.isSuccessful() && task.getResult() != null) {
+//                            // 先清除舊資料後再儲存新資料
+//                            Member member = task.getResult().toObject(Member.class);
+//
+//                            etName.setText(member.getStringName());
+//                            etMessage.setText(member.getStringPhotosPath());
+//
+//                            // 顯示景點
+//                        } else {
+//                            Log.e(TAG, "DataBase :fail ");
+//                        }
+//                    });
+//        });
+
 
         handleBtload();
         handleBtTakePic();
@@ -284,7 +353,7 @@ public class EditFragment extends Fragment {
             return;
         }
         StringBuilder sbTemp = new StringBuilder(sName);
-         Member member = ComMethod.loadMember(activity,sbTemp.toString());
+        Member member = ComMethod.loadMember(activity,sbTemp.toString());
 
 
         if(member ==null){
@@ -294,7 +363,7 @@ public class EditFragment extends Fragment {
         dirMember = activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
         StringBuilder s;
         currentEditList = new ArrayList<>();
-        currentEditList = member.getMyPhotosPashList();
+        currentEditList = member.getLocalPhotosPathList();
         if(currentEditList.size() > 0){
             if(!Objects.equals(currentEditList,null)  && ( currentEditList.size() > 0) ){
                 viewPager2.setAdapter(myViewPager2Adapter);
@@ -325,9 +394,11 @@ public class EditFragment extends Fragment {
         if( sbTemp.equals(null) ) {
             Toast.makeText(activity, R.string.name_null, Toast.LENGTH_SHORT).show();
         }
+        //更新本機端 MemberStringList files[]去取Photo名字串
         ComMethod.getMemberStringList(activity);
 
         File fileTemp = new File(sbTemp.toString().trim());
+        //取得該Memner物件
         Member mCheck = ComMethod.loadMember(activity,fileTemp.toString());
 
         if(mCheck == null){
@@ -335,6 +406,7 @@ public class EditFragment extends Fragment {
         }else{
             Toast.makeText(activity, R.string.modify_file, Toast.LENGTH_SHORT).show();
         }
+        //檢查編輯清單是否有值
         if( Objects.equals(currentEditList,null)
                 || (currentEditList.size()<=0)
                 || (Objects.equals(currentEditList.get(0), EMPTY)) ) {
@@ -353,13 +425,15 @@ public class EditFragment extends Fragment {
             StringBuilder sbMessage = new StringBuilder(String.valueOf(etMessage.getText()).trim());
             dir = activity.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
 
-            //建立資料夾
-            dirMember = activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS + "/"+LOCALNICKNAME+"/"+sbTemp.toString());
+            //建立資料夾，有登入USER要修正
+            String localParentPath = "/"+LOCALNICKNAME+"/"+sbTemp.toString();
+            dirMember = activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS +localParentPath);
+
             int count = 0;
             File fileCrop = null ;
             File fileOrigin = null ;
-            file = new File(dirMember,sbTemp.toString());
             List<String> stringList = new ArrayList<>();
+            List<String> stringChildList = new ArrayList<>();
 
             for(int i=0; i < currentEditList.size(); i++){
                 if( Objects.equals(currentEditList.get(0), EMPTY) ) {
@@ -372,7 +446,8 @@ public class EditFragment extends Fragment {
                 stringCount.append(""+count);
                 fileCrop =new File(dir,""+takePicCrop+ "_" + count +".jpg");
                 fileOrigin =new File(dir,""+takePicOrigin+ "_" + count +".jpg");
-                fileDest = new File(dirMember,""+etName.getText().toString() +"_"+ stringCount +".jpg");
+                stringChildList.add(etName.getText().toString() +"_"+ stringCount+".jpg");
+                fileDest = new File(dirMember,stringChildList.get(i));
                 //pathList
 
 
@@ -382,13 +457,15 @@ public class EditFragment extends Fragment {
                 }
                 fileCrop.delete();
                 fileOrigin.delete();
+                //本機child_Path
                 stringList.add(fileDest.toString());
                 count++;
             }
+            //存本機Path
+            member.setLocalPhotosPathList(stringList);
 
-            member.setMyPhotosPashList(stringList);
-            member.setStringPhotosPath(dirMember.toString());
-
+            member.setLocalPhotoParentPath(localParentPath);
+            member.setLocalChildPathList(stringChildList);
             member.setStringName(sbName.toString());
             member.setStringMessage(sbMessage.toString());
             oos.writeObject(member);
