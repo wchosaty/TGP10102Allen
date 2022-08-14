@@ -11,7 +11,7 @@ import android.os.Environment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.io.File;
-import java.util.Map;
+import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -24,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
             REQUEST_P3 = 3,REQUEST_P4 = 4;
     public static File myDirMember;
     private BottomNavigationView bottomNavigationView;
+    public static Boolean remoteCould;
 
 
     @Override
@@ -31,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         myDirMember = getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
+        remoteCould = false;
         findViews();
 
         handleBottomNavigationView();

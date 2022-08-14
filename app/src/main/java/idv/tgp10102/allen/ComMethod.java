@@ -22,6 +22,7 @@ import java.util.Objects;
 public class ComMethod {
     private static final String TAG = "Tag_ComMethod";
     public static List<String> memberStringList;
+    public static List<Member> currentCloudList;
     private File dirMember;
     private MainActivity activity;
 
@@ -39,7 +40,7 @@ public class ComMethod {
         List<Member> list = new ArrayList<>();
         if(Objects.equals(ComMethod.memberStringList,null) ||
                 ComMethod.memberStringList.size() <= 0){
-            return null;
+            return list;
         }
         for (int i = 0; i < ComMethod.memberStringList.size(); i++) {
 
