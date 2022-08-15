@@ -3,11 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="idv.tgp10102.allen">
 
-    <uses-feature android:name="android.hardware.camera" android:required="true" />
-    <!-- 2. 設定使用權限: 使用全螢幕Intent的權限 Android 10(+ -->
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="true" /> <!-- 2. 設定使用權限: 使用全螢幕Intent的權限 Android 10(+ -->
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -20,30 +21,38 @@
         android:theme="@style/Theme.TGP10102Allen"
         tools:targetApi="31">
         <activity
-            android:name=".MainActivity"
-            android:exported="true">
+            android:name=".LoginActivity"
+            android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
+        </activity>
 
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileProvider"
             android:exported="false"
-            android:grantUriPermissions="true" >
+            android:grantUriPermissions="true">
 
             <!-- *註: resource屬性為自訂FileProvider資源檔的路徑和檔名，步驟2.2須參考此值 -->
-        <meta-data
-            android:name="android.support.FILE_PROVIDER_PATHS"
-            android:resource="@xml/file_paths" />
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
         </provider>
 
-        <activity android:name="com.yalantis.ucrop.UCropActivity"
-                  android:theme="@style/Theme.AppCompat.DayNight.NoActionBar" />
-
+        <activity
+            android:name="com.yalantis.ucrop.UCropActivity"
+            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar" />
     </application>
 
 </manifest>

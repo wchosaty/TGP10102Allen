@@ -115,7 +115,6 @@ public class EditFragment extends Fragment {
         contentResolver = activity.getContentResolver();
         takePicLauncher = getLauncher();
         cropPicLauncher = getCropPicLauncher();
-
         handleAutoCompleteTextView();
         handleButton();
 

@@ -10,4 +10,8 @@
     <string name="file_nodata">File no Data</string>
     <string name="delete">Delete Successful</string>
     <string name="name_nofind">No Find!</string>
+    <string name="textEmail">Email</string>
+    <string name="textPassWord">Password</string>
+    <string name="textNickname">NickName</string>
+    <string name="textRegisterHint">or sign in</string>
 </resources>

@@ -42,8 +42,6 @@ public class DetailViewFragment extends Fragment {
     private RecyclerView recyclerViewDetail;
     private List<Member> detailObjectsList;
     public static List<String> selectPhotosPathList;
-    private ImageView ivBigPhoto;
-    private TextView ivBigText;
     public static Integer touchNumber = -1;
     public static Boolean touchFlag = false;
 
@@ -67,8 +65,6 @@ public class DetailViewFragment extends Fragment {
         findViews(view);
         load();
         handleView();
-        handleImageViewToBigPic();
-        handleBigPicToImagerView();
     }
 
 
@@ -81,9 +77,7 @@ public class DetailViewFragment extends Fragment {
         }
 
 
-
         selectPhotosPathList = new ArrayList<>();
-//        myDetailPager2 = new MyDetailPager2(this,selectPhotosPathList);
         myDetailPager2 = new MyDetailPager2((FragmentActivity) activity,selectPhotosPathList);
         detailPager2.setAdapter(myDetailPager2);
 
@@ -98,36 +92,16 @@ public class DetailViewFragment extends Fragment {
         tvMessage = view.findViewById(R.id.tvMessage_detail);
         nameDetail = view.findViewById(R.id.Name_detail);
 
-        ConstraintLayout constraintLayout = view.findViewById(R.id.conLayoutBigView);
         recyclerViewDetail = view.findViewById(R.id.recyclerView_detail);
-        ivBigPhoto = view.findViewById(R.id.ivBigCrop);
-        ivBigText = view.findViewById(R.id.tvBigMessage);
 
         detailPager2 = view.findViewById(R.id.viewPager2_detail);
     }
 
-    private void handleBigPicToImagerView() {
-        ivBigPhoto.setOnClickListener(v -> {
-            ivBigPhoto.setVisibility(View.INVISIBLE);
-            ivBigText.setVisibility(View.INVISIBLE);
-        });
-
-        ivBigText.setOnClickListener(v -> {
-            ivBigPhoto.setVisibility(View.INVISIBLE);
-            ivBigText.setVisibility(View.INVISIBLE);
-        });
-    }
-
-    private void handleImageViewToBigPic() {
-
-    }
 
     private void onButtonBigViewClick(View view,int code){
     }
 
     private void load() {
-        ivBigPhoto.setVisibility(View.INVISIBLE);
-        ivBigText.setVisibility(View.INVISIBLE);
         ComMethod.getMemberStringList(activity);
     }
 

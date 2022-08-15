@@ -44,10 +44,9 @@ public class ListFragment extends Fragment {
     private static final String TAG = "Tag_ListFragment";
     private Activity activity;
     private RecyclerView recyclerView;
-    private List<Member> memberObjectsList = new ArrayList<>();
+    private List<Member> memberObjectsList;
     private SearchView searchView;
     private EditText etUser;
-    private Button button;
     private ImageButton ivShareList;
 
     private FirebaseFirestore db;
@@ -58,6 +57,7 @@ public class ListFragment extends Fragment {
         super.onCreate(savedInstanceState);
         db = FirebaseFirestore.getInstance();
         storage = FirebaseStorage.getInstance();
+        memberObjectsList = new ArrayList<>();
     }
 
     @Override
@@ -77,14 +77,9 @@ public class ListFragment extends Fragment {
     }
 
     private void handleButton() {
-        //測試remote
         MainActivity.remoteCould = true;
         etUser.setText(MainActivity.remoteCould.toString());
 
-        button.setOnClickListener(v -> {
-//            MainActivity.remoteCould = !MainActivity.remoteCould;
-
-        });
         //測試下載Firebase
         ivShareList.setOnClickListener(v -> {
             if(MainActivity.remoteCould){
@@ -133,7 +128,6 @@ public class ListFragment extends Fragment {
         etUser = view.findViewById(R.id.etUser_List);
 
         ivShareList = view.findViewById(R.id.ivShare_List);
-        button = view.findViewById(R.id.button);
 
     }
 

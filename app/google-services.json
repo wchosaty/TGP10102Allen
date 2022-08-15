@@ -318,6 +318,50 @@
       },
       "oauth_client": [
         {
+          "client_id": "1088141138583-6a09etk393jhs9pvlihoq0333av3n1qf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "idv.tgp10102.allen",
+            "certificate_hash": "6e4697b3dfed14be042dc3a687b82105d00b07bd"
+          }
+        },
+        {
+          "client_id": "1088141138583-fo4mak935o9o6jh2rmatv7lr4dfk968k.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDi4foMEqwl5iNWCOTwycu6MBqp_1DWPHA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1088141138583-fo4mak935o9o6jh2rmatv7lr4dfk968k.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1088141138583-f6n0vdtl58577p81piof4qu56iggr0e1.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.ron.userregisterdemo"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1088141138583:android:c84eb6939d8299946ea7d2",
+        "android_client_info": {
+          "package_name": "idv.tgp10102.astorage220806"
+        }
+      },
+      "oauth_client": [
+        {
           "client_id": "1088141138583-fo4mak935o9o6jh2rmatv7lr4dfk968k.apps.googleusercontent.com",
           "client_type": 3
         }

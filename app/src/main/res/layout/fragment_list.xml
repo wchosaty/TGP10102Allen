@@ -42,15 +42,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/baseline_share_black_24"
+        android:background="?selectableItemBackground"
         app:layout_constraintEnd_toStartOf="@+id/etUser_List"
         app:layout_constraintStart_toEndOf="@+id/searchView_List"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="B" />
 </androidx.constraintlayout.widget.ConstraintLayout>
