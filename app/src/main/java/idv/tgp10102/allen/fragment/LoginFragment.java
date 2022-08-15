@@ -10,7 +10,9 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 
+import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,6 +30,9 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.FirebaseAuthInvalidUserException;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
@@ -40,7 +45,7 @@ public class LoginFragment extends Fragment {
     private GoogleSignInClient client;
     private FirebaseAuth auth;
     private Activity activity;
-    private EditText etEmail, etPassword ,nickName;
+    private EditText etEmail, etPassword ,etNickName;
     private TextView tvMessage;
     private Button btSingIn,btSignUp;
     private ImageView ivGoogleSignIn;
@@ -111,17 +116,134 @@ public class LoginFragment extends Fragment {
     }
 
     private void handleButton() {
+        //透過第三方Google登入
         ivGoogleSignIn.setOnClickListener(v -> {
             Intent intent = client.getSignInIntent();
             //跳出google
             signInGoogleLauncher.launch(intent);
         });
+        
+        //Email signIn
+        btSingIn.setOnClickListener(v -> {
+            String email = etEmail.getText().toString();
+            String passWord = etPassword.getText().toString();
+            signIn(email,passWord);
+        });
+        
+        //Email signUp
+        btSignUp.setOnClickListener(v -> {
+            String email = etEmail.getText().toString();
+            String passWord = etPassword.getText().toString();
+            String nickName = etNickName.getText().toString();
+            signUp(email,passWord,nickName);
+        });
+
+    }
+
+    private void signIn(String email, String passWord) {
+        if(checkEmailPasswordEmpty(email,passWord)){
+            return;
+        }
+        auth.signInWithEmailAndPassword(email, passWord)
+                .addOnCompleteListener(task -> {
+                    // 登入成功轉至下頁；失敗則顯示錯誤訊息
+                    if (task.isSuccessful()) {
+                        Intent intent = new Intent();
+                        intent.setClass(activity, MainActivity.class);
+                        startActivity(intent);
+                        activity.finish();
+                    } else {
+                        String message;
+                        Exception exception = task.getException();
+                        if (exception == null) {
+                            message = "Sign in fail.";
+                        } else {
+                            String exceptionType;
+                            // FirebaseAuthInvalidCredentialsException代表帳號驗證不成功，例如email格式不正確
+                            if (exception instanceof FirebaseAuthInvalidCredentialsException) {
+                                exceptionType = "Invalid Credential";
+                            }
+                            // FirebaseAuthInvalidUserException代表無此user，例如帳密錯誤
+                            else if (exception instanceof FirebaseAuthInvalidUserException) {
+                                exceptionType = "Invalid User";
+                            } else {
+                                exceptionType = exception.getClass().toString();
+                            }
+                            message = exceptionType + ": " + exception.getLocalizedMessage();
+                        }
+                        Log.e(TAG, message);
+                        tvMessage.setText(message);
+                    }
+                });
+    }
+
+    private void signUp(String email, String passWord,String nickName) {
+        if (checkEmailPasswordEmpty(email, passWord)) {
+            return;
+        }
+        if (checkNickNameEmpty(nickName)) {
+            return;
+        }
+        /* 利用user輸入的email與password建立新的帳號 */
+        auth.createUserWithEmailAndPassword(email, passWord)
+                .addOnCompleteListener(task -> {
+                    // 建立成功則轉至下頁；失敗則顯示錯誤訊息
+                    if (task.isSuccessful()) {
+                        Intent intent = new Intent();
+                        intent.setClass(activity, MainActivity.class);
+                        startActivity(intent);
+                        activity.finish();
+                    } else {
+                        String message;
+                        Exception exception = task.getException();
+                        if (exception == null) {
+                            message = "Register fail.";
+                        } else {
+                            String exceptionType;
+                            // FirebaseAuthInvalidCredentialsException 代表帳號驗證不成功，例如email格式不正確
+                            if (exception instanceof FirebaseAuthInvalidCredentialsException) {
+                                exceptionType = "Invalid Credential";
+                            }
+                            // FirebaseAuthInvalidUserException 代表無此user，例如帳密錯誤
+                            else if (exception instanceof FirebaseAuthInvalidUserException) {
+                                exceptionType = "Invalid User";
+                            }
+                            // FirebaseAuthUserCollisionException 代表此帳號已被使用
+                            else if (exception instanceof FirebaseAuthUserCollisionException) {
+                                exceptionType = "User Collision";
+                            } else {
+                                exceptionType = exception.getClass().toString();
+                            }
+                            message = exceptionType + ": " + exception.getLocalizedMessage();
+                        }
+                        Log.e(TAG, message);
+                        tvMessage.setText(message);
+                    }
+                });
+    }
+
+    private boolean checkNickNameEmpty(String nickName) {
+        if (nickName.trim().isEmpty() ) {
+            tvMessage.setText(R.string.textCheckNicknameEmpty);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private boolean checkEmailPasswordEmpty(String email, String password) {
+        if (email.trim().isEmpty() || password.trim().isEmpty()) {
+            tvMessage.setText(R.string.textCheckEmailPasswordEmpty);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     private void findViews(View view) {
         etEmail = view.findViewById(R.id.etEmail_login);
         etPassword = view.findViewById(R.id.etPassWord);
-        nickName = view.findViewById(R.id.etNickName_login);
+        etNickName = view.findViewById(R.id.etNickName_login);
         tvMessage = view.findViewById(R.id.tvMessage_login);
         btSingIn = view.findViewById(R.id.btSignIn);
         btSignUp = view.findViewById(R.id.btSignUp);
