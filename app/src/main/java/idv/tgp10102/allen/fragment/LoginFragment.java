@@ -21,6 +21,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -35,17 +36,19 @@ import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import idv.tgp10102.allen.LoginActivity;
 import idv.tgp10102.allen.MainActivity;
 import idv.tgp10102.allen.R;
+import idv.tgp10102.allen.User;
 
 public class LoginFragment extends Fragment {
     private final static String TAG = "TAG_LoginFragment";
     private GoogleSignInClient client;
     private FirebaseAuth auth;
     private Activity activity;
-    private EditText etEmail, etPassword ,etNickName;
+    private EditText etEmail, etPassword ,etNickName,etPhoneNumber;
     private TextView tvMessage;
     private Button btSingIn,btSignUp;
     private ImageView ivGoogleSignIn;
@@ -139,7 +142,12 @@ public class LoginFragment extends Fragment {
             String email = etEmail.getText().toString();
             String passWord = etPassword.getText().toString();
             String nickName = etNickName.getText().toString();
-            signUp(email,passWord,nickName);
+            User user = new User();
+            String phone = etPhoneNumber.getText().toString();
+            user.setPhone(phone);
+            user.setEmail(email);
+            user.setNickName(nickName);
+            signUp(email,passWord,nickName,user);
         });
 
     }
@@ -181,7 +189,7 @@ public class LoginFragment extends Fragment {
                 });
     }
 
-    private void signUp(String email, String passWord,String nickName) {
+    private void signUp(String email, String passWord,String nickName,User user) {
         if (checkEmailPasswordEmpty(email, passWord)) {
             return;
         }
@@ -193,10 +201,25 @@ public class LoginFragment extends Fragment {
                 .addOnCompleteListener(task -> {
                     // 建立成功則轉至下頁；失敗則顯示錯誤訊息
                     if (task.isSuccessful()) {
+                        FirebaseUser firebaseUser = task.getResult().getUser();
+                        // Save uid
+                        if (firebaseUser != null) {
+                            String uid = task.getResult().getUser().getUid();
+                            user.setUid(uid);
+                            FirebaseFirestore.getInstance()
+                                    .collection(getString(R.string.app_name)+"users").document(user.getUid())
+                                    .set(user).addOnCompleteListener(taskInsertDB -> {
+                                        if (taskInsertDB.isSuccessful()) {
+                                            Log.d(TAG,"taskInsertDB : Successful");
+                                        }
+                                    });
+                        }
+                        // 註冊成功跳頁
                         Intent intent = new Intent();
                         intent.setClass(activity, MainActivity.class);
                         startActivity(intent);
                         activity.finish();
+
                     } else {
                         String message;
                         Exception exception = task.getException();
@@ -247,6 +270,7 @@ public class LoginFragment extends Fragment {
     private void findViews(View view) {
         etEmail = view.findViewById(R.id.etEmail_login);
         etPassword = view.findViewById(R.id.etPassWord);
+        etPhoneNumber = view.findViewById(R.id.etPhoneNember);
         etNickName = view.findViewById(R.id.etNickName_login);
         tvMessage = view.findViewById(R.id.tvMessage_login);
         btSingIn = view.findViewById(R.id.btSignIn);

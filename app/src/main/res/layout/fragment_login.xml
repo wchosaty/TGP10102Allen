@@ -47,9 +47,9 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="2dp"
         android:src="@drawable/baseline_phone_black_24"
-        app:layout_constraintBottom_toBottomOf="@+id/editTextPhoneNember"
-        app:layout_constraintEnd_toStartOf="@+id/editTextPhoneNember"
-        app:layout_constraintTop_toTopOf="@+id/editTextPhoneNember" />
+        app:layout_constraintBottom_toBottomOf="@+id/etPhoneNember"
+        app:layout_constraintEnd_toStartOf="@+id/etPhoneNember"
+        app:layout_constraintTop_toTopOf="@+id/etPhoneNember" />
 
     <ImageView
         android:id="@+id/ivNickname_login"
@@ -63,7 +63,7 @@
         app:layout_constraintTop_toTopOf="@+id/etNickName_login" />
 
     <EditText
-        android:id="@+id/editTextPhoneNember"
+        android:id="@+id/etPhoneNember"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
@@ -82,8 +82,8 @@
         android:ems="10"
         android:hint="@string/textNickname"
         android:inputType="textPersonName"
-        app:layout_constraintEnd_toEndOf="@+id/editTextPhoneNember"
-        app:layout_constraintStart_toStartOf="@+id/editTextPhoneNember"
+        app:layout_constraintEnd_toEndOf="@+id/etPhoneNember"
+        app:layout_constraintStart_toStartOf="@+id/etPhoneNember"
         app:layout_constraintTop_toBottomOf="@+id/btSignIn" />
 
     <TextView
@@ -202,8 +202,8 @@
         android:layout_marginTop="16dp"
         android:backgroundTint="@color/mygreen"
         android:text="@string/signIn"
-        app:layout_constraintStart_toStartOf="@+id/editTextPhoneNember"
-        app:layout_constraintTop_toBottomOf="@+id/editTextPhoneNember" />
+        app:layout_constraintStart_toStartOf="@+id/etPhoneNember"
+        app:layout_constraintTop_toBottomOf="@+id/etPhoneNember" />
 
     <Button
         android:id="@+id/btSignUp"
@@ -212,9 +212,9 @@
         android:layout_marginTop="16dp"
         android:backgroundTint="@color/design_default_color_error"
         android:text="@string/signUp"
-        app:layout_constraintEnd_toEndOf="@+id/editTextPhoneNember"
+        app:layout_constraintEnd_toEndOf="@+id/etPhoneNember"
         app:layout_constraintStart_toEndOf="@+id/btSignIn"
-        app:layout_constraintTop_toBottomOf="@+id/editTextPhoneNember" />
+        app:layout_constraintTop_toBottomOf="@+id/etPhoneNember" />
 
     <ImageView
         android:id="@+id/ivGoogleSymbol"
