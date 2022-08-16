@@ -52,6 +52,7 @@ public class LoginFragment extends Fragment {
     private TextView tvMessage;
     private Button btSingIn,btSignUp;
     private ImageView ivGoogleSignIn;
+    private User user;
 
     ActivityResultLauncher<Intent> signInGoogleLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -79,7 +80,20 @@ public class LoginFragment extends Fragment {
                 .addOnCompleteListener(task -> {
                     // 登入成功轉至下頁；失敗則顯示錯誤訊息
                     if (task.isSuccessful()) {
+                        FirebaseUser firebaseUser = task.getResult().getUser();
                         Intent intent = new Intent();
+                        if (firebaseUser != null) {
+                            String uid = task.getResult().getUser().getUid();
+                            this.user.setUid(uid);
+                            FirebaseFirestore.getInstance()
+                                    .collection(getString(R.string.app_name)+"users").document(user.getUid())
+                                    .set(user).addOnCompleteListener(taskGoogleInsertDB -> {
+                                        if (taskGoogleInsertDB.isSuccessful()) {
+                                            Log.d(TAG,"taskGoogleInsertDB : Successful");
+                                        }
+                                    });
+                        }
+
                         intent.setClass(activity, MainActivity.class);
                         startActivity(intent);
                         activity.finish();
@@ -114,6 +128,7 @@ public class LoginFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         activity = getActivity();
+        user = new User();
         findViews(view);
         handleButton();
     }
@@ -125,6 +140,14 @@ public class LoginFragment extends Fragment {
             if (checkNickNameEmpty(nickName)) {
                 return;
             }
+            String email = etEmail.getText().toString();
+            String passWord = etPassword.getText().toString();
+            String nickNameG = etNickName.getText().toString();
+            String phone = etPhoneNumber.getText().toString();
+            this.user.setPhone(phone);
+            this.user.setEmail(email);
+            this.user.setNickName(nickNameG);
+
             Intent intent = client.getSignInIntent();
             //跳出google
             signInGoogleLauncher.launch(intent);
