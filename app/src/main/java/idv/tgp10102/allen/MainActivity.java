@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
             REQUEST_P3 = 3,REQUEST_P4 = 4;
     public static File myDirMember;
     private BottomNavigationView bottomNavigationView;
-    public static Boolean remoteCould = true;
+    public static Boolean remoteCould;
 
 
     @Override

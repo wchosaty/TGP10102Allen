@@ -118,6 +118,10 @@ public class LoginFragment extends Fragment {
     private void handleButton() {
         //透過第三方Google登入
         ivGoogleSignIn.setOnClickListener(v -> {
+            String nickName = etNickName.getText().toString();
+            if (checkNickNameEmpty(nickName)) {
+                return;
+            }
             Intent intent = client.getSignInIntent();
             //跳出google
             signInGoogleLauncher.launch(intent);

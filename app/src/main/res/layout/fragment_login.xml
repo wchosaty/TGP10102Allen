@@ -7,16 +7,14 @@
     tools:context=".fragment.LoginFragment" >
 
 
-
-
     <EditText
         android:id="@+id/etEmail_login"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="50dp"
         android:ems="10"
-        android:inputType="textPersonName"
         android:hint="@string/textEmail"
+        android:inputType="textPersonName"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -37,31 +35,31 @@
         android:id="@+id/ivEmail_login"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="2dp"
         android:src="@drawable/baseline_email_black_24"
         app:layout_constraintBottom_toBottomOf="@+id/etEmail_login"
         app:layout_constraintEnd_toStartOf="@+id/etEmail_login"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/etEmail_login" />
 
     <ImageView
         android:id="@+id/ivPhone_login"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="2dp"
         android:src="@drawable/baseline_phone_black_24"
         app:layout_constraintBottom_toBottomOf="@+id/editTextPhoneNember"
         app:layout_constraintEnd_toStartOf="@+id/editTextPhoneNember"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/editTextPhoneNember" />
 
     <ImageView
         android:id="@+id/ivNickname_login"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:src="@drawable/baseline_account_circle_black_24"
+        android:layout_marginEnd="1dp"
         android:background="?selectableItemBackground"
+        android:src="@drawable/baseline_account_circle_black_24"
         app:layout_constraintBottom_toBottomOf="@+id/etNickName_login"
         app:layout_constraintEnd_toStartOf="@+id/etNickName_login"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/etNickName_login" />
 
     <EditText
@@ -80,7 +78,7 @@
         android:id="@+id/etNickName_login"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:ems="10"
         android:hint="@string/textNickname"
         android:inputType="textPersonName"
@@ -112,7 +110,7 @@
         android:id="@+id/tvRegisterHint_login"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:text="@string/textRegisterHint"
         android:textSize="30dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -169,17 +167,16 @@
         android:id="@+id/tvEmailHint"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
         android:text="@string/signIn"
         android:textColor="@color/mygreen"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/btSignUp"
         app:layout_constraintTop_toTopOf="@+id/btSignUp" />
 
     <TextView
         android:id="@+id/tvHintSymbol_NicknameUp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
         android:text="*"
         android:textColor="?attr/colorError"
         android:textSize="30dp"
@@ -216,13 +213,13 @@
         android:backgroundTint="@color/design_default_color_error"
         android:text="@string/signUp"
         app:layout_constraintEnd_toEndOf="@+id/editTextPhoneNember"
+        app:layout_constraintStart_toEndOf="@+id/btSignIn"
         app:layout_constraintTop_toBottomOf="@+id/editTextPhoneNember" />
 
     <ImageView
         android:id="@+id/ivGoogleSymbol"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
         android:src="@drawable/common_google_signin_btn_icon_light_normal"
         app:layout_constraintBottom_toBottomOf="@+id/etNickName_login"
         app:layout_constraintStart_toEndOf="@+id/tvHintSymbol_NicknameUp"

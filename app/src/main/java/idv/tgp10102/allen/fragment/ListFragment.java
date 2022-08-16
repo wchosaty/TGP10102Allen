@@ -17,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -46,7 +47,6 @@ public class ListFragment extends Fragment {
     private RecyclerView recyclerView;
     private List<Member> memberObjectsList;
     private SearchView searchView;
-    private EditText etUser;
     private ImageButton ivShareList;
 
     private FirebaseFirestore db;
@@ -77,8 +77,6 @@ public class ListFragment extends Fragment {
     }
 
     private void handleButton() {
-        MainActivity.remoteCould = true;
-        etUser.setText(MainActivity.remoteCould.toString());
 
         //測試下載Firebase
         ivShareList.setOnClickListener(v -> {
@@ -98,7 +96,6 @@ public class ListFragment extends Fragment {
                                 MyAdapter cloudAdapter = (MyAdapter) recyclerView.getAdapter();
                                 cloudAdapter.setAdapterMembers(ComMethod.currentCloudList);
                                 cloudAdapter.notifyDataSetChanged();
-//                                handleCloudData();
 
                             }else{
                                 Log.e(TAG, "Firebase : Download Fail");
@@ -109,11 +106,6 @@ public class ListFragment extends Fragment {
 
     }
 
-//    private void handleCloudData() {
-//       MyAdapter cloudAdapter = (MyAdapter) recyclerView.getAdapter();
-//       cloudAdapter.setAdapterMembers(ComMethod.currentCloudList);
-//       cloudAdapter.notifyDataSetChanged();
-//    }
 
 
     private void load() {
@@ -125,7 +117,6 @@ public class ListFragment extends Fragment {
     private void findViews(View view) {
         recyclerView = view.findViewById(R.id.recyclerView);
         searchView = view.findViewById(R.id.searchView_List);
-        etUser = view.findViewById(R.id.etUser_List);
 
         ivShareList = view.findViewById(R.id.ivShare_List);
 
@@ -133,11 +124,6 @@ public class ListFragment extends Fragment {
 
     private void handleView() {
         memberObjectsList = ComMethod.getMemberObjectsList(activity);
-//        if(! Objects.equals(memberObjectsList,null) ){
-//            recyclerView.setLayoutManager(new LinearLayoutManager(activity));
-//            recyclerView.setAdapter(new MyAdapter(activity, memberObjectsList) );
-//
-//        }
 
         recyclerView.setLayoutManager(new LinearLayoutManager(activity));
         recyclerView.setAdapter(new MyAdapter(activity, memberObjectsList) );
@@ -177,6 +163,9 @@ public class ListFragment extends Fragment {
     class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         Context context;
         List<Member> list;
+        boolean[] itemChoose;
+        boolean[] cbResult;
+        boolean displayCheckBox;
 
         public void setAdapterMembers(List<Member> list) {
             this.list = list;
@@ -185,6 +174,9 @@ public class ListFragment extends Fragment {
         public MyAdapter(Context context, List<Member> list) {
             this.context = context;
             this.list = list;
+            itemChoose = new boolean[list.size()];
+            cbResult = new boolean[list.size()];
+            displayCheckBox = false;
         }
 
         @NonNull
@@ -203,50 +195,49 @@ public class ListFragment extends Fragment {
         class ViewHolder extends RecyclerView.ViewHolder {
             TextView tvName;
             ImageView ivPic1;
+            CheckBox checkBox;
 
             public ViewHolder(@NonNull View itemView) {
                 super(itemView);
                 tvName = itemView.findViewById(R.id.tvName_item);
                 ivPic1 = itemView.findViewById(R.id.iv1_item);
+                checkBox = itemView.findViewById(R.id.cbChoose);
 
             }
         }
 
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            Log.d(TAG,"onBindViewHolder : BuildStart1");
             Log.d(TAG,"MainActivity.remoteCould : "+ MainActivity.remoteCould);
-            if(MainActivity.remoteCould){
-                final Member member = ComMethod.currentCloudList.get(position);
-                Log.d(TAG,"member.getCloudChildPhotosPathList().size(): "+member.getCloudChildPhotosPathList().size());
-                if(member.getCloudChildPhotosPathList().size() >= 0){
-                    final int MEGABYTE = 2 * 1024 * 1024;
- //                   downloadStrage(holder.ivPic1, member.getCloudChildPhotosPathList());
-                    etUser.setText(MainActivity.remoteCould.toString());
-                    Log.d(TAG,"UploadPath : BuildStart2");
-                    Log.d(TAG,"UploadPath : "+member.getCloudChildPhotosPathList().get(0));
-                    for(int i=0;i<member.getCloudChildPhotosPathList().size();i++){
-
-                        String imagePath = member.getCloudChildPhotosPathList().get(i);
-
-                        StorageReference imageRef = storage.getReference().child(imagePath);
-                        imageRef.getBytes(MEGABYTE)
-                                .addOnCompleteListener(task -> {
-                                    if (task.isSuccessful() && task.getResult() != null){
-                                        byte[] bytes = task.getResult();
-                                        Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                                        holder.ivPic1.setImageBitmap(bitmap);
-                                    }else {
-                                        Log.e(TAG, "onBindViewHolder : downloadStrage Fail");
-                                    }
-                                });
-                    }
-
-                }
-
-                holder.tvName.setText(member.getStringName());
-
-            }else{
+//            if(MainActivity.remoteCould){
+//                final Member member = ComMethod.currentCloudList.get(position);
+//                Log.d(TAG,"member.getCloudChildPhotosPathList().size(): "+member.getCloudChildPhotosPathList().size());
+//                if(member.getCloudChildPhotosPathList().size() > 0){
+//                    final int MEGABYTE = 2 * 1024 * 1024;
+//                    etUser.setText(MainActivity.remoteCould.toString());
+//                    Log.d(TAG,"UploadPath : "+member.getCloudChildPhotosPathList().get(0));
+//                    for(int i=0;i<member.getCloudChildPhotosPathList().size();i++){
+//
+//                        String imagePath = member.getCloudChildPhotosPathList().get(i);
+//
+//                        StorageReference imageRef = storage.getReference().child(imagePath);
+//                        imageRef.getBytes(MEGABYTE)
+//                                .addOnCompleteListener(task -> {
+//                                    if (task.isSuccessful() && task.getResult() != null){
+//                                        byte[] bytes = task.getResult();
+//                                        Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+//                                        holder.ivPic1.setImageBitmap(bitmap);
+//                                    }else {
+//                                        Log.e(TAG, "onBindViewHolder : downloadStrage Fail");
+//                                    }
+//                                });
+//                    }
+//
+//                }
+//
+//                holder.tvName.setText(member.getStringName());
+//
+//            }else{
                 final Member member = list.get(position);
                 Bitmap bitmap = null;
                 File filePicPath = null;
@@ -262,14 +253,34 @@ public class ListFragment extends Fragment {
                     e.printStackTrace();
                 }
                 holder.tvName.setText(member.getStringName());
-            }
+                //List選擇
+                if(displayCheckBox){
+                    holder.checkBox.setVisibility(View.VISIBLE);
+
+                }else{
+                    holder.checkBox.setVisibility(View.INVISIBLE);
+                }
+
+                //挑選 勾選item
+                holder.checkBox.setOnClickListener(v -> {
+                    itemChoose[position] = holder.checkBox.isChecked();
+                    Log.d(TAG,"itemChoose : index[ "+ position +" ]- " + itemChoose[position] );
+                });
+
+                holder.itemView.setOnClickListener(v -> {
+
+                });
+
+                holder.itemView.setOnLongClickListener(v -> {
+                    displayCheckBox = !displayCheckBox;
+                    this.notifyDataSetChanged();
+                    return true;
+                });
+
+//            }
 
         }
 
     }
 
-    private void downloadStrage(final ImageView ivPic, List<String> cloudChildPhotosPathList) {
-        final int MEGABYTE = 2 * 1024 * 1024;
-
-    }
 }

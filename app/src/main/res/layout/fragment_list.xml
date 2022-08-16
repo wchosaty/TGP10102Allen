@@ -26,24 +26,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/searchView_List" />
 
-    <EditText
-        android:id="@+id/etUser_List"
-        android:layout_width="150dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="5dp"
-        android:ems="10"
-        android:inputType="textPersonName"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/searchView_List"
-        tools:text="User" />
-
     <ImageButton
         android:id="@+id/ivShare_List"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/baseline_share_black_24"
+        android:layout_marginTop="8dp"
         android:background="?selectableItemBackground"
-        app:layout_constraintEnd_toStartOf="@+id/etUser_List"
+        android:src="@drawable/baseline_share_black_24"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/searchView_List"
         app:layout_constraintTop_toTopOf="parent" />
 

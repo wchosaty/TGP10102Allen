@@ -9,13 +9,14 @@
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fragmentContainerView"
         android:name="androidx.navigation.fragment.NavHostFragment"
-        android:layout_width="match_parent"
-        android:layout_height="600dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         app:defaultNavHost="true"
+        app:layout_constraintBottom_toTopOf="@+id/bottomNavView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ibSignOut"
         app:navGraph="@navigation/navigation_bottom" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
@@ -32,11 +33,11 @@
         android:id="@+id/ibSignOut"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="32dp"
         android:background="?selectableItemBackground"
-        app:layout_constraintBottom_toBottomOf="@+id/fragmentContainerView"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/baseline_logout_black_24" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
