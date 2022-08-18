@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
@@ -20,7 +21,9 @@ import androidx.viewpager2.widget.ViewPager2;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -44,7 +47,7 @@ public class DetailViewFragment extends Fragment {
     public static List<String> selectPhotosPathList;
     public static Integer touchNumber = -1;
     public static Boolean touchFlag = false;
-
+    private ImageButton ibBack;
     private static MyDetailPager2 myDetailPager2;
     private static ViewPager2 detailPager2;
 
@@ -81,6 +84,10 @@ public class DetailViewFragment extends Fragment {
         myDetailPager2 = new MyDetailPager2((FragmentActivity) activity,selectPhotosPathList);
         detailPager2.setAdapter(myDetailPager2);
 
+        ibBack.setOnClickListener(v -> {
+            Navigation.findNavController(v).navigate(R.id.action_mitDetail_to_mitList);
+        });
+
     }
 
     public void updateDetail(Member member){
@@ -95,6 +102,7 @@ public class DetailViewFragment extends Fragment {
         recyclerViewDetail = view.findViewById(R.id.recyclerView_detail);
 
         detailPager2 = view.findViewById(R.id.viewPager2_detail);
+        ibBack = view.findViewById(R.id.ibBack_Detail);
     }
 
 

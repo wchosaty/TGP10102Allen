@@ -13,9 +13,9 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.cardview.widget.CardView;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -34,9 +34,7 @@ import android.widget.Toast;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.BufferedInputStream;
@@ -53,6 +51,7 @@ import java.util.List;
 import java.util.Objects;
 
 import idv.tgp10102.allen.ComMethod;
+import idv.tgp10102.allen.MainActivity;
 import idv.tgp10102.allen.Member;
 import idv.tgp10102.allen.R;
 
@@ -62,9 +61,11 @@ public class EditFragment extends Fragment {
     private Activity activity;
     private AutoCompleteTextView etName;
     private EditText etMessage;
-    private ImageButton ibSave,ibLoad,ibDelete,ibUploadCould,ibCreateNew,ibShare;
-    private ImageButton ibToClose,ibToOpen,ibAddPhoto,ibTakePic,ibDeletePhoto,ibSelectPhoto;
+    private ImageButton ibSave,ibLoad,ibDelete,ibUploadCould,ibCreateNew;
+    private ImageButton ibAddPhoto,ibTakePic,ibDeletePhoto,ibSelectPhoto,ibBack;
+    private File myDirDocument;
     private ArrayAdapter<String> adapter;
+    private List<String> memberListEdit;
     private FirebaseFirestore db;
     private FirebaseStorage storage;
     private DatabaseReference databaseReference;
@@ -80,9 +81,8 @@ public class EditFragment extends Fragment {
     private Uri srcUri;
     private int handleRequestCode = 0;
     private ViewPager2 viewPager2;
-    private TextView tvPagerNumber;
-    private CardView cvButtonBarToOpen,cvButtonBarToClose;
-    public static List<String> currentEditList;
+    private TextView tvEditMessage;
+    public List<String> currentEditList;
 
     public final static String EMPTY = "-1";
 
@@ -97,6 +97,8 @@ public class EditFragment extends Fragment {
         db = FirebaseFirestore.getInstance();
         storage = FirebaseStorage.getInstance();
         databaseReference = FirebaseDatabase.getInstance().getReference();
+        memberListEdit = new ArrayList<>();
+
     }
 
     @Override
@@ -108,6 +110,7 @@ public class EditFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         activity = getActivity();
+        myDirDocument = activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
         findViews(view);
         ComMethod.getMemberStringList(activity);
         handleInitialAndVisibility();
@@ -118,34 +121,53 @@ public class EditFragment extends Fragment {
         handleAutoCompleteTextView();
         handleButton();
 
+        // 取Bundle Request
+        if (getArguments() != null) {
+            String bundleRequest = getArguments().getString(WORKTYPE);
+            // 接收update要求
+            if (bundleRequest == UPDATE) {
+                Log.d(TAG,"bundleRequest : "+UPDATE);
+                if( getArguments().getString(NAME).trim() != null){
+                    String name = getArguments().getString(NAME);
+                    etName.setText(name);
+                }
+            }
+            // 接收createnew要求
+            if(bundleRequest == CREATENEW){
+                Log.d(TAG,"bundleRequest : "+CREATENEW);
+                createNew();
+            }
+        }
+
     }
 
-    //1:createNew  2:增加 1 photoPosition 3:LoadSave檔 4:拍照完更新
-    private void upDateCurrentEditList(int requestCode,String s, Integer position) {
+    //1:createNew  2:增加 1 photoPosition 3:LoadSave檔
+    private void upDateCurrentEditList(String requestCode,String s, Integer position) {
         switch (requestCode){
-            case REQUEST_P1:
+            case CREATENEW:
                 currentEditList = new ArrayList<>();
                 currentEditList.add(EMPTY);
                 break;
-            case REQUEST_P2:
+            case ADD:
                 currentEditList.add(EMPTY);
                 break;
-            case REQUEST_P3:
+            case SAVE:
                 currentEditList.set(position,s);
                 break;
         }
     }
 
     private void handleButton() {
+        ibBack.setOnClickListener(v -> {
+            Navigation.findNavController(v).navigate(R.id.action_mitEdit_to_mitList);
+        });
+
         ibCreateNew.setOnClickListener(v ->{
-            upDateCurrentEditList(REQUEST_P1,null,0);
-            etName.setText("");
-            etMessage.setText("");
-            viewPager2.setAdapter(myViewPager2Adapter);
+            createNew();
         });
 
         ibAddPhoto.setOnClickListener(v -> {
-            upDateCurrentEditList(REQUEST_P2,null,null);
+            upDateCurrentEditList(ADD,null,null);
             viewPager2.setAdapter(myViewPager2Adapter);
             viewPager2.setCurrentItem(viewPager2.getAdapter().getItemCount());
         });
@@ -158,44 +180,9 @@ public class EditFragment extends Fragment {
 
         //測試上傳Storage
         ibUploadCould.setOnClickListener(v -> {
-            Member member = ComMethod.loadMember(activity,etName.getText().toString().trim());
-            if(member ==null){
-                Toast.makeText(activity, R.string.file_nodata, Toast.LENGTH_SHORT).show();
-                return ;
-            }
-
-            File file = activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
-            List<String> cloudList = new ArrayList<>();
-            for(int i=0; i<member.getLocalChildPathList().size();i++){
-
-                File childFile = new File(file, member.getLocalPhotoParentPath()+"/"+member.getLocalChildPathList().get(i));
-                Uri sourceUri = Uri.fromFile(childFile);
-                String imagePath = getString(R.string.app_name) + member.getLocalPhotoParentPath()+"/"+member.getLocalChildPathList().get(i);
-                cloudList.add(imagePath);
-                storage.getReference().child(imagePath).putFile(sourceUri)
-                        .addOnCompleteListener(task -> {
-                            if (task.isSuccessful()) {
-                                Log.d(TAG, "putFile : isSuccessful");
-                            } else {
-                                Log.d(TAG, "putFile : fail");
-                            }
-                        });
-            }
-            member.setCloudChildPhotosPathList(cloudList);
-            //要修改Nickname
-            db.collection(getString(R.string.app_name)+LOCALNICKNAME)
-                    .document(member.getStringName().toString())
-                    .set(member)
-                    .addOnCompleteListener(task -> {
-                        if(task.isSuccessful()){
-                            Log.d(TAG,"db : isSuccessful");
-                        }else {
-                            Log.d(TAG,"db : fail");
-                        }
-                    });
-
-        });
-
+                    Member member = ComMethod.loadMember(activity, etName.getText().toString().trim());
+                    uploadPhotoToCloud(member);
+                });
         //下載Storage
 //        ibUploadCould.setOnClickListener(v -> {
 //            final int MEGABYTE = 2 * 1024 * 1024;
@@ -223,25 +210,25 @@ public class EditFragment extends Fragment {
 
 
         //測試上傳Firestore DataBase
-        ibShare.setOnClickListener(v -> {
-            String sName = etName.getText().toString().trim();
-            Member m = ComMethod.loadMember(activity,sName);
-            if(Objects.equals(m,null)){
-                Toast.makeText(activity, "null", Toast.LENGTH_SHORT).show();
-                return;
-            }
+//        ibShare.setOnClickListener(v -> {
+//            String sName = etName.getText().toString().trim();
+//            Member m = ComMethod.loadMember(activity,sName);
+//            if(Objects.equals(m,null)){
+//                Toast.makeText(activity, "null", Toast.LENGTH_SHORT).show();
+//                return;
+//            }
 
-            db.collection(LOCALNICKNAME)
-                    .document(m.getStringName().toString())
-                    .set(m)
-                    .addOnCompleteListener(task -> {
-                        if(task.isSuccessful()){
-                            Log.d(TAG,"db : isSuccessful");
-                        }else {
-                            Log.d(TAG,"db : fail");
-                        }
-                    });
-        });
+//            db.collection(LOCALNICKNAME)
+//                    .document(m.getStringName().toString())
+//                    .set(m)
+//                    .addOnCompleteListener(task -> {
+//                        if(task.isSuccessful()){
+//                            Log.d(TAG,"db : isSuccessful");
+//                        }else {
+//                            Log.d(TAG,"db : fail");
+//                        }
+//                    });
+//        });
 
         //下載DataBase
 //        ibShare.setOnClickListener(v -> {
@@ -266,6 +253,54 @@ public class EditFragment extends Fragment {
         handleBtTakePic();
         handleBtSave();
         handleBtDelete();
+    }
+
+    private void uploadPhotoToCloud(Member member) {
+        if(member ==null){
+            Toast.makeText(activity, R.string.file_nodata, Toast.LENGTH_SHORT).show();
+            return ;
+        }
+
+        File file = activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
+        List<String> cloudList = new ArrayList<>();
+        for(int i=0; i<member.getLocalChildPathList().size();i++){
+
+            File childFile = new File(file, member.getLocalPhotoParentPath()+"/"+member.getLocalChildPathList().get(i));
+            Uri sourceUri = Uri.fromFile(childFile);
+            String imagePath = getString(R.string.app_name) + member.getLocalPhotoParentPath()+"/"+member.getLocalChildPathList().get(i);
+            cloudList.add(imagePath);
+            storage.getReference().child(imagePath).putFile(sourceUri)
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            Log.d(TAG, "putFile : isSuccessful");
+                        } else {
+                            Log.d(TAG, "putFile : fail");
+                        }
+                    });
+        }
+        member.setCloudChildPhotosPathList(cloudList);
+        //要修改Nickname
+        db.collection(getString(R.string.app_name)).document(CURRENTNICKNAME)
+                .collection(CURRENTNICKNAME)
+                .document(member.getStringName().toString())
+                .set(member)
+                .addOnCompleteListener(task -> {
+                    if(task.isSuccessful()){
+                        Log.d(TAG,"upload DB : isSuccessful");
+                        tvEditMessage.setText("uploadPhoto : isSuccessful");
+                    }else {
+                        Log.d(TAG,"upload DB : fail");
+                        tvEditMessage.setText("upload DB : fail");
+                    }
+                });
+
+    }
+
+    private void createNew() {
+        upDateCurrentEditList(CREATENEW,null,0);
+        etName.setText("");
+        etMessage.setText("");
+        viewPager2.setAdapter(myViewPager2Adapter);
     }
 
     private void handleAutoCompleteTextView() {
@@ -324,7 +359,7 @@ public class EditFragment extends Fragment {
                     fileObjectPath.delete();
                 etName.setText("");
                 etMessage.setText("");
-                upDateCurrentEditList(REQUEST_P1,null,null);
+                upDateCurrentEditList(CREATENEW,null,null);
             }
         }
     }
@@ -376,46 +411,54 @@ public class EditFragment extends Fragment {
 
     private void handleBtSave() {
 
-        ibSave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        ibSave.setOnClickListener(v ->  {
+            String sCheck =etName.getText().toString();
+            if(Objects.equals(sCheck,null) || Objects.equals(sCheck,"") ){
+                tvEditMessage.setText(R.string.name_null);
+
+            }else{
                 save();
                 currentEditList = null;
                 viewPager2.setAdapter(myViewPager2Adapter);
                 handleAutoCompleteTextView();
             }
+
+
         });
     }
 
     private void save(){
         //檢查是否已有此Name member
-        StringBuilder sbTemp = new StringBuilder(String.valueOf(etName.getText()).trim());
-        if( sbTemp.equals(null) ) {
-            Toast.makeText(activity, R.string.name_null, Toast.LENGTH_SHORT).show();
+        StringBuilder sbNamePath = new StringBuilder(String.valueOf(etName.getText()).trim());
+        if( sbNamePath.equals(null) ) {
+            tvEditMessage.setText(getString(R.string.name_null));
         }
-        //更新本機端 MemberStringList files[]去取Photo名字串
-        ComMethod.getMemberStringList(activity);
+        //更新本機端 MemberList files[]去取Photo名字串
+        upDateMemberNameList();
 
-        File fileTemp = new File(sbTemp.toString().trim());
+        File fileMember = new File(sbNamePath.toString().trim());
         //取得該Memner物件
-        Member mCheck = ComMethod.loadMember(activity,fileTemp.toString());
+        Member mCheck = loadMemberFromEdit(fileMember.toString());
 
         if(mCheck == null){
-            Toast.makeText(activity, R.string.create_new, Toast.LENGTH_SHORT).show();
+            Log.d(TAG,"Save File : "+getString(R.string.create_new));
+            tvEditMessage.setText(getString(R.string.create_new));
         }else{
-            Toast.makeText(activity, R.string.modify_file, Toast.LENGTH_SHORT).show();
+            Log.d(TAG,"Save File : "+getString(R.string.modify_file));
+            tvEditMessage.setText(getString(R.string.modify_file));
         }
         //檢查編輯清單是否有值
         if( Objects.equals(currentEditList,null)
                 || (currentEditList.size()<=0)
                 || (Objects.equals(currentEditList.get(0), EMPTY)) ) {
-            Toast.makeText(activity, R.string.file_nodata, Toast.LENGTH_SHORT).show();
+            Log.d(TAG,"Save : "+getString(R.string.file_nodata));
+            tvEditMessage.setText(getString(R.string.file_nodata));
             return;
         }
 
         try(
                 //Object儲存資料夾
-                FileOutputStream fos = activity.openFileOutput(sbTemp.toString(),MODE_PRIVATE);
+                FileOutputStream fos = activity.openFileOutput(sbNamePath.toString(),MODE_PRIVATE);
                 ObjectOutputStream oos = new ObjectOutputStream(fos);
         )
         {
@@ -425,7 +468,7 @@ public class EditFragment extends Fragment {
             dir = activity.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
 
             //建立資料夾，有登入USER要修正
-            String localParentPath = "/"+LOCALNICKNAME+"/"+sbTemp.toString();
+            String localParentPath = "/"+CURRENTNICKNAME+"/"+sbNamePath.toString();
             dirMember = activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS +localParentPath);
 
             int count = 0;
@@ -471,13 +514,47 @@ public class EditFragment extends Fragment {
 
             etName.setText(null);
             etMessage.setText(null);
-
-            Toast.makeText(activity, R.string.save, Toast.LENGTH_SHORT).show();
+            Log.d(TAG,"Save : " + getString(R.string.save));
+            tvEditMessage.setText(getString(R.string.save));
 
         }catch (Exception e){
             Log.e(TAG,e.toString());
             Log.e(TAG, Arrays.toString(e.getStackTrace()));
         }
+    }
+
+    private Member loadMemberFromEdit(String string) {
+        try(
+                FileInputStream fis = activity.openFileInput(string);
+                ObjectInputStream ois = new ObjectInputStream(fis);
+        )
+        {
+            return (Member) ois.readObject();
+        }catch (Exception e){
+            e.printStackTrace();
+            Log.e(TAG, Arrays.toString(e.getStackTrace()));
+            return null;
+        }
+    }
+
+    private void upDateMemberNameList() {
+        String s;
+        if(Objects.equals(CURRENTNICKNAME,null) || Objects.equals(CURRENTNICKNAME,"")) {
+            CURRENTNICKNAME = GEUST;
+        }
+        File f = new File(myDirDocument.toString()+"/"+ CURRENTNICKNAME);
+        if(!f.exists()){
+            return;
+        }
+        File[] files= f.listFiles();
+
+        memberListEdit.clear();
+        if(files.length>0){
+            for (int i = 0; i < files.length; i++) {
+                memberListEdit.add(String.valueOf(new StringBuilder(files[i].getName().trim())));
+            }
+        }
+
     }
 
     private void copyPicture(File file,StringBuilder sbDest) {
@@ -500,8 +577,7 @@ public class EditFragment extends Fragment {
             Log.e(TAG,e.toString());
             Log.e(TAG, Arrays.toString(e.getStackTrace()));
         }
-
-        }
+    }
 
     private  ActivityResultLauncher<Uri> getLauncher(){
         return registerForActivityResult(new ActivityResultContracts.TakePicture(),
@@ -536,7 +612,7 @@ public class EditFragment extends Fragment {
                             bitmap = BitmapFactory.decodeStream(contentResolver.openInputStream(resultUri));
                         }
                         File fliePathTemp =new File(dir,""+takePicCrop+ "_" + pagerNumber +".jpg");
-                        upDateCurrentEditList(REQUEST_P3,fliePathTemp.toString(),pagerNumber);
+                        upDateCurrentEditList(SAVE,fliePathTemp.toString(),pagerNumber);
 
                         viewPager2.setAdapter(myViewPager2Adapter);
                         viewPager2.setCurrentItem( viewPager2.getAdapter().getItemCount() );
@@ -566,43 +642,28 @@ public class EditFragment extends Fragment {
     private void findViews(View view) {
 
         etName = view.findViewById(R.id.etName);
-        tvPagerNumber = view.findViewById(R.id.tvPagerNumber);
+        tvEditMessage = view.findViewById(R.id.tvMessage_Edit);
         etMessage = view.findViewById(R.id.etMessage);
         ibSave = view.findViewById(R.id.ibSaveMember);
         ibLoad = view.findViewById(R.id.ibLoad);
         ibDelete = view.findViewById(R.id.ibDeleteMember);
         ibUploadCould = view.findViewById(R.id.ibUploadCloud);
         ibCreateNew = view.findViewById(R.id.ibCreateNewMember);
-        ibShare = view.findViewById(R.id.ibShareMember);
 
         ibAddPhoto = view.findViewById(R.id.ibAdd_photo);
         ibTakePic = view.findViewById(R.id.ibCamera_photo);
         ibDeletePhoto = view.findViewById(R.id.ibDelete_photo);
         ibSelectPhoto =view.findViewById(R.id.ibSelectFile_photo);
 
+        ibBack = view.findViewById(R.id.ibBack_Detail);
+
         viewPager2 = view.findViewById(R.id.viewPager2);
-        cvButtonBarToOpen = view.findViewById(R.id.cvPhotoButtonOpenBar);
-        cvButtonBarToClose = view.findViewById(R.id.cvPhotoButtonCloseBar);
-        ibToClose = view.findViewById(R.id.ibBarOpenToclose);
-        ibToOpen = view.findViewById(R.id.ibBarCloseToOpen);
 
     }
 
     private void handleInitialAndVisibility() {
         myViewPager2Adapter = new MyViewPager2Adapter(this, currentEditList);
         viewPager2.setAdapter(myViewPager2Adapter);
-
-        cvButtonBarToOpen.setVisibility(View.INVISIBLE);
-        cvButtonBarToClose.setVisibility(View.VISIBLE);
-
-        ibToOpen.setOnClickListener(view->{
-            cvButtonBarToOpen.setVisibility(View.VISIBLE);
-            cvButtonBarToClose.setVisibility(View.INVISIBLE);
-        });
-        ibToClose.setOnClickListener(view ->{
-            cvButtonBarToOpen.setVisibility(View.INVISIBLE);
-            cvButtonBarToClose.setVisibility(View.VISIBLE);
-        });
 
     }
 
@@ -639,8 +700,6 @@ public class EditFragment extends Fragment {
         @Override
         public Fragment createFragment(int position) {
            String s = new String(currentEditList.get(position));
-           cvButtonBarToOpen.setVisibility(View.VISIBLE);
-           cvButtonBarToClose.setVisibility(View.INVISIBLE);
            return new AddPhotosFragment(s);
         }
 

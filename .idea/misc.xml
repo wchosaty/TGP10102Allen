@@ -14,13 +14,13 @@
         <entry key="..\:/Users/hosat/AndroidStudioProjects/TGP10102Allen/app/src/main/res/drawable/icon_file_open.xml" value="0.227" />
         <entry key="..\:/Users/hosat/AndroidStudioProjects/TGP10102Allen/app/src/main/res/drawable/icon_save_40.xml" value="0.243" />
         <entry key="..\:/Users/hosat/AndroidStudioProjects/TGP10102Allen/app/src/main/res/layout/activity_login.xml" value="0.264" />
-        <entry key="..\:/Users/hosat/AndroidStudioProjects/TGP10102Allen/app/src/main/res/layout/activity_main.xml" value="0.536" />
+        <entry key="..\:/Users/hosat/AndroidStudioProjects/TGP10102Allen/app/src/main/res/layout/activity_main.xml" value="0.264" />
         <entry key="..\:/Users/hosat/AndroidStudioProjects/TGP10102Allen/app/src/main/res/layout/fragment_add_photos.xml" value="0.264" />
         <entry key="..\:/Users/hosat/AndroidStudioProjects/TGP10102Allen/app/src/main/res/layout/fragment_detail_view.xml" value="0.264" />
-        <entry key="..\:/Users/hosat/AndroidStudioProjects/TGP10102Allen/app/src/main/res/layout/fragment_edit.xml" value="0.2" />
+        <entry key="..\:/Users/hosat/AndroidStudioProjects/TGP10102Allen/app/src/main/res/layout/fragment_edit.xml" value="0.4" />
         <entry key="..\:/Users/hosat/AndroidStudioProjects/TGP10102Allen/app/src/main/res/layout/fragment_item_view.xml" value="0.2" />
         <entry key="..\:/Users/hosat/AndroidStudioProjects/TGP10102Allen/app/src/main/res/layout/fragment_likst.xml" value="0.23697916666666666" />
-        <entry key="..\:/Users/hosat/AndroidStudioProjects/TGP10102Allen/app/src/main/res/layout/fragment_list.xml" value="0.264" />
+        <entry key="..\:/Users/hosat/AndroidStudioProjects/TGP10102Allen/app/src/main/res/layout/fragment_list.xml" value="0.23697916666666666" />
         <entry key="..\:/Users/hosat/AndroidStudioProjects/TGP10102Allen/app/src/main/res/layout/fragment_login.xml" value="0.264" />
         <entry key="..\:/Users/hosat/AndroidStudioProjects/TGP10102Allen/app/src/main/res/layout/fragment_travel.xml" value="0.4" />
         <entry key="..\:/Users/hosat/AndroidStudioProjects/TGP10102Allen/app/src/main/res/layout/item_detail.xml" value="0.16" />
@@ -45,7 +45,7 @@
   <component name="VisualizationToolProject">
     <option name="state">
       <ProjectState>
-        <option name="scale" value="0.23697916666666666" />
+        <option name="scale" value="0.264" />
       </ProjectState>
     </option>
   </component>

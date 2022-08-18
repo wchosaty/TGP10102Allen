@@ -37,6 +37,13 @@ import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.Source;
+import com.google.firebase.storage.FirebaseStorage;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 import idv.tgp10102.allen.LoginActivity;
 import idv.tgp10102.allen.MainActivity;
@@ -53,6 +60,9 @@ public class LoginFragment extends Fragment {
     private Button btSingIn,btSignUp;
     private ImageView ivGoogleSignIn;
     private User user;
+    private FirebaseFirestore db;
+    private FirebaseStorage storage;
+    private boolean flag= false;
 
     ActivityResultLauncher<Intent> signInGoogleLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -84,13 +94,14 @@ public class LoginFragment extends Fragment {
                         Intent intent = new Intent();
                         if (firebaseUser != null) {
                             String uid = task.getResult().getUser().getUid();
+                            Log.d(TAG,"uid : " +uid);
                             this.user.setUid(uid);
                             FirebaseFirestore.getInstance()
-                                    .collection(getString(R.string.app_name)+"users").document(user.getUid())
-                                    .set(user).addOnCompleteListener(taskGoogleInsertDB -> {
-                                        if (taskGoogleInsertDB.isSuccessful()) {
-                                            Log.d(TAG,"taskGoogleInsertDB : Successful");
-                                        }
+                                    .collection(getString(R.string.app_name)+"users").document(uid)
+                                    .set(this.user).addOnCompleteListener(taskGoogleInsertDB -> {
+                                                if (taskGoogleInsertDB.isSuccessful()) {
+                                                    Log.d(TAG, "taskGoogleInsertDB : Successful");
+                                                }
                                     });
                         }
 

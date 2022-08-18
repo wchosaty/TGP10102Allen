@@ -1,14 +1,16 @@
 package idv.tgp10102.allen.fragment;
 
+import static idv.tgp10102.allen.MainActivity.*;
+
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -18,23 +20,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import idv.tgp10102.allen.ComMethod;
 import idv.tgp10102.allen.MainActivity;
@@ -47,7 +44,7 @@ public class ListFragment extends Fragment {
     private RecyclerView recyclerView;
     private List<Member> memberObjectsList;
     private SearchView searchView;
-    private ImageButton ivShareList;
+    private ImageButton ivUploadList;
 
     private FirebaseFirestore db;
     private FirebaseStorage storage;
@@ -74,39 +71,51 @@ public class ListFragment extends Fragment {
         findViews(view);
         handleView();
         handleButton();
-    }
 
-    private void handleButton() {
+        // Add to Edit
+        view.findViewById(R.id.btFloatingAdd).setOnClickListener(v -> {
+            Bundle bundle = new Bundle();
+            bundle.putString(WORKTYPE,CREATENEW);
+            Navigation.findNavController(v).navigate(R.id.action_mitList_to_mitEdit,bundle);
+        });
 
-        //測試下載Firebase
-        ivShareList.setOnClickListener(v -> {
-            if(MainActivity.remoteCould){
-                 StringBuilder dbPath = new StringBuilder();
-
-                db.collection(getString(R.string.app_name)+MainActivity.LOCALNICKNAME).get()
-                        .addOnCompleteListener(task -> {
-                            Log.d(TAG,"db.collection : start /PATH :"+String.valueOf(dbPath));
-                            if(task.isSuccessful() && task.getResult() != null){
-
-                                ComMethod.currentCloudList = new ArrayList<>();
-                                for(QueryDocumentSnapshot document : task.getResult()){
-                                    ComMethod.currentCloudList.add(document.toObject(Member.class));
-                                }
-                                Log.d(TAG,"QueryDocumentSnapshot :"+ComMethod.currentCloudList.size());
-                                MyAdapter cloudAdapter = (MyAdapter) recyclerView.getAdapter();
-                                cloudAdapter.setAdapterMembers(ComMethod.currentCloudList);
-                                cloudAdapter.notifyDataSetChanged();
-
-                            }else{
-                                Log.e(TAG, "Firebase : Download Fail");
-                            }
-                        });
-            }
+        // Review to Detail
+        view.findViewById(R.id.btFloatingReview).setOnClickListener(v -> {
+            Navigation.findNavController(v).navigate(R.id.action_mitList_to_mitDetail);
         });
 
     }
 
+    private void handleButton() {
 
+
+        //測試下載Firebase
+//        ivShareList.setOnClickListener(v -> {
+//            if(MainActivity.remoteCould){
+//                 StringBuilder dbPath = new StringBuilder();
+//
+//                db.collection(getString(R.string.app_name)+MainActivity.LOCALNICKNAME).get()
+//                        .addOnCompleteListener(task -> {
+//                            Log.d(TAG,"db.collection : start /PATH :"+String.valueOf(dbPath));
+//                            if(task.isSuccessful() && task.getResult() != null){
+//
+//                                ComMethod.currentCloudList = new ArrayList<>();
+//                                for(QueryDocumentSnapshot document : task.getResult()){
+//                                    ComMethod.currentCloudList.add(document.toObject(Member.class));
+//                                }
+//                                Log.d(TAG,"QueryDocumentSnapshot :"+ComMethod.currentCloudList.size());
+//                                MyAdapter cloudAdapter = (MyAdapter) recyclerView.getAdapter();
+//                                cloudAdapter.setAdapterMembers(ComMethod.currentCloudList);
+//                                cloudAdapter.notifyDataSetChanged();
+//
+//                            }else{
+//                                Log.e(TAG, "Firebase : Download Fail");
+//                            }
+//                        });
+//            }
+//        });
+
+    }
 
     private void load() {
         ComMethod.getMemberStringList(activity);
@@ -118,7 +127,7 @@ public class ListFragment extends Fragment {
         recyclerView = view.findViewById(R.id.recyclerView);
         searchView = view.findViewById(R.id.searchView_List);
 
-        ivShareList = view.findViewById(R.id.ivShare_List);
+        ivUploadList = view.findViewById(R.id.ivUpload_List);
 
     }
 
@@ -127,7 +136,6 @@ public class ListFragment extends Fragment {
 
         recyclerView.setLayoutManager(new LinearLayoutManager(activity));
         recyclerView.setAdapter(new MyAdapter(activity, memberObjectsList) );
-
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -242,7 +250,7 @@ public class ListFragment extends Fragment {
                 Bitmap bitmap = null;
                 File filePicPath = null;
                 StringBuilder s;
-                EditFragment.currentEditList = new ArrayList<>();
+//T                EditFragment.currentEditList = new ArrayList<>();
 
 
                 try {

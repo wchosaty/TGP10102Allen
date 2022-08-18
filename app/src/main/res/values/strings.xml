@@ -19,5 +19,9 @@
     <string name="signIn">Sign In</string>
     <string name="signUp">Sign Up</string>
     <string name="textPhone">Phone Number</string>
+    <string name="phone">phone</string>
+    <string name="cloud">cloud</string>
+    <string name="title">Photos Name</string>
+    <string name="describe">describe</string>
 
 </resources>

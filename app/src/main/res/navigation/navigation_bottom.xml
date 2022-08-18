@@ -9,17 +9,32 @@
         android:id="@+id/mitDetail"
         android:name="idv.tgp10102.allen.fragment.DetailViewFragment"
         android:label="fragment_detail_view"
-        tools:layout="@layout/fragment_detail_view" />
+        tools:layout="@layout/fragment_detail_view" >
+        <action
+            android:id="@+id/action_mitDetail_to_mitList"
+            app:destination="@id/mitList" />
+    </fragment>
 
 
     <fragment
         android:id="@+id/mitEdit"
         android:name="idv.tgp10102.allen.fragment.EditFragment"
         android:label="fragment_edit"
-        tools:layout="@layout/fragment_edit" />
+        tools:layout="@layout/fragment_edit" >
+        <action
+            android:id="@+id/action_mitEdit_to_mitList"
+            app:destination="@id/mitList" />
+    </fragment>
     <fragment
         android:id="@+id/mitList"
         android:name="idv.tgp10102.allen.fragment.ListFragment"
         android:label="fragment_list"
-        tools:layout="@layout/fragment_list" />
+        tools:layout="@layout/fragment_list" >
+        <action
+            android:id="@+id/action_mitList_to_mitEdit"
+            app:destination="@id/mitEdit" />
+        <action
+            android:id="@+id/action_mitList_to_mitDetail"
+            app:destination="@id/mitDetail" />
+    </fragment>
 </navigation>

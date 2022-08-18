@@ -2,6 +2,7 @@ package idv.tgp10102.allen;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 
@@ -9,6 +10,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -29,15 +31,16 @@ public class MainActivity extends AppCompatActivity {
     private TextView tvUserNickName;
     private FirebaseFirestore db;
 
-
     private static final String TAG = "Tag MainActivity";
     public static final String takePicCrop = "Crop" ,
             takePicOrigin = "Origin",
-            LOCALNICKNAME = "localnickname";
-    public static final int
-            REQUEST_P1 = 1,REQUEST_P2 = 2,
-            REQUEST_P3 = 3,REQUEST_P4 = 4;
-    public static File myDirMember;
+            LOCALNICKNAME = "localnickname",GEUST = "guest";
+    public static final String
+            READ = "read",CREATENEW = "createNewFile",
+            UPDATE = "update",DELETE = "delete",
+            NAME = "name",WORKTYPE = "worktype",
+            SAVE ="save",ADD = "add";
+    public static String CURRENTNICKNAME;
     private BottomNavigationView bottomNavigationView;
     public static Boolean remoteCould;
 
@@ -48,7 +51,6 @@ public class MainActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
         setContentView(R.layout.activity_main);
-        myDirMember = getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
         remoteCould = false;
         findViews();
         handleBottomNavigationView();
@@ -81,6 +83,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+
         FirebaseUser user = auth.getCurrentUser();
         if (user == null) {
             startActivity(new Intent().setClass(this, LoginActivity.class) );
@@ -93,8 +96,8 @@ public class MainActivity extends AppCompatActivity {
                         if(taskUserData.isSuccessful() && taskUserData.getResult()!= null){
                             Log.d(TAG,"taskUserData : Successful");
                             User userNickname = taskUserData.getResult().toObject(User.class);
+                            CURRENTNICKNAME = userNickname.getNickName().trim();
                             tvUserNickName.setText(userNickname.getNickName());
-
                         }
                     });
 
