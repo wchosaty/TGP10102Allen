@@ -23,5 +23,8 @@
     <string name="cloud">cloud</string>
     <string name="title">Photos Name</string>
     <string name="describe">describe</string>
+    <string name="FileisNull">FileName is null.</string>
+    <string name="nofile">NO File</string>
+    <string name="synccloud">Sync Cloud</string>
 
 </resources>

@@ -30,11 +30,22 @@
         android:id="@+id/ivUpload_List"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginStart="16dp"
         android:background="?selectableItemBackground"
         android:src="@drawable/baseline_cloud_upload_black_24"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/ivDelete_List"
         app:layout_constraintStart_toEndOf="@+id/searchView_List"
+        app:layout_constraintTop_toTopOf="@+id/ivDelete_List" />
+
+    <ImageButton
+        android:id="@+id/ivDelete_List"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:background="?selectableItemBackground"
+        android:src="@drawable/baseline_delete_black_24"
+        app:layout_constraintBottom_toTopOf="@+id/recyclerView"
+        app:layout_constraintStart_toEndOf="@+id/ivUpload_List"
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -47,16 +58,5 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/recyclerView" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/btFloatingReview"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:clickable="true"
-        android:src="@drawable/ic_baseline_preview"
-        app:layout_constraintEnd_toEndOf="@+id/btFloatingAdd"
-        app:layout_constraintStart_toStartOf="@+id/btFloatingAdd"
-        app:layout_constraintTop_toBottomOf="@+id/btFloatingAdd" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

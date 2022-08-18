@@ -26,6 +26,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -50,30 +51,24 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import idv.tgp10102.allen.ComMethod;
-import idv.tgp10102.allen.MainActivity;
 import idv.tgp10102.allen.Member;
 import idv.tgp10102.allen.R;
 
 public class EditFragment extends Fragment {
     private static final String TAG = "Tag EditFragment";
-    public static Boolean resultFlag = false;
     private Activity activity;
     private AutoCompleteTextView etName;
     private EditText etMessage;
     private ImageButton ibSave,ibLoad,ibDelete,ibUploadCould,ibCreateNew;
     private ImageButton ibAddPhoto,ibTakePic,ibDeletePhoto,ibSelectPhoto,ibBack;
+    private CheckBox cbAutoSync;
     private File myDirDocument;
     private ArrayAdapter<String> adapter;
     private List<String> memberListEdit;
     private FirebaseFirestore db;
     private FirebaseStorage storage;
-    private DatabaseReference databaseReference;
-
     private MyViewPager2Adapter myViewPager2Adapter;
-
     private Integer pagerNumber;
-
     private File dir;
     private File dirMember;
     private File file;
@@ -83,11 +78,9 @@ public class EditFragment extends Fragment {
     private ViewPager2 viewPager2;
     private TextView tvEditMessage;
     public List<String> currentEditList;
-
     public final static String EMPTY = "-1";
 
     private ContentResolver contentResolver;
-
     private ActivityResultLauncher<Uri> takePicLauncher;
     private ActivityResultLauncher<Intent> cropPicLauncher;
 
@@ -96,9 +89,7 @@ public class EditFragment extends Fragment {
         super.onCreate(savedInstanceState);
         db = FirebaseFirestore.getInstance();
         storage = FirebaseStorage.getInstance();
-        databaseReference = FirebaseDatabase.getInstance().getReference();
         memberListEdit = new ArrayList<>();
-
     }
 
     @Override
@@ -112,7 +103,7 @@ public class EditFragment extends Fragment {
         activity = getActivity();
         myDirDocument = activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
         findViews(view);
-        ComMethod.getMemberStringList(activity);
+        upDateMemberNameList();
         handleInitialAndVisibility();
 
         contentResolver = activity.getContentResolver();
@@ -158,6 +149,7 @@ public class EditFragment extends Fragment {
     }
 
     private void handleButton() {
+
         ibBack.setOnClickListener(v -> {
             Navigation.findNavController(v).navigate(R.id.action_mitEdit_to_mitList);
         });
@@ -180,7 +172,7 @@ public class EditFragment extends Fragment {
 
         //測試上傳Storage
         ibUploadCould.setOnClickListener(v -> {
-                    Member member = ComMethod.loadMember(activity, etName.getText().toString().trim());
+            Member member = loadMemberFromEdit(etName.getText().toString().trim());
                     uploadPhotoToCloud(member);
                 });
         //下載Storage
@@ -290,7 +282,7 @@ public class EditFragment extends Fragment {
                         tvEditMessage.setText("uploadPhoto : isSuccessful");
                     }else {
                         Log.d(TAG,"upload DB : fail");
-                        tvEditMessage.setText("upload DB : fail");
+                        tvEditMessage.setText("uploadPhoto : fail");
                     }
                 });
 
@@ -304,13 +296,13 @@ public class EditFragment extends Fragment {
     }
 
     private void handleAutoCompleteTextView() {
-            ComMethod.getMemberStringList(activity);
-            if(Objects.equals(null,ComMethod.memberStringList)){
+            upDateMemberNameList();
+            if(Objects.equals(null,memberListEdit)){
                 return;
             }
             List<String> listTemp = new ArrayList<>();
 
-            for(String temp: ComMethod.memberStringList){
+            for(String temp: memberListEdit){
 
                 listTemp.add(temp.toString());
             }
@@ -324,37 +316,37 @@ public class EditFragment extends Fragment {
         boolean flag = false;
         String deleteName = null;
         if(Objects.equals(etName.toString(),null)){
-            Toast.makeText(activity, "FileName is null.", Toast.LENGTH_SHORT).show();
+            Log.d(TAG,"Edit delete :"+getString(R.string.FileisNull));
             return;
         }
-        File dirMember = activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
-        ComMethod.getMemberStringList(activity);
-        if(ComMethod.memberStringList.size()>0){
-            for (int i = 0; i < ComMethod.memberStringList.size(); i++) {
-                if(Objects.equals(etName.getText().toString(),ComMethod.memberStringList.get(i).toString())){
+        upDateMemberNameList();
+        if(memberListEdit.size()>0){
+            for (int i = 0; i < memberListEdit.size(); i++) {
+                if(Objects.equals(etName.getText().toString(),memberListEdit.get(i).toString())){
                     position = i;
                     flag = true;
-                    deleteName = etName.getText().toString();
+                    deleteName = etName.getText().toString().trim();
                     break;
                 }
             }
             if(!flag){
-                Toast.makeText(activity, "No Find File ", Toast.LENGTH_SHORT).show();
+                Log.d(TAG,"Edit delete : "+ getString(R.string.nofile));
+                tvEditMessage.setText(R.string.nofile);
             }
         }
-        //有該member資料
+        // 有該member資料
         if ((position >= 0) && flag){
-            file =new File(dirMember,""+deleteName);
-//            etMessage.setText(file.toString());
+            file =new File(myDirDocument,CURRENTNICKNAME+"/"+deleteName);
             File[] subFileList = file.listFiles();
             if(subFileList != null){
                 for(File temp : subFileList) {
                     temp.delete();
                 }
             }
-            //再刪除本資料
+            //再刪除Object資料
             if(file.delete()){
-                Toast.makeText(activity, R.string.delete, Toast.LENGTH_SHORT).show();
+                Log.d(TAG,"Edit delete : "+ getString(R.string.delete));
+                tvEditMessage.setText(R.string.delete);
                     File fileObjectPath = new File(activity.getFilesDir(), deleteName);
                     fileObjectPath.delete();
                 etName.setText("");
@@ -366,8 +358,10 @@ public class EditFragment extends Fragment {
 
 
     private void handleBtDelete() {
-        ibDelete.setOnClickListener(view -> {
+        ibDelete.setOnClickListener(v -> {
+
             delete();
+            Navigation.findNavController(v).navigate(R.id.action_mitEdit_to_mitList);
             handleAutoCompleteTextView();
         });
 
@@ -383,18 +377,18 @@ public class EditFragment extends Fragment {
 
         String sName = etName.getText().toString().trim();
         if( Objects.equals(sName,null) ){
-            Toast.makeText(activity, R.string.name_nofind, Toast.LENGTH_SHORT).show();
+            Log.d(TAG,"load : "+ getString(R.string.name_nofind));
+            tvEditMessage.setText(getString(R.string.name_nofind));
             return;
         }
         StringBuilder sbTemp = new StringBuilder(sName);
-        Member member = ComMethod.loadMember(activity,sbTemp.toString());
+        Member member = loadMemberFromEdit(sbTemp.toString());
 
 
         if(member ==null){
             Toast.makeText(activity, R.string.file_nodata, Toast.LENGTH_SHORT).show();
             return ;
         }
-        dirMember = activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
         StringBuilder s;
         currentEditList = new ArrayList<>();
         currentEditList = member.getLocalPhotosPathList();
@@ -419,11 +413,9 @@ public class EditFragment extends Fragment {
             }else{
                 save();
                 currentEditList = null;
-                viewPager2.setAdapter(myViewPager2Adapter);
+                Navigation.findNavController(v).navigate(R.id.action_mitEdit_to_mitList);
                 handleAutoCompleteTextView();
             }
-
-
         });
     }
 
@@ -492,7 +484,6 @@ public class EditFragment extends Fragment {
                 fileDest = new File(dirMember,stringChildList.get(i));
                 //pathList
 
-
                 //先考慮裁切檔案
                 if( currentEditList.get(i).contains("Crop") ){
                         copyPicture(fileCrop, new StringBuilder(fileDest.toString()));
@@ -514,6 +505,10 @@ public class EditFragment extends Fragment {
 
             etName.setText(null);
             etMessage.setText(null);
+            // 同步上傳
+            if(cbAutoSync.isChecked()){
+                uploadPhotoToCloud(member);
+            }
             Log.d(TAG,"Save : " + getString(R.string.save));
             tvEditMessage.setText(getString(R.string.save));
 
@@ -554,7 +549,6 @@ public class EditFragment extends Fragment {
                 memberListEdit.add(String.valueOf(new StringBuilder(files[i].getName().trim())));
             }
         }
-
     }
 
     private void copyPicture(File file,StringBuilder sbDest) {
@@ -656,6 +650,7 @@ public class EditFragment extends Fragment {
         ibSelectPhoto =view.findViewById(R.id.ibSelectFile_photo);
 
         ibBack = view.findViewById(R.id.ibBack_Detail);
+        cbAutoSync = view.findViewById(R.id.cbAutoSyncCloud);
 
         viewPager2 = view.findViewById(R.id.viewPager2);
 
@@ -679,7 +674,6 @@ public class EditFragment extends Fragment {
         file = createFile(takePicOrigin);
         srcUri = FileProvider.getUriForFile(activity,
                 activity.getPackageName()+".fileProvider",file);
-
         takePicLauncher.launch(srcUri);
     }
 

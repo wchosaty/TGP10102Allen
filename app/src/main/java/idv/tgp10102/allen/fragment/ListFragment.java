@@ -14,6 +14,7 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Environment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,7 +45,10 @@ public class ListFragment extends Fragment {
     private RecyclerView recyclerView;
     private List<Member> memberObjectsList;
     private SearchView searchView;
+    private File myDirMember_List;
     private ImageButton ivUploadList;
+    private File myDir_list;
+    private List<String> currentMyList;
 
     private FirebaseFirestore db;
     private FirebaseStorage storage;
@@ -67,6 +71,8 @@ public class ListFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         activity = getActivity();
+        myDir_list = activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
+        currentMyList = new ArrayList<>();
         load();
         findViews(view);
         handleView();
@@ -77,11 +83,6 @@ public class ListFragment extends Fragment {
             Bundle bundle = new Bundle();
             bundle.putString(WORKTYPE,CREATENEW);
             Navigation.findNavController(v).navigate(R.id.action_mitList_to_mitEdit,bundle);
-        });
-
-        // Review to Detail
-        view.findViewById(R.id.btFloatingReview).setOnClickListener(v -> {
-            Navigation.findNavController(v).navigate(R.id.action_mitList_to_mitDetail);
         });
 
     }
@@ -118,9 +119,16 @@ public class ListFragment extends Fragment {
     }
 
     private void load() {
-        ComMethod.getMemberStringList(activity);
-
-
+        File f = new File(myDir_list.toString()+"/"+CURRENTNICKNAME);
+        if(!f.exists()){
+            return;
+        }
+        File[] files= f.listFiles();
+        if(files.length>0){
+            for (int i = 0; i < files.length; i++) {
+                currentMyList.add(String.valueOf(new StringBuilder(files[i].getName().trim())));
+            }
+        }
     }
 
     private void findViews(View view) {
@@ -128,7 +136,6 @@ public class ListFragment extends Fragment {
         searchView = view.findViewById(R.id.searchView_List);
 
         ivUploadList = view.findViewById(R.id.ivUpload_List);
-
     }
 
     private void handleView() {

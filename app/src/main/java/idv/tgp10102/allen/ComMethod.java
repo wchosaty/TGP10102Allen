@@ -52,20 +52,6 @@ public class ComMethod {
         return list;
     }
 
-    public static void getMemberStringList(Context context){
-        File f = new File(MainActivity.myDirMember.toString()+"/"+LOCALNICKNAME);
-        if(!f.exists()){
-            return;
-        }
-        File[] files= f.listFiles();
-
-        memberStringList = new ArrayList<>();
-        if(files.length>0){
-            for (int i = 0; i < files.length; i++) {
-                memberStringList.add(String.valueOf(new StringBuilder(files[i].getName().trim())));
-            }
-        }
-    }
     public static Member loadMember(Context context, String s){
         try(
                 FileInputStream fis = context.openFileInput(s);

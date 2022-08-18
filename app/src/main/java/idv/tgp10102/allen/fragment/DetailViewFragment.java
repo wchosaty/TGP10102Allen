@@ -110,7 +110,7 @@ public class DetailViewFragment extends Fragment {
     }
 
     private void load() {
-        ComMethod.getMemberStringList(activity);
+
     }
 
     static class MyDetailAdapter extends RecyclerView.Adapter<MyDetailAdapter.DetailViewHolder> {
