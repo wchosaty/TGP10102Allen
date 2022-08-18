@@ -4,7 +4,9 @@ import static idv.tgp10102.allen.MainActivity.*;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -25,19 +27,28 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import idv.tgp10102.allen.ComMethod;
+import idv.tgp10102.allen.LoginActivity;
 import idv.tgp10102.allen.MainActivity;
 import idv.tgp10102.allen.Member;
 import idv.tgp10102.allen.R;
+import idv.tgp10102.allen.User;
 
 public class ListFragment extends Fragment {
     private static final String TAG = "Tag_ListFragment";
@@ -47,9 +58,9 @@ public class ListFragment extends Fragment {
     private SearchView searchView;
     private File myDirMember_List;
     private ImageButton ivUploadList;
+    private TextView tvMessage;
     private File myDir_list;
     private List<String> currentMyList;
-
     private FirebaseFirestore db;
     private FirebaseStorage storage;
 
@@ -118,8 +129,14 @@ public class ListFragment extends Fragment {
 
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        load();
+    }
+
     private void load() {
-        File f = new File(myDir_list.toString()+"/"+CURRENTNICKNAME);
+        File f = new File(myDir_list.toString()+"/"+LOCALNICKNAME);
         if(!f.exists()){
             return;
         }
@@ -136,10 +153,38 @@ public class ListFragment extends Fragment {
         searchView = view.findViewById(R.id.searchView_List);
 
         ivUploadList = view.findViewById(R.id.ivUpload_List);
+        tvMessage = view.findViewById(R.id.tvMessage_List);
+
+    }
+
+    private List<Member> getMyListToObjectsList() {
+        List<Member> list = new ArrayList<>();
+        if(Objects.equals(currentMyList,null) ||
+                currentMyList.size() < 0){
+            return list;
+        }
+        for (int i = 0; i < currentMyList.size(); i++) {
+
+            String sbTemp = String.valueOf(currentMyList.get(i));
+            try(
+                    FileInputStream fis = activity.openFileInput(sbTemp);
+                    ObjectInputStream ois = new ObjectInputStream(fis);
+            )
+            {
+                Member member = (Member) ois.readObject();
+                list.add(member);
+            }catch (Exception e){
+                e.printStackTrace();
+                Log.e(TAG, Arrays.toString(e.getStackTrace()));
+            }
+        }
+        return list;
+
     }
 
     private void handleView() {
-        memberObjectsList = ComMethod.getMemberObjectsList(activity);
+//        memberObjectsList = ComMethod.getMemberObjectsList(activity);
+        memberObjectsList = getMyListToObjectsList();
 
         recyclerView.setLayoutManager(new LinearLayoutManager(activity));
         recyclerView.setAdapter(new MyAdapter(activity, memberObjectsList) );
@@ -174,6 +219,8 @@ public class ListFragment extends Fragment {
             }
         });
     }
+
+
 
     class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         Context context;
@@ -283,7 +330,12 @@ public class ListFragment extends Fragment {
                 });
 
                 holder.itemView.setOnClickListener(v -> {
-
+                    if(!displayCheckBox){
+                        Bundle bundle = new Bundle();
+                        bundle.putString(WORKTYPE,UPDATE);
+                        bundle.putString(NAME,member.getStringName());
+                        Navigation.findNavController(v).navigate(R.id.action_mitList_to_mitEdit,bundle);
+                    }
                 });
 
                 holder.itemView.setOnLongClickListener(v -> {

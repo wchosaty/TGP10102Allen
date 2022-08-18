@@ -121,6 +121,7 @@ public class EditFragment extends Fragment {
                 if( getArguments().getString(NAME).trim() != null){
                     String name = getArguments().getString(NAME);
                     etName.setText(name);
+                    load();
                 }
             }
             // 接收createnew要求
@@ -259,7 +260,8 @@ public class EditFragment extends Fragment {
 
             File childFile = new File(file, member.getLocalPhotoParentPath()+"/"+member.getLocalChildPathList().get(i));
             Uri sourceUri = Uri.fromFile(childFile);
-            String imagePath = getString(R.string.app_name) + member.getLocalPhotoParentPath()+"/"+member.getLocalChildPathList().get(i);
+            String imagePath = getString(R.string.app_name) + member.getCloudPhotosParentPath()+"/"+member.getLocalChildPathList().get(i);
+            Log.d(TAG,"Storage imagePath : "+imagePath);
             cloudList.add(imagePath);
             storage.getReference().child(imagePath).putFile(sourceUri)
                     .addOnCompleteListener(task -> {
@@ -336,7 +338,7 @@ public class EditFragment extends Fragment {
         }
         // 有該member資料
         if ((position >= 0) && flag){
-            file =new File(myDirDocument,CURRENTNICKNAME+"/"+deleteName);
+            file =new File(myDirDocument,LOCALNICKNAME+"/"+deleteName);
             File[] subFileList = file.listFiles();
             if(subFileList != null){
                 for(File temp : subFileList) {
@@ -459,8 +461,8 @@ public class EditFragment extends Fragment {
             StringBuilder sbMessage = new StringBuilder(String.valueOf(etMessage.getText()).trim());
             dir = activity.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
 
-            //建立資料夾，有登入USER要修正
-            String localParentPath = "/"+CURRENTNICKNAME+"/"+sbNamePath.toString();
+            //建立資料夾，本機使用LOCALNAME
+            String localParentPath = "/"+LOCALNICKNAME+"/"+sbNamePath.toString();
             dirMember = activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS +localParentPath);
 
             int count = 0;
@@ -498,6 +500,8 @@ public class EditFragment extends Fragment {
             member.setLocalPhotosPathList(stringList);
 
             member.setLocalPhotoParentPath(localParentPath);
+            member.setCloudPhotosParentPath("/"+CURRENTNICKNAME+"/"+sbNamePath.toString());
+
             member.setLocalChildPathList(stringChildList);
             member.setStringName(sbName.toString());
             member.setStringMessage(sbMessage.toString());
@@ -533,11 +537,7 @@ public class EditFragment extends Fragment {
     }
 
     private void upDateMemberNameList() {
-        String s;
-        if(Objects.equals(CURRENTNICKNAME,null) || Objects.equals(CURRENTNICKNAME,"")) {
-            CURRENTNICKNAME = GEUST;
-        }
-        File f = new File(myDirDocument.toString()+"/"+ CURRENTNICKNAME);
+        File f = new File(myDirDocument.toString()+"/"+ LOCALNICKNAME);
         if(!f.exists()){
             return;
         }

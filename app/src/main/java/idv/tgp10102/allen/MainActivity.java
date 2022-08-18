@@ -75,7 +75,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void handleBottomNavigationView() {
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentContainerView);
-
         NavController navController = navHostFragment.getNavController();
         NavigationUI.setupWithNavController(bottomNavigationView,navController);
     }
@@ -100,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
                             tvUserNickName.setText(userNickname.getNickName());
                         }
                     });
-
         }
     }
+
 }
