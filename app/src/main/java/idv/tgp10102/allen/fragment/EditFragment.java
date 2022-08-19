@@ -694,7 +694,7 @@ public class EditFragment extends Fragment {
         @Override
         public Fragment createFragment(int position) {
            String s = new String(currentEditList.get(position));
-           return new AddPhotosFragment(s);
+           return new AddLocalPhotoFragment(s);
         }
 
         @Override
