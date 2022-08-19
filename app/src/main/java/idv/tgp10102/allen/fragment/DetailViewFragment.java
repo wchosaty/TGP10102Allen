@@ -9,6 +9,7 @@ import static idv.tgp10102.allen.MainActivity.WORKTYPE;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -36,6 +37,7 @@ import android.widget.TextView;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.io.File;
 import java.io.IOException;
@@ -169,7 +171,7 @@ public class DetailViewFragment extends Fragment {
 
     }
 
-    static class MyDetailAdapter extends RecyclerView.Adapter<MyDetailAdapter.DetailViewHolder> {
+    class MyDetailAdapter extends RecyclerView.Adapter<MyDetailAdapter.DetailViewHolder> {
         private Context context;
         List<Member> list;
 
@@ -192,27 +194,42 @@ public class DetailViewFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull DetailViewHolder holder, int position) {
-            Member member = list.get(position);
+            final Member member = list.get(position);
 
-            Bitmap bitmap = null;
             File filePicPath = null;
             StringBuilder s;
 
             holder.nameDetail.setText(member.getStringName());
-            try {
-                filePicPath = new File(member.getLocalPhotosPathList().get(0).toString() );
-                holder.ivPicDetail.setImageBitmap( ComMethod.bitmapToImageFilePath(bitmap,filePicPath) );
-            } catch (IOException e) {
-                e.printStackTrace();
+            if(member.getCloudChildPhotosPathList().size() > 0){
+                final int MEGABYTE = 2 * 1024 * 1024;
+                for(int i=0;i<member.getCloudChildPhotosPathList().size();i++){
+                    String imagePath = member.getCloudChildPhotosPathList().get(i);
+                    StorageReference imageRef = storage.getReference().child(imagePath);
+                    imageRef.getBytes(MEGABYTE)
+                            .addOnCompleteListener(task -> {
+                                if (task.isSuccessful() && task.getResult() != null){
+                                    byte[] bytes = task.getResult();
+                                    Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                                    holder.ivPicDetail.setImageBitmap(bitmap);
+                                }else {
+                                    Log.e(TAG, "onBindViewHolder : downloadStrage Fail");
+                                }
+                            });
+                    }
             }
 
+            // viewPager2
             holder.itemView.setOnClickListener(v -> {
                 if(member != null){
 
                     nameDetail.setText(member.getStringName());
                     tvMessage.setText(member.getStringMessage());
                     selectPhotosPathList= new ArrayList<>();
-                    selectPhotosPathList=member.getLocalPhotosPathList();
+
+                    // cloud修改
+                    //selectPhotosPathList=member.getLocalPhotosPathList();
+                    selectPhotosPathList=member.getCloudChildPhotosPathList();
+
                     myDetailPager2.setMyDetailPager2Adapter(selectPhotosPathList);
                     detailPager2.setAdapter(myDetailPager2);
                 }

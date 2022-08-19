@@ -2,33 +2,33 @@ package idv.tgp10102.allen.fragment;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import org.w3c.dom.Text;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.FirebaseStorage;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Objects;
 
-import idv.tgp10102.allen.ComMethod;
-import idv.tgp10102.allen.MainActivity;
 import idv.tgp10102.allen.R;
 
 public class AddPhotosFragment extends Fragment {
+    private static final String TAG = "Tag AddPhotosFragment";
     private Activity activity;
     private ImageView ivAddPhoto;
     private String photoPath;
+    private FirebaseStorage storage;
 
     public AddPhotosFragment(String photoPath) {
         this.photoPath = photoPath;
@@ -37,6 +37,7 @@ public class AddPhotosFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        storage = FirebaseStorage.getInstance();
     }
 
     @Override
@@ -59,7 +60,7 @@ public class AddPhotosFragment extends Fragment {
 
         ivAddPhoto.setImageResource(R.drawable.baseline_add_black_48);
         File filePicPath = new File(this.photoPath.toString());
-        Bitmap bitmap = null;
+ //       Bitmap bitmap = null;
         //設定預設圖片尺寸
         if(Objects.equals(photoPath,"-1")){
             ViewGroup.LayoutParams params = ivAddPhoto.getLayoutParams();
@@ -68,10 +69,28 @@ public class AddPhotosFragment extends Fragment {
             ivAddPhoto.setLayoutParams(params);
         }
 
-        try {
-            ivAddPhoto.setImageBitmap(ComMethod.bitmapToImageFilePath(bitmap, filePicPath));
-        } catch (IOException e) {
-            e.printStackTrace();
+        // 原本機端取圖
+//        try {
+//            ivAddPhoto.setImageBitmap(ComMethod.bitmapToImageFilePath(bitmap, filePicPath));
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+
+        // cloud修改路徑
+        if(!Objects.equals(this.photoPath,null)){
+            final int MEGABYTE = 2 * 1024 * 1024;
+                String imagePath = this.photoPath;
+                StorageReference imageRef = storage.getReference().child(imagePath);
+                imageRef.getBytes(MEGABYTE)
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful() && task.getResult() != null){
+                                byte[] bytes = task.getResult();
+                                Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                                ivAddPhoto.setImageBitmap(bitmap);
+                            }else {
+                                Log.e(TAG, "onBindViewHolder : downloadStrage Fail");
+                            }
+                        });
         }
 
     }
