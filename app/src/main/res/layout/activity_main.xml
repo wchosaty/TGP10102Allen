@@ -40,17 +40,17 @@
         app:srcCompat="@drawable/baseline_logout_black_24" />
 
     <ImageView
-        android:id="@+id/ivUesr_Main"
+        android:id="@+id/ivCurrentPhotoNick_Detail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         app:layout_constraintBottom_toTopOf="@+id/fragmentContainerView"
-        app:layout_constraintEnd_toStartOf="@+id/tvUesrNickName_Main"
+        app:layout_constraintEnd_toStartOf="@+id/tvCurrentPhotoNick_Detail"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/baseline_account_circle_black_24" />
 
     <TextView
-        android:id="@+id/tvUesrNickName_Main"
+        android:id="@+id/tvCurrentPhotoNick_Detail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"

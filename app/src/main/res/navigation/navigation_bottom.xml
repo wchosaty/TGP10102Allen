@@ -13,6 +13,9 @@
         <action
             android:id="@+id/action_mitDetail_to_mitList"
             app:destination="@id/mitList" />
+        <action
+            android:id="@+id/action_mitDetail_to_cloudListFragment"
+            app:destination="@id/cloudListFragment" />
     </fragment>
 
 
@@ -35,6 +38,15 @@
             app:destination="@id/mitEdit" />
         <action
             android:id="@+id/action_mitList_to_mitDetail"
+            app:destination="@id/mitDetail" />
+    </fragment>
+    <fragment
+        android:id="@+id/cloudListFragment"
+        android:name="idv.tgp10102.allen.fragment.CloudListFragment"
+        android:label="fragment_cloud_list"
+        tools:layout="@layout/fragment_cloud_list" >
+        <action
+            android:id="@+id/action_cloudListFragment_to_mitDetail"
             app:destination="@id/mitDetail" />
     </fragment>
 </navigation>

@@ -4,9 +4,7 @@ import static idv.tgp10102.allen.MainActivity.*;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
-import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -21,16 +19,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 
@@ -44,11 +38,9 @@ import java.util.List;
 import java.util.Objects;
 
 import idv.tgp10102.allen.ComMethod;
-import idv.tgp10102.allen.LoginActivity;
 import idv.tgp10102.allen.MainActivity;
 import idv.tgp10102.allen.Member;
 import idv.tgp10102.allen.R;
-import idv.tgp10102.allen.User;
 
 public class ListFragment extends Fragment {
     private static final String TAG = "Tag_ListFragment";
@@ -150,7 +142,7 @@ public class ListFragment extends Fragment {
 
     private void findViews(View view) {
         recyclerView = view.findViewById(R.id.recyclerView);
-        searchView = view.findViewById(R.id.searchView_List);
+        searchView = view.findViewById(R.id.searchView_CloudList);
 
         ivUploadList = view.findViewById(R.id.ivUpload_List);
         tvMessage = view.findViewById(R.id.tvMessage_List);

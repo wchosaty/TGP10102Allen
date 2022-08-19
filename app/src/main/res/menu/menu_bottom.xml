@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/mitDetail"
+        android:id="@+id/cloudListFragment"
         android:icon="@drawable/baseline_cloud_black_24"
         android:title="@string/cloud" />
     <item

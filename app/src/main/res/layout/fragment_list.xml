@@ -7,7 +7,7 @@
     tools:context=".fragment.ListFragment">
 
     <SearchView
-        android:id="@+id/searchView_List"
+        android:id="@+id/searchView_CloudList"
         android:layout_width="150dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="5dp"
@@ -24,7 +24,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/searchView_List" />
+        app:layout_constraintTop_toBottomOf="@+id/searchView_CloudList" />
 
     <ImageButton
         android:id="@+id/ivUpload_List"
@@ -34,7 +34,7 @@
         android:background="?selectableItemBackground"
         android:src="@drawable/baseline_cloud_upload_black_24"
         app:layout_constraintBottom_toBottomOf="@+id/ivDelete_List"
-        app:layout_constraintStart_toEndOf="@+id/searchView_List"
+        app:layout_constraintStart_toEndOf="@+id/searchView_CloudList"
         app:layout_constraintTop_toTopOf="@+id/ivDelete_List" />
 
     <ImageButton

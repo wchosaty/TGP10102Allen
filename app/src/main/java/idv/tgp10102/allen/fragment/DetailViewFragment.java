@@ -1,6 +1,11 @@
 package idv.tgp10102.allen.fragment;
 
 
+import static idv.tgp10102.allen.MainActivity.CREATENEW;
+import static idv.tgp10102.allen.MainActivity.NAME;
+import static idv.tgp10102.allen.MainActivity.UPDATE;
+import static idv.tgp10102.allen.MainActivity.WORKTYPE;
+
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -18,6 +23,7 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +32,10 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.storage.FirebaseStorage;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,18 +52,27 @@ public class DetailViewFragment extends Fragment {
     private Activity activity;
     private static TextView tvMessage;
     private static EditText nameDetail;
+    private ImageView ivCurrentPhotoNick;
+    private TextView tvCurrentPhotoNick;
     private RecyclerView recyclerViewDetail;
     private List<Member> detailObjectsList;
+    private List<Member> currentCloudMemberList;
     public static List<String> selectPhotosPathList;
+    private String currentPhotoNickname;
     public static Integer touchNumber = -1;
     public static Boolean touchFlag = false;
     private ImageButton ibBack;
     private static MyDetailPager2 myDetailPager2;
     private static ViewPager2 detailPager2;
 
+    private FirebaseFirestore db;
+    private FirebaseStorage storage;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        db = FirebaseFirestore.getInstance();
+        storage = FirebaseStorage.getInstance();
     }
 
     @Override
@@ -65,19 +84,53 @@ public class DetailViewFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         activity = getActivity();
+        currentCloudMemberList = new ArrayList<>();
         findViews(view);
         load();
         handleView();
+
+        // 取Bundle Request
+        if (getArguments() != null) {
+            String bundleRequest = getArguments().getString(NAME);
+            // 接收update要求
+            if (bundleRequest != null) {
+                Log.d(TAG,"bundleRequest : "+ bundleRequest);
+                ivCurrentPhotoNick.setImageResource(R.drawable.baseline_account_circle_white_24);
+                currentPhotoNickname = bundleRequest;
+                tvCurrentPhotoNick.setText(bundleRequest);
+                downloadPhotosList();
+                }
+            }
+
     }
 
+    private void downloadPhotosList() {
+                        db.collection(getString(R.string.app_name)).document(currentPhotoNickname)
+                                .collection(currentPhotoNickname).get()
+                        .addOnCompleteListener(task -> {
+                            if(task.isSuccessful() && task.getResult() != null){
+                                if(currentCloudMemberList.size() > 0){
+                                    currentCloudMemberList.clear();
+                                }
+                                for(QueryDocumentSnapshot document : task.getResult()){
+                                    currentCloudMemberList.add(document.toObject(Member.class));
+                                }
+                                Log.d(TAG,"QueryDocumentSnapshot :"+currentCloudMemberList.size());
+                                MyDetailAdapter cloudDetailAdapter = (MyDetailAdapter) recyclerViewDetail.getAdapter();
+                                cloudDetailAdapter.setMyDetailAdapter(currentCloudMemberList);
+                                cloudDetailAdapter.notifyDataSetChanged();
+
+                            }else{
+                                Log.e(TAG, "Firebase : Download Fail");
+                            }
+                        });
+    }
 
 
     private void handleView() {
         detailObjectsList = ComMethod.getMemberObjectsList(activity);
-        if(!Objects.equals(detailObjectsList,null)){
-            recyclerViewDetail.setAdapter(new MyDetailAdapter(activity, detailObjectsList));
-            recyclerViewDetail.setLayoutManager(new StaggeredGridLayoutManager(1,StaggeredGridLayoutManager.HORIZONTAL));
-        }
+        recyclerViewDetail.setAdapter(new MyDetailAdapter(activity, currentCloudMemberList));
+        recyclerViewDetail.setLayoutManager(new StaggeredGridLayoutManager(1,StaggeredGridLayoutManager.HORIZONTAL));
 
 
         selectPhotosPathList = new ArrayList<>();
@@ -85,7 +138,7 @@ public class DetailViewFragment extends Fragment {
         detailPager2.setAdapter(myDetailPager2);
 
         ibBack.setOnClickListener(v -> {
-            Navigation.findNavController(v).navigate(R.id.action_mitDetail_to_mitList);
+            Navigation.findNavController(v).navigate(R.id.action_mitDetail_to_cloudListFragment);
         });
 
     }
@@ -103,6 +156,9 @@ public class DetailViewFragment extends Fragment {
 
         detailPager2 = view.findViewById(R.id.viewPager2_detail);
         ibBack = view.findViewById(R.id.ibBack_Detail);
+
+        tvCurrentPhotoNick = view.findViewById(R.id.tvCurrentPhotoNick_Detail);
+        ivCurrentPhotoNick = view.findViewById(R.id.ivCurrentPhotoNick_Detail);
     }
 
 
@@ -122,6 +178,9 @@ public class DetailViewFragment extends Fragment {
             this.list = list;
         }
 
+        public void setMyDetailAdapter(List<Member> list) {
+            this.list = list;
+        }
 
         @NonNull
         @Override
@@ -138,7 +197,6 @@ public class DetailViewFragment extends Fragment {
             Bitmap bitmap = null;
             File filePicPath = null;
             StringBuilder s;
-
 
             holder.nameDetail.setText(member.getStringName());
             try {
