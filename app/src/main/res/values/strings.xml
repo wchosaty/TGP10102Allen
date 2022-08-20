@@ -1,7 +1,5 @@
 <resources>
     <string name="app_name">TGP101 02 Allen</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="name_null">Name is Empty</string>
     <string name="search_name">Search Name</string>
     <string name="create_new">Create New File</string>
@@ -13,7 +11,7 @@
     <string name="textEmail">Email</string>
     <string name="textPassWord">Password</string>
     <string name="textNickname">NickName</string>
-    <string name="textRegisterHint">or sign in</string>
+    <string name="textRegisterHint">Continue with google</string>
     <string name="textCheckEmailPasswordEmpty">Email or password is empty</string>
     <string name="textCheckNicknameEmpty">Nickname is empty</string>
     <string name="signIn">Sign In</string>
@@ -25,6 +23,7 @@
     <string name="describe">describe</string>
     <string name="FileisNull">FileName is null.</string>
     <string name="nofile">NO File</string>
-    <string name="synccloud">Sync Cloud</string>
+    <string name="synccloud">SyncCloud</string>
+    <string name="tosignUp">To Sign Up</string>
 
 </resources>

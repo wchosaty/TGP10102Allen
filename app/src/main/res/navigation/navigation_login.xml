@@ -9,5 +9,30 @@
         android:id="@+id/loginFragment"
         android:name="idv.tgp10102.allen.fragment.LoginFragment"
         android:label="fragment_login"
-        tools:layout="@layout/fragment_login" />
+        tools:layout="@layout/fragment_login" >
+        <action
+            android:id="@+id/action_loginFragment_to_emailSignUpFragment"
+            app:destination="@id/emailSignUpFragment" />
+        <action
+            android:id="@+id/action_loginFragment_to_googleSignUpFragment"
+            app:destination="@id/googleSignUpFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/emailSignUpFragment"
+        android:name="idv.tgp10102.allen.fragment.EmailSignUpFragment"
+        android:label="fragment_email_sign_up"
+        tools:layout="@layout/fragment_email_sign_up" >
+        <action
+            android:id="@+id/action_emailSignUpFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/googleSignUpFragment"
+        android:name="idv.tgp10102.allen.fragment.GoogleSignUpFragment"
+        android:label="fragment_google_sign_up"
+        tools:layout="@layout/fragment_google_sign_up" >
+        <action
+            android:id="@+id/action_googleSignUpFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
+    </fragment>
 </navigation>

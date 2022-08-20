@@ -50,7 +50,6 @@ public class ListFragment extends Fragment {
     private SearchView searchView;
     private File myDirMember_List;
     private ImageButton ivUploadList;
-    private TextView tvMessage;
     private File myDir_list;
     private List<String> currentMyList;
     private FirebaseFirestore db;
@@ -92,39 +91,15 @@ public class ListFragment extends Fragment {
 
     private void handleButton() {
 
-
-        //測試下載Firebase
-//        ivShareList.setOnClickListener(v -> {
-//            if(MainActivity.remoteCould){
-//                 StringBuilder dbPath = new StringBuilder();
-//
-//                db.collection(getString(R.string.app_name)+MainActivity.LOCALNICKNAME).get()
-//                        .addOnCompleteListener(task -> {
-//                            Log.d(TAG,"db.collection : start /PATH :"+String.valueOf(dbPath));
-//                            if(task.isSuccessful() && task.getResult() != null){
-//
-//                                ComMethod.currentCloudList = new ArrayList<>();
-//                                for(QueryDocumentSnapshot document : task.getResult()){
-//                                    ComMethod.currentCloudList.add(document.toObject(Member.class));
-//                                }
-//                                Log.d(TAG,"QueryDocumentSnapshot :"+ComMethod.currentCloudList.size());
-//                                MyAdapter cloudAdapter = (MyAdapter) recyclerView.getAdapter();
-//                                cloudAdapter.setAdapterMembers(ComMethod.currentCloudList);
-//                                cloudAdapter.notifyDataSetChanged();
-//
-//                            }else{
-//                                Log.e(TAG, "Firebase : Download Fail");
-//                            }
-//                        });
-//            }
-//        });
-
     }
 
     @Override
     public void onStart() {
         super.onStart();
         load();
+            super.onStart();
+            activity.findViewById(R.id.cloudListFragment).setVisibility(View.VISIBLE);
+            activity.findViewById(R.id.mitList).setVisibility(View.VISIBLE);
     }
 
     private void load() {
@@ -145,7 +120,6 @@ public class ListFragment extends Fragment {
         searchView = view.findViewById(R.id.searchView_CloudList);
 
         ivUploadList = view.findViewById(R.id.ivUpload_List);
-        tvMessage = view.findViewById(R.id.tvMessage_List);
 
     }
 
@@ -263,41 +237,10 @@ public class ListFragment extends Fragment {
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             Log.d(TAG,"MainActivity.remoteCould : "+ MainActivity.remoteCould);
-//            if(MainActivity.remoteCould){
-//                final Member member = ComMethod.currentCloudList.get(position);
-//                Log.d(TAG,"member.getCloudChildPhotosPathList().size(): "+member.getCloudChildPhotosPathList().size());
-//                if(member.getCloudChildPhotosPathList().size() > 0){
-//                    final int MEGABYTE = 2 * 1024 * 1024;
-//                    etUser.setText(MainActivity.remoteCould.toString());
-//                    Log.d(TAG,"UploadPath : "+member.getCloudChildPhotosPathList().get(0));
-//                    for(int i=0;i<member.getCloudChildPhotosPathList().size();i++){
-//
-//                        String imagePath = member.getCloudChildPhotosPathList().get(i);
-//
-//                        StorageReference imageRef = storage.getReference().child(imagePath);
-//                        imageRef.getBytes(MEGABYTE)
-//                                .addOnCompleteListener(task -> {
-//                                    if (task.isSuccessful() && task.getResult() != null){
-//                                        byte[] bytes = task.getResult();
-//                                        Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-//                                        holder.ivPic1.setImageBitmap(bitmap);
-//                                    }else {
-//                                        Log.e(TAG, "onBindViewHolder : downloadStrage Fail");
-//                                    }
-//                                });
-//                    }
-//
-//                }
-//
-//                holder.tvName.setText(member.getStringName());
-//
-//            }else{
                 final Member member = list.get(position);
                 Bitmap bitmap = null;
                 File filePicPath = null;
                 StringBuilder s;
-//T                EditFragment.currentEditList = new ArrayList<>();
-
 
                 try {
                     filePicPath = new File(member.getLocalPhotosPathList().get(0).toString() );

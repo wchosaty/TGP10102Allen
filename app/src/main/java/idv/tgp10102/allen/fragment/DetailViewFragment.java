@@ -1,10 +1,7 @@
 package idv.tgp10102.allen.fragment;
 
 
-import static idv.tgp10102.allen.MainActivity.CREATENEW;
 import static idv.tgp10102.allen.MainActivity.NAME;
-import static idv.tgp10102.allen.MainActivity.UPDATE;
-import static idv.tgp10102.allen.MainActivity.WORKTYPE;
 
 import android.app.Activity;
 import android.content.Context;
@@ -14,11 +11,9 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.navigation.Navigation;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
@@ -28,7 +23,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -40,10 +34,8 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import idv.tgp10102.allen.ComMethod;
 import idv.tgp10102.allen.Member;
@@ -61,8 +53,6 @@ public class DetailViewFragment extends Fragment {
     private List<Member> currentCloudMemberList;
     public static List<String> selectPhotosPathList;
     private String currentPhotoNickname;
-    public static Integer touchNumber = -1;
-    public static Boolean touchFlag = false;
     private ImageButton ibBack;
     private static MyDetailPager2 myDetailPager2;
     private static ViewPager2 detailPager2;
@@ -88,22 +78,23 @@ public class DetailViewFragment extends Fragment {
         activity = getActivity();
         currentCloudMemberList = new ArrayList<>();
         findViews(view);
-        load();
         handleView();
 
         // 取Bundle Request
         if (getArguments() != null) {
-            String bundleRequest = getArguments().getString(NAME);
+            String bundleRequest = getArguments().getString("Nickname");
             // 接收update要求
             if (bundleRequest != null) {
-                Log.d(TAG,"bundleRequest : "+ bundleRequest);
-                ivCurrentPhotoNick.setImageResource(R.drawable.baseline_account_circle_white_24);
-                currentPhotoNickname = bundleRequest;
-                tvCurrentPhotoNick.setText(bundleRequest);
-                downloadPhotosList();
+                tvMessage.setText(bundleRequest);
                 }
             }
+    }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        activity.findViewById(R.id.cloudListFragment).setVisibility(View.INVISIBLE);
+        activity.findViewById(R.id.mitList).setVisibility(View.INVISIBLE);
     }
 
     private void downloadPhotosList() {
@@ -128,12 +119,10 @@ public class DetailViewFragment extends Fragment {
                         });
     }
 
-
     private void handleView() {
         detailObjectsList = ComMethod.getMemberObjectsList(activity);
         recyclerViewDetail.setAdapter(new MyDetailAdapter(activity, currentCloudMemberList));
         recyclerViewDetail.setLayoutManager(new StaggeredGridLayoutManager(1,StaggeredGridLayoutManager.HORIZONTAL));
-
 
         selectPhotosPathList = new ArrayList<>();
         myDetailPager2 = new MyDetailPager2((FragmentActivity) activity,selectPhotosPathList);
@@ -145,11 +134,6 @@ public class DetailViewFragment extends Fragment {
 
     }
 
-    public void updateDetail(Member member){
-        nameDetail.setText(member.getStringName());
-
-    }
-
     private void findViews(View view) {
         tvMessage = view.findViewById(R.id.tvMessage_detail);
         nameDetail = view.findViewById(R.id.Name_detail);
@@ -157,18 +141,10 @@ public class DetailViewFragment extends Fragment {
         recyclerViewDetail = view.findViewById(R.id.recyclerView_detail);
 
         detailPager2 = view.findViewById(R.id.viewPager2_detail);
-        ibBack = view.findViewById(R.id.ibBack_Detail);
+        ibBack = view.findViewById(R.id.ibBack_Edit);
 
         tvCurrentPhotoNick = view.findViewById(R.id.tvCurrentPhotoNick_Detail);
         ivCurrentPhotoNick = view.findViewById(R.id.ivCurrentPhotoNick_Detail);
-    }
-
-
-    private void onButtonBigViewClick(View view,int code){
-    }
-
-    private void load() {
-
     }
 
     class MyDetailAdapter extends RecyclerView.Adapter<MyDetailAdapter.DetailViewHolder> {
@@ -234,7 +210,6 @@ public class DetailViewFragment extends Fragment {
                     detailPager2.setAdapter(myDetailPager2);
                 }
             });
-
         }
 
         @Override
@@ -261,11 +236,6 @@ public class DetailViewFragment extends Fragment {
             this.list = list;
         }
 
-//        public MyDetailPager2(@NonNull Fragment fragment, List<String> list) {
-//            super(fragment);
-//            this.list = list;
-//        }
-
         public void setMyDetailPager2Adapter(List<String> list) {
             this.list = list;
         }
@@ -276,8 +246,6 @@ public class DetailViewFragment extends Fragment {
             String s = new String(list.get(position));
             return new AddPhotosFragment(s);
         }
-
-
 
         @Override
         public int getItemCount() {

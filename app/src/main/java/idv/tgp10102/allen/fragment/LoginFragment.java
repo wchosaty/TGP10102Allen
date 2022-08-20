@@ -1,8 +1,9 @@
 package idv.tgp10102.allen.fragment;
 
+import static idv.tgp10102.allen.MainActivity.NAME;
+
 import android.app.Activity;
 import android.content.Intent;
-import android.media.Image;
 import android.os.Bundle;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -12,7 +13,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
-import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,7 +21,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -37,15 +36,10 @@ import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.Source;
 import com.google.firebase.storage.FirebaseStorage;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.text.NumberFormat;
 
-import idv.tgp10102.allen.LoginActivity;
 import idv.tgp10102.allen.MainActivity;
 import idv.tgp10102.allen.R;
 import idv.tgp10102.allen.User;
@@ -58,63 +52,13 @@ public class LoginFragment extends Fragment {
     private EditText etEmail, etPassword ,etNickName,etPhoneNumber;
     private TextView tvMessage;
     private Button btSingIn,btSignUp;
-    private ImageView ivGoogleSignIn;
+    private ImageView ivGoogle;
     private User user;
     private FirebaseFirestore db;
     private FirebaseStorage storage;
     private boolean flag= false;
 
-    ActivityResultLauncher<Intent> signInGoogleLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            result -> {
-                Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(result.getData());
-                try {
-                    GoogleSignInAccount account = task.getResult(ApiException.class);
-                    if (account != null) {
-                        firebaseAuthWithGoogle(account);
-                    } else {
-                        Log.e(TAG, "GoogleSignInAccount is null");
-                    }
-                } catch (ApiException e) {
-                    // Google Sign In failed, update UI appropriately
-                    Log.e(TAG, e.toString());
-                }
-            }
-    );
 
-    private void firebaseAuthWithGoogle(GoogleSignInAccount account) {
-        Log.d(TAG, "firebaseAuthWithGoogle: " + account.getId());
-
-        AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
-        auth.signInWithCredential(credential)
-                .addOnCompleteListener(task -> {
-                    // 登入成功轉至下頁；失敗則顯示錯誤訊息
-                    if (task.isSuccessful()) {
-                        FirebaseUser firebaseUser = task.getResult().getUser();
-                        Intent intent = new Intent();
-                        if (firebaseUser != null) {
-                            String uid = task.getResult().getUser().getUid();
-                            Log.d(TAG,"uid : " +uid);
-                            this.user.setUid(uid);
-                            FirebaseFirestore.getInstance()
-                                    .collection(getString(R.string.app_name)+"users").document(uid)
-                                    .set(this.user).addOnCompleteListener(taskGoogleInsertDB -> {
-                                                if (taskGoogleInsertDB.isSuccessful()) {
-                                                    Log.d(TAG, "taskGoogleInsertDB : Successful");
-                                                }
-                                    });
-                        }
-
-                        intent.setClass(activity, MainActivity.class);
-                        startActivity(intent);
-                        activity.finish();
-                    } else {
-                        Exception exception = task.getException();
-                        String message = exception == null ? "Sign in fail." : exception.getMessage();
-                        tvMessage.setText(message);
-                    }
-                });
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -146,22 +90,8 @@ public class LoginFragment extends Fragment {
 
     private void handleButton() {
         //透過第三方Google登入
-        ivGoogleSignIn.setOnClickListener(v -> {
-            String nickName = etNickName.getText().toString();
-            if (checkNickNameEmpty(nickName)) {
-                return;
-            }
-            String email = etEmail.getText().toString();
-            String passWord = etPassword.getText().toString();
-            String nickNameG = etNickName.getText().toString();
-            String phone = etPhoneNumber.getText().toString();
-            this.user.setPhone(phone);
-            this.user.setEmail(email);
-            this.user.setNickName(nickNameG);
-
-            Intent intent = client.getSignInIntent();
-            //跳出google
-            signInGoogleLauncher.launch(intent);
+        ivGoogle.setOnClickListener(v -> {
+            Navigation.findNavController(v).navigate(R.id.action_loginFragment_to_googleSignUpFragment);
         });
         
         //Email signIn
@@ -173,15 +103,7 @@ public class LoginFragment extends Fragment {
         
         //Email signUp
         btSignUp.setOnClickListener(v -> {
-            String email = etEmail.getText().toString();
-            String passWord = etPassword.getText().toString();
-            String nickName = etNickName.getText().toString();
-            User user = new User();
-            String phone = etPhoneNumber.getText().toString();
-            user.setPhone(phone);
-            user.setEmail(email);
-            user.setNickName(nickName);
-            signUp(email,passWord,nickName,user);
+            Navigation.findNavController(v).navigate(R.id.action_loginFragment_to_emailSignUpFragment);
         });
 
     }
@@ -304,12 +226,10 @@ public class LoginFragment extends Fragment {
     private void findViews(View view) {
         etEmail = view.findViewById(R.id.etEmail_login);
         etPassword = view.findViewById(R.id.etPassWord);
-        etPhoneNumber = view.findViewById(R.id.etPhoneNember);
-        etNickName = view.findViewById(R.id.etNickName_login);
         tvMessage = view.findViewById(R.id.tvMessage_login);
         btSingIn = view.findViewById(R.id.btSignIn);
         btSignUp = view.findViewById(R.id.btSignUp);
-        ivGoogleSignIn = view.findViewById(R.id.ivGoogleSignIn);
+        ivGoogle = view.findViewById(R.id.ivGoogle);
     }
 
     @Override

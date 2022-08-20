@@ -17,6 +17,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.Objects;
+
 
 public class MainActivity extends AppCompatActivity {
     private FirebaseAuth auth;
@@ -73,6 +75,16 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupWithNavController(bottomNavigationView,navController);
     }
 
+//    void showNicknameEmpty(){
+//        Bundle bundle = new Bundle();
+//        auth.signOut();
+//        bundle.putString("Nickname",getString(R.string.textCheckNicknameEmpty));
+//        Intent intent = new Intent().setClass(this, LoginActivity.class);
+//        intent.putExtras(bundle);
+//        startActivity(intent);
+//        this.finish();
+//    }
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -82,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
             startActivity(new Intent().setClass(this, LoginActivity.class) );
             this.finish();
         }else {
+
             // 顯示User
             String userUid = auth.getUid();
             db.collection(getString(R.string.app_name)+"users").document(userUid)
@@ -89,11 +102,19 @@ public class MainActivity extends AppCompatActivity {
                         if(taskUserData.isSuccessful() && taskUserData.getResult()!= null){
                             Log.d(TAG,"taskUserData : Successful");
                             User userNickname = taskUserData.getResult().toObject(User.class);
-                            CURRENTNICKNAME = userNickname.getNickName().trim();
-                            tvUserNickName.setText(userNickname.getNickName());
+                            if(!Objects.equals(userNickname,null)){
+                                CURRENTNICKNAME = userNickname.getNickName().trim();
+                                tvUserNickName.setText(userNickname.getNickName());
+                            }else {
+                                tvUserNickName.setText(getString(R.string.textCheckNicknameEmpty));
+                            }
+                        }else {
+                            tvUserNickName.setText(getString(R.string.textCheckNicknameEmpty));
                         }
                     });
         }
     }
+
+
 
 }

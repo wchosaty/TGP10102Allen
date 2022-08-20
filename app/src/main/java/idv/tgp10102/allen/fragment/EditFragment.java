@@ -32,8 +32,6 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.yalantis.ucrop.UCrop;
@@ -130,7 +128,13 @@ public class EditFragment extends Fragment {
                 createNew();
             }
         }
+    }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        activity.findViewById(R.id.cloudListFragment).setVisibility(View.INVISIBLE);
+        activity.findViewById(R.id.mitList).setVisibility(View.INVISIBLE);
     }
 
     //1:createNew  2:增加 1 photoPosition 3:LoadSave檔
@@ -176,71 +180,6 @@ public class EditFragment extends Fragment {
             Member member = loadMemberFromEdit(etName.getText().toString().trim());
                     uploadPhotoToCloud(member);
                 });
-        //下載Storage
-//        ibUploadCould.setOnClickListener(v -> {
-//            final int MEGABYTE = 2 * 1024 * 1024;
-//            String imagePath = getString(R.string.app_name) + "/"+LOCALNICKNAME+"/DDD/DDD_00.jpg";
-//            StorageReference imageRef = storage.getReference().child(imagePath);
-//            File file = activity.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS+"/DDD0");
-//            //目前多層先建好路徑資料
-//
-//            File fileDw = new File(file, "DDD_00.jpg");
-//            imageRef.getFile(fileDw)
-//                    .addOnCompleteListener(task -> {
-//                        if (task.isSuccessful() && task.getResult() != null) {
-//                            upDateCurrentEditList(REQUEST_P1,null,null);
-//                            currentEditList.set(0,fileDw.toString());
-//                            Log.d(TAG,"下載成功");
-//                            viewPager2.setAdapter(myViewPager2Adapter);
-//                            viewPager2.setCurrentItem( viewPager2.getAdapter().getItemCount() );
-//                            Log.d(TAG,"viewPager2更新成功");
-//
-//                        } else {
-//                            Log.d(TAG,"Load fail");
-//                        }
-//                    });
-//        });
-
-
-        //測試上傳Firestore DataBase
-//        ibShare.setOnClickListener(v -> {
-//            String sName = etName.getText().toString().trim();
-//            Member m = ComMethod.loadMember(activity,sName);
-//            if(Objects.equals(m,null)){
-//                Toast.makeText(activity, "null", Toast.LENGTH_SHORT).show();
-//                return;
-//            }
-
-//            db.collection(LOCALNICKNAME)
-//                    .document(m.getStringName().toString())
-//                    .set(m)
-//                    .addOnCompleteListener(task -> {
-//                        if(task.isSuccessful()){
-//                            Log.d(TAG,"db : isSuccessful");
-//                        }else {
-//                            Log.d(TAG,"db : fail");
-//                        }
-//                    });
-//        });
-
-        //下載DataBase
-//        ibShare.setOnClickListener(v -> {
-//            db.collection(LOCALNICKNAME).document("W").get()
-//                    .addOnCompleteListener(task -> {
-//                        if (task.isSuccessful() && task.getResult() != null) {
-//                            // 先清除舊資料後再儲存新資料
-//                            Member member = task.getResult().toObject(Member.class);
-//
-//                            etName.setText(member.getStringName());
-//                            etMessage.setText(member.getStringPhotosPath());
-//
-//                            // 顯示景點
-//                        } else {
-//                            Log.e(TAG, "DataBase :fail ");
-//                        }
-//                    });
-//        });
-
 
         handleBtload();
         handleBtTakePic();
@@ -358,10 +297,8 @@ public class EditFragment extends Fragment {
         }
     }
 
-
     private void handleBtDelete() {
         ibDelete.setOnClickListener(v -> {
-
             delete();
             Navigation.findNavController(v).navigate(R.id.action_mitEdit_to_mitList);
             handleAutoCompleteTextView();
@@ -403,7 +340,6 @@ public class EditFragment extends Fragment {
         etMessage.setText(member.getStringMessage());
 
     }
-
 
     private void handleBtSave() {
 
@@ -560,7 +496,6 @@ public class EditFragment extends Fragment {
                 BufferedInputStream bis = new BufferedInputStream(fis);
                 FileOutputStream fos = new FileOutputStream(String.valueOf(sbDest));
                 BufferedOutputStream bos = new BufferedOutputStream(fos);
-
         ) {
             byte[] b = new byte[bis.available()];
             bis.read(b);
@@ -618,13 +553,11 @@ public class EditFragment extends Fragment {
         );
     }
 
-
     private void crop() {
         final Uri dstUri = Uri.fromFile(createFile(takePicCrop));
         UCrop uCrop = UCrop.of(srcUri,dstUri);
         Intent intent = uCrop.getIntent(activity);
         cropPicLauncher.launch(intent);
-
     }
 
     private  File createFile(String fileName) {
@@ -649,7 +582,7 @@ public class EditFragment extends Fragment {
         ibDeletePhoto = view.findViewById(R.id.ibDelete_photo);
         ibSelectPhoto =view.findViewById(R.id.ibSelectFile_photo);
 
-        ibBack = view.findViewById(R.id.ibBack_Detail);
+        ibBack = view.findViewById(R.id.ibBack_Edit);
         cbAutoSync = view.findViewById(R.id.cbAutoSyncCloud);
 
         viewPager2 = view.findViewById(R.id.viewPager2);
@@ -659,7 +592,6 @@ public class EditFragment extends Fragment {
     private void handleInitialAndVisibility() {
         myViewPager2Adapter = new MyViewPager2Adapter(this, currentEditList);
         viewPager2.setAdapter(myViewPager2Adapter);
-
     }
 
     private void handleBtTakePic() {

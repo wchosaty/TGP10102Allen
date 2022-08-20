@@ -1,8 +1,5 @@
 package idv.tgp10102.allen;
 
-
-import static idv.tgp10102.allen.MainActivity.LOCALNICKNAME;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -22,9 +19,6 @@ import java.util.Objects;
 public class ComMethod {
     private static final String TAG = "Tag_ComMethod";
     public static List<String> memberStringList;
-    public static List<Member> currentCloudList;
-    private File dirMember;
-    private MainActivity activity;
 
     public static Bitmap bitmapToImageFilePath(Bitmap bitmap, File filepath) throws IOException {
         ImageDecoder.Source source = null;

@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragment.EmailSignUpFragment">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginEnd="32dp"
+        app:cardBackgroundColor="#736A6F"
+        app:cardCornerRadius="10dp"
+        app:layout_constraintBottom_toBottomOf="@+id/btSignUpEmail"
+        app:layout_constraintEnd_toStartOf="@+id/btSignUpEmail"
+        app:layout_constraintTop_toTopOf="@+id/btSignUpEmail">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="3dp"
+                app:cardCornerRadius="10dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <ImageButton
+                        android:id="@+id/ibBack_EmailSignUp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="?selectableItemBackground"
+                        android:src="@drawable/baseline_arrow_back_black_24"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.cardview.widget.CardView>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+
+    <TextView
+        android:id="@+id/tvHintSymbol_EUN"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="2dp"
+        android:text="*"
+        android:textColor="?attr/colorError"
+        android:textSize="30dp"
+        app:layout_constraintBottom_toBottomOf="@+id/etNickName_EUP"
+        app:layout_constraintStart_toEndOf="@+id/etNickName_EUP"
+        app:layout_constraintTop_toTopOf="@+id/etNickName_EUP" />
+
+    <EditText
+        android:id="@+id/etNickName_EUP"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:ems="10"
+        android:hint="@string/textNickname"
+        android:inputType="textPersonName"
+        app:layout_constraintEnd_toEndOf="@+id/etPhoneNemberEUP"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/etPhoneNemberEUP"
+        app:layout_constraintTop_toBottomOf="@+id/etPhoneNemberEUP" />
+
+    <ImageView
+        android:id="@+id/ivNickname_EUP"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginEnd="2dp"
+        android:background="?selectableItemBackground"
+        android:src="@drawable/baseline_account_circle_black_24"
+        app:layout_constraintBottom_toBottomOf="@+id/etNickName_EUP"
+        app:layout_constraintEnd_toStartOf="@+id/etNickName_EUP"
+        app:layout_constraintTop_toTopOf="@+id/etNickName_EUP" />
+
+    <TextView
+        android:id="@+id/tvHintSymbol_EUP"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="2dp"
+        android:text="*"
+        android:textColor="?attr/colorError"
+        android:textSize="30dp"
+        app:layout_constraintBottom_toBottomOf="@+id/etPassWordEUP"
+        app:layout_constraintStart_toEndOf="@+id/etPassWordEUP"
+        app:layout_constraintTop_toTopOf="@+id/etPassWordEUP" />
+
+    <TextView
+        android:id="@+id/tvHintSymbol_EUE"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="2dp"
+        android:text="*"
+        android:textColor="?attr/colorError"
+        android:textSize="30dp"
+        app:layout_constraintBottom_toBottomOf="@+id/etEmail_loginEUP"
+        app:layout_constraintStart_toEndOf="@+id/etEmail_loginEUP"
+        app:layout_constraintTop_toTopOf="@+id/etEmail_loginEUP" />
+
+    <EditText
+        android:id="@+id/etEmail_loginEUP"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="48dp"
+        android:ems="10"
+        android:hint="@string/textEmail"
+        android:inputType="textPersonName"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.502"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/btSignUpEmail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:backgroundTint="@color/design_default_color_error"
+        android:text="@string/signUp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/etNickName_EUP" />
+
+    <EditText
+        android:id="@+id/etPhoneNemberEUP"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="2dp"
+        android:ems="10"
+        android:hint="@string/textPhone"
+        android:inputType="numberPassword"
+        app:layout_constraintEnd_toEndOf="@+id/etPassWordEUP"
+        app:layout_constraintStart_toStartOf="@+id/etPassWordEUP"
+        app:layout_constraintTop_toBottomOf="@+id/etPassWordEUP" />
+
+    <ImageView
+        android:id="@+id/ivPhone_loginEUP"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="2dp"
+        android:src="@drawable/baseline_phone_black_24"
+        app:layout_constraintBottom_toBottomOf="@+id/etPhoneNemberEUP"
+        app:layout_constraintEnd_toStartOf="@+id/etPhoneNemberEUP"
+        app:layout_constraintTop_toTopOf="@+id/etPhoneNemberEUP" />
+
+    <EditText
+        android:id="@+id/etPassWordEUP"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:ems="10"
+        android:hint="@string/textPassWord"
+        android:inputType="textPassword"
+        app:layout_constraintEnd_toEndOf="@+id/etEmail_loginEUP"
+        app:layout_constraintStart_toEndOf="@+id/ivEmail_loginEUP"
+        app:layout_constraintTop_toBottomOf="@+id/etEmail_loginEUP" />
+
+    <ImageView
+        android:id="@+id/ivEmail_loginEUP"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="2dp"
+        android:src="@drawable/baseline_email_black_24"
+        app:layout_constraintBottom_toBottomOf="@+id/etEmail_loginEUP"
+        app:layout_constraintEnd_toStartOf="@+id/etEmail_loginEUP"
+        app:layout_constraintTop_toTopOf="@+id/etEmail_loginEUP" />
+
+    <TextView
+        android:id="@+id/tvMessage_EmailsifnUp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btSignUpEmail"
+        tools:text="TextView" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

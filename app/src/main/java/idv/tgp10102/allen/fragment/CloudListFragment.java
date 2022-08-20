@@ -72,6 +72,9 @@ public class CloudListFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
+        activity.findViewById(R.id.cloudListFragment).setVisibility(View.VISIBLE);
+        activity.findViewById(R.id.mitList).setVisibility(View.VISIBLE);
+        // 讀取帳戶
         FirebaseUser user = auth.getCurrentUser();
             db.collection(getString(R.string.app_name)+"users")
                     .get().addOnCompleteListener(taskCloudDB -> {

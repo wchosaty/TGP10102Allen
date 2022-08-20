@@ -11,9 +11,6 @@
         android:label="fragment_detail_view"
         tools:layout="@layout/fragment_detail_view" >
         <action
-            android:id="@+id/action_mitDetail_to_mitList"
-            app:destination="@id/mitList" />
-        <action
             android:id="@+id/action_mitDetail_to_cloudListFragment"
             app:destination="@id/cloudListFragment" />
     </fragment>
@@ -36,9 +33,6 @@
         <action
             android:id="@+id/action_mitList_to_mitEdit"
             app:destination="@id/mitEdit" />
-        <action
-            android:id="@+id/action_mitList_to_mitDetail"
-            app:destination="@id/mitDetail" />
     </fragment>
     <fragment
         android:id="@+id/cloudListFragment"

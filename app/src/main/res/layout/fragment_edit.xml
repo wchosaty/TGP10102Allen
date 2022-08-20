@@ -6,11 +6,54 @@
     android:layout_height="match_parent"
     tools:context=".fragment.EditFragment">
 
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardView3"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="8dp"
+        app:cardBackgroundColor="#736A6F"
+        app:cardCornerRadius="10dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cardViewButton">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="3dp"
+                app:cardCornerRadius="10dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <ImageButton
+                        android:id="@+id/ibBack_Edit"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="?selectableItemBackground"
+                        android:src="@drawable/baseline_arrow_back_black_24"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </androidx.cardview.widget.CardView>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewPager2"
-        android:layout_width="300dp"
-        android:layout_height="300dp"
-        android:layout_marginTop="1dp"
+        android:layout_width="285dp"
+        android:layout_height="285dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/etMessage" />
@@ -19,11 +62,10 @@
         android:id="@+id/tvMessage_Edit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="15dp"
-        android:layout_marginTop="1dp"
+        android:layout_marginStart="32dp"
         android:textSize="16sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cardViewButton"
+        app:layout_constraintStart_toEndOf="@+id/cardView3"
+        app:layout_constraintTop_toTopOf="@+id/cardView3"
         tools:text="Message" />
 
     <androidx.cardview.widget.CardView
@@ -31,7 +73,6 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_marginStart="10dp"
-        android:layout_marginTop="3dp"
 
         android:layout_marginEnd="10dp"
         app:cardCornerRadius="20dp"
@@ -129,12 +170,10 @@
         android:id="@+id/cvPhotoButtonOpenBar"
         android:layout_width="wrap_content"
         android:layout_height="50dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginEnd="100dp"
+        android:layout_marginStart="8dp"
         app:cardBackgroundColor="#736A6F"
         app:cardCornerRadius="10dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/ibBack_Detail"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/viewPager2">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -187,17 +226,6 @@
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
-
-    <ImageButton
-        android:id="@+id/ibBack_Detail"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:background="?selectableItemBackground"
-        android:src="@drawable/baseline_arrow_back_black_24"
-        app:layout_constraintBottom_toBottomOf="@+id/cvPhotoButtonOpenBar"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/cvPhotoButtonOpenBar" />
 
     <CheckBox
         android:id="@+id/cbAutoSyncCloud"
