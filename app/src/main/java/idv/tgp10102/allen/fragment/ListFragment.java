@@ -20,6 +20,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -56,9 +57,10 @@ public class ListFragment extends Fragment {
     private List<String> currentMyList;
     private FirebaseFirestore db;
     private FirebaseStorage storage;
-    public boolean[] itemChoose;
-    public Map<String, String> itemChooseMap;
     private boolean displayCheckBox = false;
+    private File myDirDocument;
+
+    private Button buttonTest;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -78,6 +80,7 @@ public class ListFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         activity = getActivity();
+        myDirDocument = activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
         myDir_list = activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
         currentMyList = new ArrayList<>();
         load();
@@ -97,23 +100,31 @@ public class ListFragment extends Fragment {
     private void handleButton() {
         //勾選刪除
         ibDeleteList.setOnClickListener(v -> {
+            List<String> deletePhotosNameList = new ArrayList<>();
+            String deletePhotosName = null;
             if (displayCheckBox) {
                 MyAdapter adapter = (MyAdapter) recyclerView.getAdapter();
                 List<Member> list = adapter.getAdapterMembers();
-                if (list.size() == itemChoose.length) {
+                if (list.size() == adapter.getAdapterItemChooseInner().length) {
                     for (int i = 0; i < list.size(); i++) {
 
-                        if (itemChoose[i]) {
+                        if (adapter.getAdapterItemChooseInner()[i]) {
                             Member member = list.get(i);
-                            Log.d(TAG, "itemChoose " + i + ":" + itemChoose[i]);
+                            Log.d(TAG, "itemChoose " + i + ":" + adapter.getAdapterItemChooseInner()[i]);
+                            deletePhotosName = member.getStringName();
                             deletePhotoToCloudFromList(member);
+                        }
 
-                     }
+                        delete(deletePhotosName);
                     }
-
                     displayCheckBox = false;
-                    adapter.setAdapterMembers(memberObjectsList);
-                    adapter.notifyDataSetChanged();
+                    load();
+                    memberObjectsList = getMyListToObjectsList();
+                    MyAdapter adapterTemp =(MyAdapter) recyclerView.getAdapter();
+                    load();
+//                    memberObjectsList
+                    adapterTemp.setAdapterMembers(memberObjectsList);
+                    adapterTemp.notifyDataSetChanged();
                 }
             }
         });
@@ -123,14 +134,15 @@ public class ListFragment extends Fragment {
             if (displayCheckBox) {
                 MyAdapter adapter = (MyAdapter) recyclerView.getAdapter();
                 List<Member> list = adapter.getAdapterMembers();
-                if (list.size() == itemChoose.length) {
+                if (list.size() == adapter.getAdapterItemChooseInner().length) {
                     for (int i = 0; i < list.size(); i++) {
-                        if (itemChoose[i]) {
+                        if (adapter.getAdapterItemChooseInner()[i]) {
                             Member member = list.get(i);
                             if(Objects.equals(null,member)){
                                 Log.d(TAG,"ibUploadList null");
+                            }else{
+                                uploadPhotoToCloudFromList(member);
                             }
-                            uploadPhotoToCloudFromList(member);
                         }
                     }
                     displayCheckBox = false;
@@ -138,6 +150,10 @@ public class ListFragment extends Fragment {
                     adapter.notifyDataSetChanged();
                 }
             }
+        });
+
+        buttonTest.setOnClickListener(v -> {
+            delete("Door");
         });
 
     }
@@ -173,11 +189,55 @@ public class ListFragment extends Fragment {
                                             Log.d(TAG, "delete :taskDB Fail");
                                         }
                                     });
-                        }
 
+
+
+                        }
                     });
 
 
+    }
+
+    private void delete(String sName){
+        Log.d(TAG,"sName :"+sName);
+        int position = -1;
+        boolean flag = false;
+        String deleteName = null;
+        if(sName == null ){
+            Log.d(TAG,"Edit delete :"+getString(R.string.FileisNull));
+            return;
+        }
+        if(memberObjectsList.size()>0){
+            for (int i = 0; i < memberObjectsList.size(); i++) {
+                Log.d(TAG,"memberObjectsList.size() :"+memberObjectsList.size() );
+                if(Objects.equals(sName.trim(),memberObjectsList.get(i).getStringName() )){
+                    position = i;
+                    flag = true;
+                    deleteName = sName.trim().toString().trim();
+                    break;
+                }
+            }
+            if(!flag){
+                Log.d(TAG,"Edit delete : "+ getString(R.string.nofile));
+            }
+        }
+        // 有該member資料
+        if ((position >= 0) && flag){
+            File file =new File(myDirDocument,LOCALNICKNAME+"/"+deleteName);
+            Log.d(TAG,"deletePath ㄤ; "+ file.toString());
+            File[] subFileList = file.listFiles();
+            if(subFileList != null){
+                for(File temp : subFileList) {
+                    temp.delete();
+                }
+            }
+            //再刪除Object資料
+            if(file.delete()){
+                Log.d(TAG,"Edit delete : "+ getString(R.string.delete));
+                File fileObjectPath = new File(activity.getFilesDir(), deleteName);
+                fileObjectPath.delete();
+            }
+        }
     }
 
     private void uploadPhotoToCloudFromList(Member member) {
@@ -248,6 +308,9 @@ public class ListFragment extends Fragment {
         if(!f.exists()){
             return;
         }
+
+        currentMyList = new ArrayList<>();
+
         File[] files= f.listFiles();
         if(files.length>0){
             for (int i = 0; i < files.length; i++) {
@@ -262,6 +325,8 @@ public class ListFragment extends Fragment {
 
         ibUploadList = view.findViewById(R.id.ibUpload_List);
         ibDeleteList = view.findViewById(R.id.ibDelete_List);
+
+        buttonTest= view.findViewById(R.id.buttonTest);
     }
 
 
@@ -271,6 +336,7 @@ public class ListFragment extends Fragment {
                 currentMyList.size() < 0){
             return list;
         }
+
         for (int i = 0; i < currentMyList.size(); i++) {
 
             String sbTemp = String.valueOf(currentMyList.get(i));
@@ -331,6 +397,7 @@ public class ListFragment extends Fragment {
     class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         Context context;
         List<Member> list;
+        boolean[] itemChooseInnerMyAdapter;
 
 
         public void setAdapterMembers(List<Member> list) {
@@ -341,10 +408,14 @@ public class ListFragment extends Fragment {
             return this.list;
         }
 
+        public boolean[] getAdapterItemChooseInner(){
+            return this.itemChooseInnerMyAdapter;
+        }
+
         public MyAdapter(Context context, List<Member> list) {
             this.context = context;
             this.list = list;
-            itemChoose = new boolean[list.size()];
+            itemChooseInnerMyAdapter = new boolean[list.size()];
 
         }
 
@@ -379,6 +450,7 @@ public class ListFragment extends Fragment {
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             Log.d(TAG,"MainActivity.remoteCould : "+ MainActivity.remoteCould);
                 final Member member = list.get(position);
+               itemChooseInnerMyAdapter[position]=false;
                 Bitmap bitmap = null;
                 File filePicPath = null;
                 StringBuilder s;
@@ -401,10 +473,10 @@ public class ListFragment extends Fragment {
 
                 //挑選 勾選item
                 holder.checkBox.setOnClickListener(v -> {
-                    itemChoose[position] = holder.checkBox.isChecked();
-                    Log.d(TAG,"itemChoose : index[ "+ position +" ]- " + itemChoose[position] );
+                    itemChooseInnerMyAdapter[position] = holder.checkBox.isChecked();
+                    Log.d(TAG,"itemChoose : index[ "+ position +" ]- " + itemChooseInnerMyAdapter[position] );
                     // select To Upload cloud
-                    if(itemChoose[position]){
+                    if(itemChooseInnerMyAdapter[position]){
 //                        itemChooseMap.put(member.getStringName(),String.valueOf(position) );
                     }else {
 //                        itemChooseMap.remove(member.getStringName());
