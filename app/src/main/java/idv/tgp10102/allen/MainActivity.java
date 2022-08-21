@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageView ivUser;
     private TextView tvUserNickName;
     private FirebaseFirestore db;
+    public static User userNickname;
 
     private static final String TAG = "Tag MainActivity";
     public static final String takePicCrop = "Crop" ,
@@ -64,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
     private void findViews() {
         bottomNavigationView = findViewById(R.id.bottomNavView);
         ibSignOut = findViewById(R.id.ibSignOut);
-        tvUserNickName = findViewById(R.id.tvCurrentPhotoNick_Detail);
+        tvUserNickName = findViewById(R.id.tvCurrentPhotoNick_Main);
         ivUser = findViewById(R.id.ivCurrentPhotoNick_Detail);
 
     }
@@ -101,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
                     .get().addOnCompleteListener(taskUserData -> {
                         if(taskUserData.isSuccessful() && taskUserData.getResult()!= null){
                             Log.d(TAG,"taskUserData : Successful");
-                            User userNickname = taskUserData.getResult().toObject(User.class);
+                            this.userNickname = taskUserData.getResult().toObject(User.class);
                             if(!Objects.equals(userNickname,null)){
                                 CURRENTNICKNAME = userNickname.getNickName().trim();
                                 tvUserNickName.setText(userNickname.getNickName());

@@ -52,11 +52,10 @@
                     android:id="@+id/imageCardView"
                     android:layout_width="100dp"
                     android:layout_height="100dp"
-                    android:layout_marginStart="32dp"
-                    android:layout_marginTop="2dp"
+                    android:layout_marginEnd="32dp"
                     app:cardCornerRadius="25dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/tvName_item"
                     app:layout_constraintTop_toTopOf="parent">
 
                     <androidx.constraintlayout.widget.ConstraintLayout

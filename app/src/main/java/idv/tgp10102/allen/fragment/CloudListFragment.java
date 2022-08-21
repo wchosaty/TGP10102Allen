@@ -154,6 +154,7 @@ public class CloudListFragment extends Fragment {
             holder.itemView.setOnClickListener(v -> {
                 Bundle bundle = new Bundle();
                 bundle.putString(NAME,list.get(position));
+                Log.d(TAG,"list.get(position) : "+list.get(position) );
                 Navigation.findNavController(v).navigate(R.id.action_cloudListFragment_to_mitDetail,bundle);
             });
         }

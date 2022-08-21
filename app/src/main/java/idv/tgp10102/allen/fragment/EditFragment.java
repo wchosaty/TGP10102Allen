@@ -49,6 +49,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import idv.tgp10102.allen.MainActivity;
 import idv.tgp10102.allen.Member;
 import idv.tgp10102.allen.R;
 
@@ -441,6 +442,9 @@ public class EditFragment extends Fragment {
             member.setLocalChildPathList(stringChildList);
             member.setStringName(sbName.toString());
             member.setStringMessage(sbMessage.toString());
+            member.setNickname(CURRENTNICKNAME.toString());
+            Log.d(TAG,"member.getNickname() : "+member.getNickname());
+
             oos.writeObject(member);
 
             etName.setText(null);

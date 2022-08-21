@@ -99,7 +99,7 @@
     </androidx.viewpager2.widget.ViewPager2>
 
     <TextView
-        android:id="@+id/tvCurrentPhotoNick_Detail"
+        android:id="@+id/tvCurrentPhotoNick_Main"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="32dp"
@@ -116,7 +116,7 @@
         app:cardBackgroundColor="#5482DD"
         app:cardCornerRadius="50dp"
         app:layout_constraintBottom_toTopOf="@+id/tvMessage_detail"
-        app:layout_constraintEnd_toStartOf="@+id/tvCurrentPhotoNick_Detail"
+        app:layout_constraintEnd_toStartOf="@+id/tvCurrentPhotoNick_Main"
         app:layout_constraintTop_toTopOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout

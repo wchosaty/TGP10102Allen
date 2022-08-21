@@ -5,6 +5,7 @@ import static idv.tgp10102.allen.MainActivity.*;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -24,6 +25,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
@@ -35,6 +37,7 @@ import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import idv.tgp10102.allen.ComMethod;
@@ -48,12 +51,14 @@ public class ListFragment extends Fragment {
     private RecyclerView recyclerView;
     private List<Member> memberObjectsList;
     private SearchView searchView;
-    private File myDirMember_List;
-    private ImageButton ivUploadList;
+    private ImageButton ibUploadList,ibDeleteList;
     private File myDir_list;
     private List<String> currentMyList;
     private FirebaseFirestore db;
     private FirebaseStorage storage;
+    public boolean[] itemChoose;
+    public Map<String, String> itemChooseMap;
+    private boolean displayCheckBox = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -90,16 +95,152 @@ public class ListFragment extends Fragment {
     }
 
     private void handleButton() {
+        //勾選刪除
+        ibDeleteList.setOnClickListener(v -> {
+            if (displayCheckBox) {
+                MyAdapter adapter = (MyAdapter) recyclerView.getAdapter();
+                List<Member> list = adapter.getAdapterMembers();
+                if (list.size() == itemChoose.length) {
+                    for (int i = 0; i < list.size(); i++) {
 
+                        if (itemChoose[i]) {
+                            Member member = list.get(i);
+                            Log.d(TAG, "itemChoose " + i + ":" + itemChoose[i]);
+                            deletePhotoToCloudFromList(member);
+
+                     }
+                    }
+
+                    displayCheckBox = false;
+                    adapter.setAdapterMembers(memberObjectsList);
+                    adapter.notifyDataSetChanged();
+                }
+            }
+        });
+
+        // 勾選上傳
+        ibUploadList.setOnClickListener(v -> {
+            if (displayCheckBox) {
+                MyAdapter adapter = (MyAdapter) recyclerView.getAdapter();
+                List<Member> list = adapter.getAdapterMembers();
+                if (list.size() == itemChoose.length) {
+                    for (int i = 0; i < list.size(); i++) {
+                        if (itemChoose[i]) {
+                            Member member = list.get(i);
+                            if(Objects.equals(null,member)){
+                                Log.d(TAG,"ibUploadList null");
+                            }
+                            uploadPhotoToCloudFromList(member);
+                        }
+                    }
+                    displayCheckBox = false;
+                    adapter.setAdapterMembers(memberObjectsList);
+                    adapter.notifyDataSetChanged();
+                }
+            }
+        });
+
+    }
+
+    private void deletePhotoToCloudFromList(Member member) {
+        String photoName = member.getStringName();
+            Log.d(TAG,"member.getNickname(): "+member.getNickname());
+            Log.d(TAG,"member.getStringName(): "+member.getStringName());
+
+            db.collection(getString(R.string.app_name))
+                    .document(member.getNickname())
+                    .collection(member.getNickname())
+                    .document(member.getStringName())
+                    .get().addOnCompleteListener(task -> {
+                        Member memberCloud = task.getResult().toObject(Member.class);
+
+                        for(int j=0;j < memberCloud.getCloudChildPhotosPathList().size() ;j++){
+                            storage.getReference().child(memberCloud.getCloudChildPhotosPathList().get(j))
+                                    .delete().addOnCompleteListener(taskStorage -> {
+                                        if(taskStorage.isSuccessful()){
+                                            Log.d(TAG,"delete :taskStorage.isSuccessful()");
+                                        }else{
+                                            Log.d(TAG,"delete :taskStorage Fail.");
+                                        }
+                                    });
+                            db.collection(getString(R.string.app_name)).document(memberCloud.getNickname())
+                                    .collection(memberCloud.getNickname()).document(memberCloud.getStringName())
+                                    .delete()
+                                    .addOnCompleteListener(taskDB -> {
+                                        if (taskDB.isSuccessful()) {
+                                            Log.d(TAG, "delete :taskDB.isSuccessful()");
+                                        } else {
+                                            Log.d(TAG, "delete :taskDB Fail");
+                                        }
+                                    });
+                        }
+
+                    });
+
+
+    }
+
+    private void uploadPhotoToCloudFromList(Member member) {
+        if(member ==null){
+            Toast.makeText(activity, R.string.file_nodata, Toast.LENGTH_SHORT).show();
+            return ;
+        }
+
+        File file = activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
+        List<String> cloudList = new ArrayList<>();
+        for(int i=0; i<member.getLocalChildPathList().size();i++){
+
+            File childFile = new File(file, member.getLocalPhotoParentPath()+"/"+member.getLocalChildPathList().get(i));
+            Uri sourceUri = Uri.fromFile(childFile);
+            String imagePath = getString(R.string.app_name) + member.getCloudPhotosParentPath()+"/"+member.getLocalChildPathList().get(i);
+            Log.d(TAG,"Storage imagePath : "+imagePath);
+            cloudList.add(imagePath);
+            storage.getReference().child(imagePath).putFile(sourceUri)
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            Log.d(TAG, "putFile : isSuccessful");
+                        } else {
+                            Log.d(TAG, "putFile : fail");
+                        }
+                    });
+        }
+        member.setCloudChildPhotosPathList(cloudList);
+        //要修改Nickname
+        db.collection(getString(R.string.app_name)).document(CURRENTNICKNAME)
+                .collection(CURRENTNICKNAME)
+                .document(member.getStringName().toString())
+                .set(member)
+                .addOnCompleteListener(task -> {
+                    if(task.isSuccessful()){
+                        Log.d(TAG,"upload DB : isSuccessful");
+                    }else {
+                        Log.d(TAG,"upload DB : fail");
+                    }
+                });
+    }
+
+    private Member loadMemberFromList(String string) {
+        try(
+                FileInputStream fis = activity.openFileInput(string);
+                ObjectInputStream ois = new ObjectInputStream(fis);
+        )
+        {
+            return (Member) ois.readObject();
+        }catch (Exception e){
+            e.printStackTrace();
+            Log.e(TAG, Arrays.toString(e.getStackTrace()));
+            return null;
+        }
     }
 
     @Override
     public void onStart() {
         super.onStart();
+        displayCheckBox = false;
         load();
-            super.onStart();
-            activity.findViewById(R.id.cloudListFragment).setVisibility(View.VISIBLE);
-            activity.findViewById(R.id.mitList).setVisibility(View.VISIBLE);
+        activity.findViewById(R.id.cloudListFragment).setVisibility(View.VISIBLE);
+        activity.findViewById(R.id.mitList).setVisibility(View.VISIBLE);
+
     }
 
     private void load() {
@@ -119,9 +260,10 @@ public class ListFragment extends Fragment {
         recyclerView = view.findViewById(R.id.recyclerView);
         searchView = view.findViewById(R.id.searchView_CloudList);
 
-        ivUploadList = view.findViewById(R.id.ivUpload_List);
-
+        ibUploadList = view.findViewById(R.id.ibUpload_List);
+        ibDeleteList = view.findViewById(R.id.ibDelete_List);
     }
+
 
     private List<Member> getMyListToObjectsList() {
         List<Member> list = new ArrayList<>();
@@ -145,7 +287,6 @@ public class ListFragment extends Fragment {
             }
         }
         return list;
-
     }
 
     private void handleView() {
@@ -187,24 +328,24 @@ public class ListFragment extends Fragment {
     }
 
 
-
     class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         Context context;
         List<Member> list;
-        boolean[] itemChoose;
-        boolean[] cbResult;
-        boolean displayCheckBox;
+
 
         public void setAdapterMembers(List<Member> list) {
             this.list = list;
+        }
+
+        public List<Member> getAdapterMembers() {
+            return this.list;
         }
 
         public MyAdapter(Context context, List<Member> list) {
             this.context = context;
             this.list = list;
             itemChoose = new boolean[list.size()];
-            cbResult = new boolean[list.size()];
-            displayCheckBox = false;
+
         }
 
         @NonNull
@@ -262,15 +403,24 @@ public class ListFragment extends Fragment {
                 holder.checkBox.setOnClickListener(v -> {
                     itemChoose[position] = holder.checkBox.isChecked();
                     Log.d(TAG,"itemChoose : index[ "+ position +" ]- " + itemChoose[position] );
+                    // select To Upload cloud
+                    if(itemChoose[position]){
+//                        itemChooseMap.put(member.getStringName(),String.valueOf(position) );
+                    }else {
+//                        itemChooseMap.remove(member.getStringName());
+                    }
+
                 });
 
                 holder.itemView.setOnClickListener(v -> {
+                    // ToUpdateMember
                     if(!displayCheckBox){
                         Bundle bundle = new Bundle();
                         bundle.putString(WORKTYPE,UPDATE);
                         bundle.putString(NAME,member.getStringName());
                         Navigation.findNavController(v).navigate(R.id.action_mitList_to_mitEdit,bundle);
                     }
+
                 });
 
                 holder.itemView.setOnLongClickListener(v -> {
@@ -278,8 +428,6 @@ public class ListFragment extends Fragment {
                     this.notifyDataSetChanged();
                     return true;
                 });
-
-//            }
 
         }
 

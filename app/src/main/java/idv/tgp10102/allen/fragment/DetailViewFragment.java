@@ -80,14 +80,28 @@ public class DetailViewFragment extends Fragment {
         findViews(view);
         handleView();
 
+//        // 取Bundle Request
+//        if (getArguments() != null) {
+//            String bundleRequest = getArguments().getString("Nickname");
+//            Log.d(TAG,"getArguments() : "+getArguments().getString("Nickname") );
+//            // 接收update要求
+//            if (bundleRequest != null) {
+//                tvMessage.setText(bundleRequest);
+//                }
+//            }
+
         // 取Bundle Request
         if (getArguments() != null) {
-            String bundleRequest = getArguments().getString("Nickname");
+            String bundleRequest = getArguments().getString(NAME);
             // 接收update要求
             if (bundleRequest != null) {
-                tvMessage.setText(bundleRequest);
-                }
+                Log.d(TAG,"bundleRequest : "+ bundleRequest);
+                ivCurrentPhotoNick.setImageResource(R.drawable.baseline_account_circle_white_24);
+                currentPhotoNickname = bundleRequest;
+                tvCurrentPhotoNick.setText(bundleRequest);
+                downloadPhotosList();
             }
+        }
     }
 
     @Override
@@ -143,7 +157,7 @@ public class DetailViewFragment extends Fragment {
         detailPager2 = view.findViewById(R.id.viewPager2_detail);
         ibBack = view.findViewById(R.id.ibBack_Edit);
 
-        tvCurrentPhotoNick = view.findViewById(R.id.tvCurrentPhotoNick_Detail);
+        tvCurrentPhotoNick = view.findViewById(R.id.tvCurrentPhotoNick_Main);
         ivCurrentPhotoNick = view.findViewById(R.id.ivCurrentPhotoNick_Detail);
     }
 
