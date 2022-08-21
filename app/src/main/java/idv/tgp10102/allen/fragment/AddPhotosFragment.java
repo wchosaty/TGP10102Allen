@@ -69,13 +69,6 @@ public class AddPhotosFragment extends Fragment {
             ivAddPhoto.setLayoutParams(params);
         }
 
-        // 原本機端取圖
-//        try {
-//            ivAddPhoto.setImageBitmap(ComMethod.bitmapToImageFilePath(bitmap, filePicPath));
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-
         // cloud修改路徑
         if(!Objects.equals(this.photoPath,null)){
             final int MEGABYTE = 2 * 1024 * 1024;

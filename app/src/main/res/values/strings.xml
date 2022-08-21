@@ -25,5 +25,6 @@
     <string name="nofile">NO File</string>
     <string name="synccloud">SyncCloud</string>
     <string name="tosignUp">To Sign Up</string>
+    <string name="textNoImagePickerAppFound">no image picker app found</string>
 
 </resources>

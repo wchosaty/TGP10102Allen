@@ -6,6 +6,8 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ImageButton;
@@ -16,6 +18,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
 
 import java.util.Objects;
 
@@ -26,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageView ivUser;
     private TextView tvUserNickName;
     private FirebaseFirestore db;
+    private FirebaseStorage storage;
     public static User userNickname;
 
     private static final String TAG = "Tag MainActivity";
@@ -47,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
+        storage = FirebaseStorage.getInstance();
         setContentView(R.layout.activity_main);
         remoteCould = false;
         findViews();
@@ -111,6 +116,17 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }else {
                             tvUserNickName.setText(getString(R.string.textCheckNicknameEmpty));
+                        }
+                    });
+            final int MEGABYTE = 2 * 1024 * 1024;
+            storage.getReference().child(getString(R.string.app_name)+"/userPicture/"+userUid)
+                    .getBytes(MEGABYTE).addOnCompleteListener(task -> {
+                        if (task.isSuccessful() && task.getResult() != null){
+                            byte[] bytes = task.getResult();
+                            Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                            ivUser.setImageBitmap(bitmap);
+                        }else {
+                            Log.e(TAG, "nicknamePicture : downloadStrage Fail");
                         }
                     });
         }

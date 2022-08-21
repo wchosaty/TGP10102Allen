@@ -3,7 +3,15 @@ package idv.tgp10102.allen;
 import java.io.Serializable;
 
 public class User implements Serializable {
-    private String email,uid,phone,nickName;
+    private String email,uid,phone,nickName,nicknameCloudPic;
+
+    public String getNicknameCloudPic() {
+        return nicknameCloudPic;
+    }
+
+    public void setNicknameCloudPic(String nicknameCloudPic) {
+        this.nicknameCloudPic = nicknameCloudPic;
+    }
 
     public String getNickName() {
         return nickName;

@@ -41,8 +41,8 @@
 
     <ImageView
         android:id="@+id/ivCurrentPhotoNick_Detail"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
         android:layout_marginEnd="8dp"
         app:layout_constraintBottom_toTopOf="@+id/fragmentContainerView"
         app:layout_constraintEnd_toStartOf="@+id/tvCurrentPhotoNick_Main"

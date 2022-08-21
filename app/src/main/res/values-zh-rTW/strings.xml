@@ -26,5 +26,6 @@
     <string name="nofile">無檔案</string>
     <string name="synccloud">同步雲端</string>
     <string name="tosignUp">前往註冊</string>
+    <string name="textNoImagePickerAppFound">找不到相簿應用程式</string>
 
 </resources>

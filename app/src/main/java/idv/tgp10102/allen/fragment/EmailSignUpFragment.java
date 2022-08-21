@@ -1,14 +1,24 @@
 package idv.tgp10102.allen.fragment;
 
+import static android.app.Activity.RESULT_OK;
+
+
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,7 +26,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
@@ -24,6 +36,16 @@ import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Arrays;
 
 import idv.tgp10102.allen.MainActivity;
 import idv.tgp10102.allen.R;
@@ -34,15 +56,38 @@ public class EmailSignUpFragment extends Fragment {
     private Activity activity;
     private EditText etEmail,etPassword,etPhone,etNickname;
     private ImageButton ibBack;
-    private Button btSignUp;
+    private ImageView ivNicknamePic;
+    private Button btSignUp,btTest;
     private FirebaseAuth auth;
     private TextView tvMessage;
+    private Uri uriUserPicture;
+    private FirebaseStorage storage;
+    private FirebaseFirestore db;
 
+    ActivityResultLauncher<Intent> pickPictureLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            this::pickPictureResult);
+
+    private void pickPictureResult(ActivityResult result) {
+        if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+            File copyDir = activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS +"/user/");
+            File copyDest = new File(copyDir,"userPicture.jpg");
+            Uri uri = result.getData().getData();
+            File uritoFile  = null;
+            if (uri != null) {
+                uriUserPicture = uri;
+                // 提供圖檔的URI，ImageView可以直接顯示
+                ivNicknamePic.setImageURI(uri);
+            }
+        }
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         auth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
+        storage = FirebaseStorage.getInstance();
     }
 
     @Override
@@ -55,7 +100,7 @@ public class EmailSignUpFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         activity = getActivity();
         findViews(view);
-        handleButoon();
+        handleButton();
     }
 
     private void findViews(View view) {
@@ -66,11 +111,39 @@ public class EmailSignUpFragment extends Fragment {
         btSignUp = view.findViewById(R.id.btSignUpEmail);
         ibBack = view.findViewById(R.id.ibBack_EmailSignUp);
         tvMessage = view.findViewById(R.id.tvMessage_EmailsifnUp);
+        ivNicknamePic = view.findViewById(R.id.ivNickname_EUP);
+        btTest = view.findViewById(R.id.buttonTTT);
     }
 
-    private void handleButoon() {
+    private void handleButton() {
+        btTest.setOnClickListener(v -> {
+            final String imagePath = getString(R.string.app_name) + "/userPicture/"+"01";
+
+            storage.getReference().child(imagePath).putFile(uriUserPicture)
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            Log.d(TAG, "task.isSuccessful() ");
+                        } else {
+                            Log.d(TAG, "storage.getReference() : Fail ");
+                        }
+                        // 無論圖檔上傳成功或失敗都要將文字資料新增至DB
+                    });
+        });
+
+
         ibBack.setOnClickListener(v -> {
             Navigation.findNavController(v).navigate(R.id.action_emailSignUpFragment_to_loginFragment);
+        });
+
+        ivNicknamePic.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_PICK,
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            try {
+                pickPictureLauncher.launch(intent);
+            } catch (ActivityNotFoundException e) {
+                Log.d(TAG, "pickPictureLauncher : "+ R.string.textNoImagePickerAppFound);
+                tvMessage.setText(R.string.textNoImagePickerAppFound);
+            }
         });
 
         btSignUp.setOnClickListener(v -> {
@@ -92,6 +165,27 @@ public class EmailSignUpFragment extends Fragment {
             return true;
         } else {
             return false;
+        }
+    }
+    private void copy(File file,StringBuilder sbDest) {
+        if( !file.exists() ){
+            Log.d(TAG,"copy2 : ");
+            return;
+        }
+        Log.d(TAG,"copy2 : ");
+        try(
+                BufferedInputStream bis = new BufferedInputStream(new FileInputStream(String.valueOf(file.toString())));
+                FileOutputStream fos = new FileOutputStream(String.valueOf(sbDest));
+                BufferedOutputStream bos = new BufferedOutputStream(fos);
+        ) {
+            byte[] b = new byte[bis.available()];
+            bis.read(b);
+            bos.write(b);
+            bos.flush();
+
+        }catch (Exception e){
+            Log.e(TAG,e.toString());
+            Log.e(TAG, Arrays.toString(e.getStackTrace()));
         }
     }
 
@@ -121,6 +215,9 @@ public class EmailSignUpFragment extends Fragment {
                         if (firebaseUser != null) {
                             String uid = task.getResult().getUser().getUid();
                             user.setUid(uid);
+                            // 大頭照
+                            final String imagePath = getString(R.string.app_name) + "/userPicture/"+user.getUid();
+                            user.setNicknameCloudPic(imagePath);
                             FirebaseFirestore.getInstance()
                                     .collection(getString(R.string.app_name)+"users").document(user.getUid())
                                     .set(user).addOnCompleteListener(taskInsertDB -> {
@@ -128,8 +225,21 @@ public class EmailSignUpFragment extends Fragment {
                                             Log.d(TAG,"taskInsertDB : Successful");
                                         }
                                     });
+                            storage.getReference().child(imagePath).putFile(uriUserPicture)
+                                    .addOnCompleteListener(taskNickPic -> {
+                                        if (task.isSuccessful()) {
+                                            Log.d(TAG, "task.isSuccessful() ");
+                                        } else {
+                                            Log.d(TAG, "storage.getReference() : Fail ");
+                                        }
+                                        // 無論圖檔上傳成功或失敗都要將文字資料新增至DB
+                                    });
                         }
                         // 註冊成功跳頁
+
+
+
+
                         Intent intent = new Intent();
                         intent.setClass(activity, MainActivity.class);
                         startActivity(intent);
