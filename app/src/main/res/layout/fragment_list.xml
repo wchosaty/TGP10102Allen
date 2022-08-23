@@ -11,7 +11,7 @@
         android:layout_width="150dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="5dp"
-        android:layout_marginTop="2dp"
+        android:layout_marginTop="8dp"
         android:queryHint="@string/search_name"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -20,7 +20,7 @@
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="550dp"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -33,20 +33,21 @@
         android:layout_marginStart="16dp"
         android:background="?selectableItemBackground"
         android:src="@drawable/baseline_cloud_upload_black_24"
-        app:layout_constraintBottom_toBottomOf="@+id/ibDelete_List"
+        app:layout_constraintBottom_toBottomOf="@+id/searchView_CloudList"
         app:layout_constraintStart_toEndOf="@+id/searchView_CloudList"
-        app:layout_constraintTop_toTopOf="@+id/ibDelete_List" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageButton
         android:id="@+id/ibDelete_List"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
+        android:layout_marginStart="36dp"
         android:background="?selectableItemBackground"
         android:src="@drawable/baseline_delete_black_24"
-        app:layout_constraintBottom_toTopOf="@+id/recyclerView"
+        app:layout_constraintBottom_toBottomOf="@+id/ibUpload_List"
         app:layout_constraintStart_toEndOf="@+id/ibUpload_List"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@+id/ibUpload_List"
+        app:layout_constraintVertical_bias="1.0" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btFloatingAdd"
@@ -57,14 +58,6 @@
         android:clickable="true"
         android:src="@android:drawable/ic_input_add"
         app:layout_constraintBottom_toBottomOf="@+id/recyclerView"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <Button
-        android:id="@+id/buttonTest"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Button"
-        app:layout_constraintBottom_toTopOf="@+id/recyclerView"
         app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

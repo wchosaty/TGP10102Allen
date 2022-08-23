@@ -60,8 +60,6 @@ public class ListFragment extends Fragment {
     private boolean displayCheckBox = false;
     private File myDirDocument;
 
-    private Button buttonTest;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -105,7 +103,7 @@ public class ListFragment extends Fragment {
             if (displayCheckBox) {
                 MyAdapter adapter = (MyAdapter) recyclerView.getAdapter();
                 List<Member> list = adapter.getAdapterMembers();
-                if (list.size() == adapter.getAdapterItemChooseInner().length) {
+                if (list.size()>0 && list.size() <= adapter.getAdapterItemChooseInner().length) {
                     for (int i = 0; i < list.size(); i++) {
 
                         if (adapter.getAdapterItemChooseInner()[i]) {
@@ -131,16 +129,21 @@ public class ListFragment extends Fragment {
 
         // 勾選上傳
         ibUploadList.setOnClickListener(v -> {
+            Log.d(TAG,"ibUploadList : 有執行");
             if (displayCheckBox) {
                 MyAdapter adapter = (MyAdapter) recyclerView.getAdapter();
                 List<Member> list = adapter.getAdapterMembers();
-                if (list.size() == adapter.getAdapterItemChooseInner().length) {
+                Log.d(TAG,"ibUploadList : list.size : "+list.size() );
+                Log.d(TAG,"adapter.getAdapterItemChooseInner().length : "+adapter.getAdapterItemChooseInner().length );
+                if (list.size()>0 && list.size() <= adapter.getAdapterItemChooseInner().length) {
                     for (int i = 0; i < list.size(); i++) {
+                        Log.d(TAG,"ibUploadList : 有執行2");
                         if (adapter.getAdapterItemChooseInner()[i]) {
                             Member member = list.get(i);
                             if(Objects.equals(null,member)){
                                 Log.d(TAG,"ibUploadList null");
                             }else{
+                                Log.d(TAG,"ibUploadList : uploadPhotoToCloudFromList");
                                 uploadPhotoToCloudFromList(member);
                             }
                         }
@@ -152,9 +155,6 @@ public class ListFragment extends Fragment {
             }
         });
 
-        buttonTest.setOnClickListener(v -> {
-            delete("Door");
-        });
 
     }
 
@@ -242,6 +242,7 @@ public class ListFragment extends Fragment {
 
     private void uploadPhotoToCloudFromList(Member member) {
         if(member ==null){
+            Log.d(TAG,"uploadPhotoToCloudFromList : member null");
             Toast.makeText(activity, R.string.file_nodata, Toast.LENGTH_SHORT).show();
             return ;
         }
@@ -326,7 +327,6 @@ public class ListFragment extends Fragment {
         ibUploadList = view.findViewById(R.id.ibUpload_List);
         ibDeleteList = view.findViewById(R.id.ibDelete_List);
 
-        buttonTest= view.findViewById(R.id.buttonTest);
     }
 
 

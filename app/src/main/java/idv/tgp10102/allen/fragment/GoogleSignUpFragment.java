@@ -1,9 +1,14 @@
 package idv.tgp10102.allen.fragment;
 
+import static android.app.Activity.RESULT_OK;
+
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -11,6 +16,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,6 +41,9 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+
+import java.io.File;
 
 import idv.tgp10102.allen.MainActivity;
 import idv.tgp10102.allen.R;
@@ -49,7 +59,28 @@ public class GoogleSignUpFragment extends Fragment {
     private Button btSignIn,btSginUp;
     private EditText etNickname,etPhone;
     private ImageButton ibBack;
+    private ImageView ivNicknamePic;
+    private Uri uriUserPicture;
+    private FirebaseStorage storage;
     private FirebaseFirestore db;
+
+    ActivityResultLauncher<Intent> pickPictureLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            this::pickPictureResult);
+
+    private void pickPictureResult(ActivityResult result) {
+        if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+            File copyDir = activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS +"/user/");
+            File copyDest = new File(copyDir,"userPicture.jpg");
+            Uri uri = result.getData().getData();
+            File uritoFile  = null;
+            if (uri != null) {
+                uriUserPicture = uri;
+                // 提供圖檔的URI，ImageView可以直接顯示
+                ivNicknamePic.setImageURI(uri);
+            }
+        }
+    }
 
     ActivityResultLauncher<Intent> signUpGoogleLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -83,12 +114,23 @@ public class GoogleSignUpFragment extends Fragment {
                             String uid = taskUp.getResult().getUser().getUid();
                             Log.d(TAG,"uid : " +uid);
                             this.user.setUid(uid);
+                            final String imagePath = getString(R.string.app_name) + "/userPicture/"+this.user.getUid();
+                            this.user.setNicknameCloudPic(imagePath);
                             FirebaseFirestore.getInstance()
                                     .collection(getString(R.string.app_name)+"users").document(uid)
                                     .set(this.user).addOnCompleteListener(taskGoogleInsertDB -> {
                                         if (taskGoogleInsertDB.isSuccessful()) {
                                             Log.d(TAG, "taskGoogleInsertDB : Successful");
                                         }
+                                    });
+                            storage.getReference().child(imagePath).putFile(uriUserPicture)
+                                    .addOnCompleteListener(taskNickPic -> {
+                                        if (taskNickPic.isSuccessful()) {
+                                            Log.d(TAG, "task.isSuccessful() ");
+                                        } else {
+                                            Log.d(TAG, "storage.getReference() : Fail ");
+                                        }
+                                        // 無論圖檔上傳成功或失敗都要將文字資料新增至DB
                                     });
                         }
 
@@ -149,7 +191,6 @@ public class GoogleSignUpFragment extends Fragment {
                             activity.finish();
                         }
 
-
                     } else {
                         Exception exception = taskIn.getException();
                         String message = exception == null ? "Sign in fail." : exception.getMessage();
@@ -164,6 +205,7 @@ public class GoogleSignUpFragment extends Fragment {
         super.onCreate(savedInstanceState);
         auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
+        storage = FirebaseStorage.getInstance();
         GoogleSignInOptions options = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 // 由google-services.json轉出，有時會編譯失敗，但不影響執行
                 .requestIdToken(getString(R.string.default_web_client_id))
@@ -188,6 +230,18 @@ public class GoogleSignUpFragment extends Fragment {
     }
 
     private void handleButton() {
+
+        ivNicknamePic.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_PICK,
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            try {
+                pickPictureLauncher.launch(intent);
+            } catch (ActivityNotFoundException e) {
+                Log.d(TAG, "pickPictureLauncher : "+ R.string.textNoImagePickerAppFound);
+                tvMessage.setText(R.string.textNoImagePickerAppFound);
+            }
+        });
+
         ibBack.setOnClickListener(v -> {
             Navigation.findNavController(v).navigate(R.id.action_googleSignUpFragment_to_loginFragment);
         });
@@ -229,5 +283,7 @@ public class GoogleSignUpFragment extends Fragment {
         btSginUp = view.findViewById(R.id.btSignUp_google);
         ibBack = view.findViewById(R.id.ibBack_google);
         tvMessage = view.findViewById(R.id.tvMessage_google);
+
+        ivNicknamePic = view.findViewById(R.id.ivNickname_google);
     }
 }

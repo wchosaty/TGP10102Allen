@@ -71,7 +71,7 @@ public class AddPhotosFragment extends Fragment {
 
         // cloud修改路徑
         if(!Objects.equals(this.photoPath,null)){
-            final int MEGABYTE = 2 * 1024 * 1024;
+            final int MEGABYTE = 4 * 1024 * 1024;
                 String imagePath = this.photoPath;
                 StorageReference imageRef = storage.getReference().child(imagePath);
                 imageRef.getBytes(MEGABYTE)

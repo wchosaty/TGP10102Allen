@@ -4,9 +4,9 @@
     <item
         android:id="@+id/cloudListFragment"
         android:icon="@drawable/baseline_cloud_black_24"
-        android:title="@string/cloud" />
+        android:title="" />
     <item
         android:id="@+id/mitList"
         android:icon="@drawable/baseline_phone_android_black_24"
-        android:title="@string/phone" />
+        android:title="" />
 </menu>

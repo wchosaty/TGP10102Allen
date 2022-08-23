@@ -81,16 +81,6 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupWithNavController(bottomNavigationView,navController);
     }
 
-//    void showNicknameEmpty(){
-//        Bundle bundle = new Bundle();
-//        auth.signOut();
-//        bundle.putString("Nickname",getString(R.string.textCheckNicknameEmpty));
-//        Intent intent = new Intent().setClass(this, LoginActivity.class);
-//        intent.putExtras(bundle);
-//        startActivity(intent);
-//        this.finish();
-//    }
-
     @Override
     protected void onStart() {
         super.onStart();
@@ -118,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
                             tvUserNickName.setText(getString(R.string.textCheckNicknameEmpty));
                         }
                     });
-            final int MEGABYTE = 2 * 1024 * 1024;
+            final int MEGABYTE = 4 * 1024 * 1024;
             storage.getReference().child(getString(R.string.app_name)+"/userPicture/"+userUid)
                     .getBytes(MEGABYTE).addOnCompleteListener(task -> {
                         if (task.isSuccessful() && task.getResult() != null){

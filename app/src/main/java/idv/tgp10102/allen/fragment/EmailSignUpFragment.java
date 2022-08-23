@@ -57,7 +57,7 @@ public class EmailSignUpFragment extends Fragment {
     private EditText etEmail,etPassword,etPhone,etNickname;
     private ImageButton ibBack;
     private ImageView ivNicknamePic;
-    private Button btSignUp,btTest;
+    private Button btSignUp;
     private FirebaseAuth auth;
     private TextView tvMessage;
     private Uri uriUserPicture;
@@ -112,24 +112,9 @@ public class EmailSignUpFragment extends Fragment {
         ibBack = view.findViewById(R.id.ibBack_EmailSignUp);
         tvMessage = view.findViewById(R.id.tvMessage_EmailsifnUp);
         ivNicknamePic = view.findViewById(R.id.ivNickname_EUP);
-        btTest = view.findViewById(R.id.buttonTTT);
     }
 
     private void handleButton() {
-        btTest.setOnClickListener(v -> {
-            final String imagePath = getString(R.string.app_name) + "/userPicture/"+"01";
-
-            storage.getReference().child(imagePath).putFile(uriUserPicture)
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            Log.d(TAG, "task.isSuccessful() ");
-                        } else {
-                            Log.d(TAG, "storage.getReference() : Fail ");
-                        }
-                        // 無論圖檔上傳成功或失敗都要將文字資料新增至DB
-                    });
-        });
-
 
         ibBack.setOnClickListener(v -> {
             Navigation.findNavController(v).navigate(R.id.action_emailSignUpFragment_to_loginFragment);
@@ -227,7 +212,7 @@ public class EmailSignUpFragment extends Fragment {
                                     });
                             storage.getReference().child(imagePath).putFile(uriUserPicture)
                                     .addOnCompleteListener(taskNickPic -> {
-                                        if (task.isSuccessful()) {
+                                        if (taskNickPic.isSuccessful()) {
                                             Log.d(TAG, "task.isSuccessful() ");
                                         } else {
                                             Log.d(TAG, "storage.getReference() : Fail ");

@@ -36,10 +36,12 @@ import com.google.firebase.storage.StorageReference;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import idv.tgp10102.allen.ComMethod;
 import idv.tgp10102.allen.Member;
 import idv.tgp10102.allen.R;
+import idv.tgp10102.allen.User;
 
 public class DetailViewFragment extends Fragment {
     private static final String TAG = "Tag DetailViewFragment";
@@ -80,15 +82,6 @@ public class DetailViewFragment extends Fragment {
         findViews(view);
         handleView();
 
-//        // 取Bundle Request
-//        if (getArguments() != null) {
-//            String bundleRequest = getArguments().getString("Nickname");
-//            Log.d(TAG,"getArguments() : "+getArguments().getString("Nickname") );
-//            // 接收update要求
-//            if (bundleRequest != null) {
-//                tvMessage.setText(bundleRequest);
-//                }
-//            }
 
         // 取Bundle Request
         if (getArguments() != null) {
@@ -98,6 +91,34 @@ public class DetailViewFragment extends Fragment {
                 Log.d(TAG,"bundleRequest : "+ bundleRequest);
                 ivCurrentPhotoNick.setImageResource(R.drawable.baseline_account_circle_white_24);
                 currentPhotoNickname = bundleRequest;
+                if(currentPhotoNickname != null){
+                    // 取得該相簿的Nickname 圖示
+
+                    db.collection(getString(R.string.app_name)+"users")
+                            .get().addOnCompleteListener(taskNick -> {
+                                if(taskNick.isSuccessful() && taskNick.getResult()!= null) {
+                                    String nickUid;
+                                    Log.d(TAG, "taskUserData : Successful");
+                                    for (QueryDocumentSnapshot snapshot : taskNick.getResult()) {
+                                        User userNick = snapshot.toObject(User.class);
+                                        if (Objects.equals(userNick.getNickName(),currentPhotoNickname)) {
+                                            nickUid = userNick.getUid();
+                                            final int MEGABYTE = 4 * 1024 * 1024;
+                                            storage.getReference(getString(R.string.app_name)+"/userPicture/"+nickUid)
+                                                    .getBytes(MEGABYTE).addOnCompleteListener(taskNickPic -> {
+                                                        Log.d(TAG, "taskNickPic : Successful");
+                                                        byte[] bytes = taskNickPic.getResult();
+                                                        Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                                                        ivCurrentPhotoNick.setImageBitmap(bitmap);
+                                                    });
+                                            break;
+                                        }else{
+                                            Log.d(TAG, "taskNickPic : Fail");
+                                        }
+                                    }
+                                }
+                            });
+                }
                 tvCurrentPhotoNick.setText(bundleRequest);
                 downloadPhotosList();
             }

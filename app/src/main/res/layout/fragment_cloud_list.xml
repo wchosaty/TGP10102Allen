@@ -12,8 +12,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="2dp"
         android:queryHint="@string/search_name"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:layout_editor_absoluteX="5dp" >
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
     </SearchView>
 
@@ -29,4 +29,15 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/searchView_CloudList" />
+
+    <ImageButton
+        android:id="@+id/ibSync_CloudList"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:backgroundTint="@color/white"
+        android:src="@drawable/baseline_sync_black_24"
+        app:layout_constraintBottom_toTopOf="@+id/recyclerView_CloudList"
+        app:layout_constraintStart_toEndOf="@+id/searchView_CloudList"
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
