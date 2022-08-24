@@ -9,6 +9,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.ImageDecoder;
 import android.net.Uri;
 import android.os.Bundle;
+
+import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -20,6 +22,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -83,6 +86,11 @@ public class EditFragment extends Fragment {
     private ActivityResultLauncher<Uri> takePicLauncher;
     private ActivityResultLauncher<Intent> cropPicLauncher;
 
+
+    ActivityResultLauncher<Intent> pickPictureLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            this::pickPictureResult);
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -106,7 +114,7 @@ public class EditFragment extends Fragment {
         handleInitialAndVisibility();
 
         contentResolver = activity.getContentResolver();
-        takePicLauncher = getLauncher();
+        takePicLauncher = getTakeLauncher();
         cropPicLauncher = getCropPicLauncher();
         handleAutoCompleteTextView();
         handleButton();
@@ -127,6 +135,15 @@ public class EditFragment extends Fragment {
             if(bundleRequest == CREATENEW){
                 Log.d(TAG,"bundleRequest : "+CREATENEW);
                 createNew();
+            }
+        }
+    }
+
+    private void pickPictureResult(ActivityResult result) {
+        if (result.getResultCode() == RESULT_OK) {
+            if (result.getData() != null) {
+                crop(result.getData().getData(),PICKPICTURE);
+//                crop();
             }
         }
     }
@@ -183,7 +200,18 @@ public class EditFragment extends Fragment {
                 });
 
         handleBtload();
-        handleBtTakePic();
+
+        // 拍照
+        ibTakePic.setOnClickListener(v -> {
+            pagerNumber = viewPager2.getCurrentItem();
+            onButtonTakeClick(pagerNumber);
+        });
+
+        ibSelectPhoto.setOnClickListener(v -> {
+            pagerNumber = viewPager2.getCurrentItem();
+            onButtonPickClick(pagerNumber);
+        });
+
         handleBtSave();
         handleBtDelete();
     }
@@ -417,8 +445,8 @@ public class EditFragment extends Fragment {
                     stringCount.append("0");
                 }
                 stringCount.append(""+count);
-                fileCrop =new File(dir,""+takePicCrop+ "_" + count +".jpg");
-                fileOrigin =new File(dir,""+takePicOrigin+ "_" + count +".jpg");
+                fileCrop =new File(dir,""+PicCrop+ "_" + count +".jpg");
+                fileOrigin =new File(dir,""+PicOrigin+ "_" + count +".jpg");
                 stringChildList.add(etName.getText().toString() +"_"+ stringCount+".jpg");
                 fileDest = new File(dirMember,stringChildList.get(i));
                 //pathList
@@ -512,11 +540,11 @@ public class EditFragment extends Fragment {
         }
     }
 
-    private  ActivityResultLauncher<Uri> getLauncher(){
+    private  ActivityResultLauncher<Uri> getTakeLauncher(){
         return registerForActivityResult(new ActivityResultContracts.TakePicture(),
                 isOk ->{
                     if(isOk){
-                        crop();
+                        crop(null,TAKEPICTURE);
                     }
                 }
         );
@@ -544,7 +572,7 @@ public class EditFragment extends Fragment {
                         }else{
                             bitmap = BitmapFactory.decodeStream(contentResolver.openInputStream(resultUri));
                         }
-                        File fliePathTemp =new File(dir,""+takePicCrop+ "_" + pagerNumber +".jpg");
+                        File fliePathTemp =new File(dir,""+PicCrop+ "_" + pagerNumber +".jpg");
                         upDateCurrentEditList(SAVE,fliePathTemp.toString(),pagerNumber);
 
                         viewPager2.setAdapter(myViewPager2Adapter);
@@ -557,9 +585,15 @@ public class EditFragment extends Fragment {
         );
     }
 
-    private void crop() {
-        final Uri dstUri = Uri.fromFile(createFile(takePicCrop));
-        UCrop uCrop = UCrop.of(srcUri,dstUri);
+    private void crop(Uri sourceUri,String s) {
+        Uri dstUri = Uri.fromFile(createFile(PicCrop));
+        Uri sourceImageUri = null;
+        if(Objects.equals(TAKEPICTURE,s)){
+            sourceImageUri = srcUri;
+        }else if(Objects.equals(PICKPICTURE,s)){
+            sourceImageUri = sourceUri;
+        }
+        UCrop uCrop = UCrop.of(sourceImageUri,dstUri);
         Intent intent = uCrop.getIntent(activity);
         cropPicLauncher.launch(intent);
     }
@@ -598,16 +632,21 @@ public class EditFragment extends Fragment {
         viewPager2.setAdapter(myViewPager2Adapter);
     }
 
-    private void handleBtTakePic() {
-        ibTakePic.setOnClickListener(v -> {
-            pagerNumber = viewPager2.getCurrentItem();
-            onButtonTakeClick(pagerNumber);
-        });
+    public void onButtonPickClick(int pickPicCodePos){
+        handleRequestCode = pickPicCodePos;
+        file = createFile(PicOrigin);
+//        srcUri = FileProvider.getUriForFile(activity,
+//                activity.getPackageName()+".fileProvider",file);
+        Intent intent = new Intent(Intent.ACTION_PICK,
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+
+        pickPictureLauncher.launch(intent);
+//        takePicLauncher.launch(srcUri);
     }
 
     public void onButtonTakeClick(int takePicCodePos){
         handleRequestCode = takePicCodePos;
-        file = createFile(takePicOrigin);
+        file = createFile(PicOrigin);
         srcUri = FileProvider.getUriForFile(activity,
                 activity.getPackageName()+".fileProvider",file);
         takePicLauncher.launch(srcUri);

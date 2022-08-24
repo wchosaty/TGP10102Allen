@@ -93,8 +93,8 @@ public class CloudListFragment extends Fragment {
                         MyCloudListAdapter myCloudListAdapter = (MyCloudListAdapter) recyclerView.getAdapter();
                         myCloudListAdapter.setMyCloudListAdapter(cloudNicknamePersonList);
                         myCloudListAdapter.notifyDataSetChanged();
+                        Log.d(TAG , "cloudNicknamePersonList : " + cloudNicknamePersonList.size());
 
-                        Log.d(TAG,"DB user documentSnapshot : " + cloudNicknamePersonList.size());
                     } else {
                         Log.e(TAG, "Firebase DB : Download Fail");
                     }
@@ -162,6 +162,7 @@ public class CloudListFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull MyCloudListViewHolder holder, int position) {
+            Log.d(TAG,"onBindViewHolder : create list(size) :" + list.size());
             holder.tvNickname.setText(list.get(position).getNickName());
             holder.ivPerson.setImageResource(R.drawable.baseline_account_circle_white_48);
             //下載圖示

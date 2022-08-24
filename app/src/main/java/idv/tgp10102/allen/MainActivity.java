@@ -33,8 +33,8 @@ public class MainActivity extends AppCompatActivity {
     public static User userNickname;
 
     private static final String TAG = "Tag MainActivity";
-    public static final String takePicCrop = "Crop" ,
-            takePicOrigin = "Origin",
+    public static final String PicCrop = "Crop" ,
+            PicOrigin = "Origin",TAKEPICTURE = "takePicture",PICKPICTURE="pickPicture",
             LOCALNICKNAME = "localnickname",GEUST = "guest";
     public static final String
             READ = "read",CREATENEW = "createNewFile",

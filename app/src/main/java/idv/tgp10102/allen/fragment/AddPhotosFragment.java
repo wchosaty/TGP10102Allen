@@ -58,7 +58,7 @@ public class AddPhotosFragment extends Fragment {
             return;
         }
 
-        ivAddPhoto.setImageResource(R.drawable.baseline_add_black_48);
+//        ivAddPhoto.setImageResource(R.drawable.baseline_add_black_48);
         File filePicPath = new File(this.photoPath.toString());
  //       Bitmap bitmap = null;
         //設定預設圖片尺寸
@@ -71,7 +71,7 @@ public class AddPhotosFragment extends Fragment {
 
         // cloud修改路徑
         if(!Objects.equals(this.photoPath,null)){
-            final int MEGABYTE = 4 * 1024 * 1024;
+            final int MEGABYTE = 10 * 1024 * 1024;
                 String imagePath = this.photoPath;
                 StorageReference imageRef = storage.getReference().child(imagePath);
                 imageRef.getBytes(MEGABYTE)
