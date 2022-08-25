@@ -32,6 +32,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,6 +46,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
@@ -52,7 +54,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import idv.tgp10102.allen.MainActivity;
 import idv.tgp10102.allen.Member;
 import idv.tgp10102.allen.R;
 
@@ -62,7 +63,7 @@ public class EditFragment extends Fragment {
     private AutoCompleteTextView etName;
     private EditText etMessage;
     private ImageButton ibSave,ibLoad,ibDelete,ibUploadCould,ibCreateNew;
-    private ImageButton ibAddPhoto,ibTakePic,ibDeletePhoto,ibSelectPhoto,ibBack;
+    private ImageButton ibAddPhoto,ibTakePic,ibDeletePhoto,ibSelectPhoto,ibBack,ibAddMultiPhotos;
     private CheckBox cbAutoSync;
     private File myDirDocument;
     private ArrayAdapter<String> adapter;
@@ -81,11 +82,69 @@ public class EditFragment extends Fragment {
     private TextView tvEditMessage;
     public List<String> currentEditList;
     public final static String EMPTY = "-1";
-
     private ContentResolver contentResolver;
     private ActivityResultLauncher<Uri> takePicLauncher;
     private ActivityResultLauncher<Intent> cropPicLauncher;
+    private ImageView imageViewX;
 
+
+    ActivityResultLauncher<Intent> pickMultiPicturesLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            this::pickMultiPicturesResult);
+
+    private void pickMultiPicturesResult(ActivityResult result) {
+        if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+            Intent intent = result.getData();
+            // 空白位置
+            int count;
+            if(currentEditList.get(currentEditList.size()-1) == "-1"){
+                currentEditList.remove(currentEditList.size()-1);
+
+            }
+                count = currentEditList.size();
+            File file = activity.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+            // null代表只挑選一張，不為null代表挑選多張圖片
+            if (intent.getClipData() != null) {
+                for (int i = 0; i < intent.getClipData().getItemCount(); i++) {
+                    Uri imageUri = intent.getClipData().getItemAt(i).getUri();
+                    File filePathTemp = new File(file, "" + PicCrop + "_" + count + ".jpg");
+                    pickMultiPicturesToSave(count,imageUri,filePathTemp.toString());
+                    Log.d(TAG, "pickMultiPicturesToSave : " + filePathTemp.toString() + " || " + count);
+                    count++;
+                }
+            }
+            else{
+                Uri imageUri = intent.getData();
+                File filePathTemp = new File(file, "" + PicCrop + "_" + count + ".jpg");
+                pickMultiPicturesToSave(count,imageUri,filePathTemp.toString());
+                Log.d(TAG, "pickMultiPicturesToSave : " + filePathTemp.toString() + " || " + count);
+            }
+            Log.d(TAG, "currentEditList : " + currentEditList.toString());
+            viewPager2.setAdapter(myViewPager2Adapter);
+            MyViewPager2Adapter pager2Adapter = (MyViewPager2Adapter) viewPager2.getAdapter();
+            pager2Adapter.setMyViewPager2Adapter(currentEditList);
+            pager2Adapter.notifyDataSetChanged();
+            viewPager2.setCurrentItem(currentEditList.size());
+        }
+    }
+
+    void pickMultiPicturesToSave(int count,Uri uri,String s) {
+        try (
+                InputStream is = requireContext().getContentResolver().openInputStream(uri);
+                BufferedInputStream bis = new BufferedInputStream(is);
+                FileOutputStream fos = new FileOutputStream(s);
+                BufferedOutputStream bos = new BufferedOutputStream(fos);
+        ) {
+            Log.d(TAG, "pickMultiPicturesResult : Read&Write");
+            byte[] readImage = new byte[bis.available()];
+            bis.read(readImage);
+            bos.write(readImage);
+            bos.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        currentEditList.add(s.toString());
+    }
 
     ActivityResultLauncher<Intent> pickPictureLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -97,6 +156,8 @@ public class EditFragment extends Fragment {
         db = FirebaseFirestore.getInstance();
         storage = FirebaseStorage.getInstance();
         memberListEdit = new ArrayList<>();
+
+
     }
 
     @Override
@@ -172,6 +233,21 @@ public class EditFragment extends Fragment {
     }
 
     private void handleButton() {
+
+        ibAddMultiPhotos.setOnClickListener(v -> {
+            pagerNumber = viewPager2.getCurrentItem();
+            Intent intent = new Intent();
+            // 必須指定挑選格式，否則無法執行挑選動作
+            intent.setType("image/*");
+            // 允許挑選多個項目
+            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+            // 允許用戶選取指定項目(例如：照片)，選完後會回傳
+            intent.setAction(Intent.ACTION_GET_CONTENT);
+            //新增測試
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+
+            pickMultiPicturesLauncher.launch(intent);
+        });
 
         ibBack.setOnClickListener(v -> {
             Navigation.findNavController(v).navigate(R.id.action_mitEdit_to_mitList);
@@ -619,12 +695,12 @@ public class EditFragment extends Fragment {
         ibTakePic = view.findViewById(R.id.ibCamera_photo);
         ibDeletePhoto = view.findViewById(R.id.ibDelete_photo);
         ibSelectPhoto =view.findViewById(R.id.ibSelectFile_photo);
+        ibAddMultiPhotos = view.findViewById(R.id.ibAdd_MultiPhotos);
 
         ibBack = view.findViewById(R.id.ibBack_Edit);
         cbAutoSync = view.findViewById(R.id.cbAutoSyncCloud);
 
         viewPager2 = view.findViewById(R.id.viewPager2);
-
     }
 
     private void handleInitialAndVisibility() {
@@ -635,23 +711,18 @@ public class EditFragment extends Fragment {
     public void onButtonPickClick(int pickPicCodePos){
         handleRequestCode = pickPicCodePos;
         file = createFile(PicOrigin);
-//        srcUri = FileProvider.getUriForFile(activity,
-//                activity.getPackageName()+".fileProvider",file);
         Intent intent = new Intent(Intent.ACTION_PICK,
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
 
         pickPictureLauncher.launch(intent);
-//        takePicLauncher.launch(srcUri);
     }
 
-    public void onButtonTakeClick(int takePicCodePos){
+    public void onButtonTakeClick(int takePicCodePos) {
         handleRequestCode = takePicCodePos;
         file = createFile(PicOrigin);
-        srcUri = FileProvider.getUriForFile(activity,
-                activity.getPackageName()+".fileProvider",file);
+        srcUri = FileProvider.getUriForFile(activity, activity.getPackageName()+".fileProvider",file);
         takePicLauncher.launch(srcUri);
     }
-
 
     class MyViewPager2Adapter extends FragmentStateAdapter {
         private List<String> list;

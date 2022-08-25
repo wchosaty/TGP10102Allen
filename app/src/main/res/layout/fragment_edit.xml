@@ -136,6 +136,17 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/ibDeleteMember" />
 
+            <CheckBox
+                android:id="@+id/cbAutoSyncCloud"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="@string/synccloud"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/ibUploadCloud"
+                app:layout_constraintTop_toTopOf="parent" />
+
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
@@ -168,11 +179,13 @@
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cvPhotoButtonOpenBar"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="32dp"
         app:cardBackgroundColor="#736A6F"
         app:cardCornerRadius="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/viewPager2">
 
@@ -186,7 +199,7 @@
                 android:layout_height="30dp"
                 android:layout_marginStart="16dp"
                 android:background="?selectableItemBackground"
-                android:src="@drawable/baseline_photo_camera_white_24"
+                android:src="@drawable/baseline_add_a_photo_white_24"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/ibAdd_photo"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -199,7 +212,6 @@
                 android:background="?selectableItemBackground"
                 android:src="@drawable/baseline_delete_white_24"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/ibSelectFile_photo"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -209,7 +221,7 @@
                 android:layout_height="30dp"
                 android:layout_marginStart="16dp"
                 android:background="?selectableItemBackground"
-                android:src="@drawable/baseline_photo_library_white_24"
+                android:src="@drawable/baseline_add_photo_alternate_white_24"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/ibCamera_photo"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -224,17 +236,20 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageButton
+                android:id="@+id/ibAdd_MultiPhotos"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="24dp"
+                android:background="?selectableItemBackground"
+                android:src="@drawable/baseline_photo_library_white_24"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 
-    <CheckBox
-        android:id="@+id/cbAutoSyncCloud"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/synccloud"
-        app:layout_constraintBottom_toBottomOf="@+id/cvPhotoButtonOpenBar"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/cvPhotoButtonOpenBar"
-        app:layout_constraintTop_toTopOf="@+id/cvPhotoButtonOpenBar" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
