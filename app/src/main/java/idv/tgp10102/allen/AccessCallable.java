@@ -28,7 +28,7 @@ public class AccessCallable {
         return bitmap;
     }
 
-    public void getViewPage2Image(String path, ExecutorService executor, ImageView imageView) {
+    public void getViewPicture(String path, ExecutorService executor, ImageView imageView) {
         ViewPagerCallable viewPagerCallable = new ViewPagerCallable(path, imageView);
         Future<Boolean> future = executor.submit(viewPagerCallable);
     }
