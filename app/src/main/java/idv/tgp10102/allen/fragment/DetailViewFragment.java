@@ -37,7 +37,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
+import idv.tgp10102.allen.AccessCallable;
 import idv.tgp10102.allen.ComMethod;
 import idv.tgp10102.allen.Member;
 import idv.tgp10102.allen.R;
@@ -58,6 +61,8 @@ public class DetailViewFragment extends Fragment {
     private ImageButton ibBack;
     private static MyDetailPager2 myDetailPager2;
     private static ViewPager2 detailPager2;
+    private ExecutorService executorRecyc;
+
 
     private FirebaseFirestore db;
     private FirebaseStorage storage;
@@ -67,6 +72,11 @@ public class DetailViewFragment extends Fragment {
         super.onCreate(savedInstanceState);
         db = FirebaseFirestore.getInstance();
         storage = FirebaseStorage.getInstance();
+        int numProcess = Runtime.getRuntime().availableProcessors();
+        Log.d(TAG, "JVM可用的處理器數量: " + numProcess);
+        // 建立固定量的執行緒放入執行緒池內並重複利用它們來執行任務
+//        executorViewPager = executorRecyc = Executors.newFixedThreadPool(numProcess/2);
+        executorRecyc = Executors.newFixedThreadPool(1);
     }
 
     @Override
@@ -103,7 +113,7 @@ public class DetailViewFragment extends Fragment {
                                         User userNick = snapshot.toObject(User.class);
                                         if (Objects.equals(userNick.getNickName(),currentPhotoNickname)) {
                                             nickUid = userNick.getUid();
-                                            final int MEGABYTE = 4 * 1024 * 1024;
+                                            final int MEGABYTE = 10 * 1024 * 1024;
                                             storage.getReference(getString(R.string.app_name)+"/userPicture/"+nickUid)
                                                     .getBytes(MEGABYTE).addOnCompleteListener(taskNickPic -> {
                                                         Log.d(TAG, "taskNickPic : Successful");
@@ -125,11 +135,20 @@ public class DetailViewFragment extends Fragment {
         }
     }
 
+
     @Override
     public void onStart() {
         super.onStart();
         activity.findViewById(R.id.cloudListFragment).setVisibility(View.INVISIBLE);
         activity.findViewById(R.id.mitList).setVisibility(View.INVISIBLE);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if(executorRecyc != null){
+            executorRecyc.shutdownNow();
+        }
     }
 
     private void downloadPhotosList() {
@@ -212,9 +231,11 @@ public class DetailViewFragment extends Fragment {
 
             holder.nameDetail.setText(member.getStringName());
             if(member.getCloudChildPhotosPathList().size() > 0){
-                final int MEGABYTE = 2 * 1024 * 1024;
-                for(int i=0;i<member.getCloudChildPhotosPathList().size();i++){
-                    String imagePath = member.getCloudChildPhotosPathList().get(i);
+                final int MEGABYTE = 10 * 1024 * 1024;
+//                for(int i=0;i<member.getCloudChildPhotosPathList().size();i++){
+                    String imagePath = member.getCloudChildPhotosPathList().get(0);
+//                    new AccessCallable().getRecycImage(imagePath,executorRecyc,holder.ivPicDetail);
+//                    holder.ivPicDetail.setImageBitmap(bitmap);
                     StorageReference imageRef = storage.getReference().child(imagePath);
                     imageRef.getBytes(MEGABYTE)
                             .addOnCompleteListener(task -> {
@@ -223,10 +244,11 @@ public class DetailViewFragment extends Fragment {
                                     Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
                                     holder.ivPicDetail.setImageBitmap(bitmap);
                                 }else {
-                                    Log.e(TAG, "onBindViewHolder : downloadStrage Fail");
+                                    Log.e(TAG, "onBindViewHolder : downloadStorage Fail");
                                 }
                             });
-                    }
+
+//                    }
             }
 
             // viewPager2

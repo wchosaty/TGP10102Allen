@@ -20,7 +20,10 @@ import com.google.firebase.storage.FirebaseStorage;
 
 import java.io.File;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
+import idv.tgp10102.allen.AccessCallable;
 import idv.tgp10102.allen.R;
 
 public class AddPhotosFragment extends Fragment {
@@ -29,6 +32,7 @@ public class AddPhotosFragment extends Fragment {
     private ImageView ivAddPhoto;
     private String photoPath;
     private FirebaseStorage storage;
+    private ExecutorService executorViewPager;
 
     public AddPhotosFragment(String photoPath) {
         this.photoPath = photoPath;
@@ -38,6 +42,8 @@ public class AddPhotosFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         storage = FirebaseStorage.getInstance();
+        int numProcess = Runtime.getRuntime().availableProcessors();
+        executorViewPager  = Executors.newFixedThreadPool(numProcess);
     }
 
     @Override
@@ -71,19 +77,20 @@ public class AddPhotosFragment extends Fragment {
 
         // cloud修改路徑
         if(!Objects.equals(this.photoPath,null)){
-            final int MEGABYTE = 10 * 1024 * 1024;
+//            final int MEGABYTE = 10 * 1024 * 1024;
                 String imagePath = this.photoPath;
-                StorageReference imageRef = storage.getReference().child(imagePath);
-                imageRef.getBytes(MEGABYTE)
-                        .addOnCompleteListener(task -> {
-                            if (task.isSuccessful() && task.getResult() != null){
-                                byte[] bytes = task.getResult();
-                                Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                                ivAddPhoto.setImageBitmap(bitmap);
-                            }else {
-                                Log.e(TAG, "onBindViewHolder : downloadStrage Fail");
-                            }
-                        });
+            new AccessCallable().getViewPage2Image(imagePath,executorViewPager,ivAddPhoto);
+//                StorageReference imageRef = storage.getReference().child(imagePath);
+//                imageRef.getBytes(MEGABYTE)
+//                        .addOnCompleteListener(task -> {
+//                            if (task.isSuccessful() && task.getResult() != null){
+//                                byte[] bytes = task.getResult();
+//                                Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+//                                ivAddPhoto.setImageBitmap(bitmap);
+//                            }else {
+//                                Log.e(TAG, "onBindViewHolder : downloadStrage Fail");
+//                            }
+//                        });
         }
 
     }
