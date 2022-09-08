@@ -18,7 +18,7 @@
     <string name="signIn">登入</string>
     <string name="signUp">註冊</string>
     <string name="textPhone">電話號碼</string>
-    <string name="phone">電話</string>
+    <string name="phone">手機</string>
     <string name="cloud">雲端</string>
     <string name="title">相簿名稱</string>
     <string name="describe">描述</string>
@@ -27,5 +27,7 @@
     <string name="synccloud">同步雲端</string>
     <string name="tosignUp">前往註冊</string>
     <string name="textNoImagePickerAppFound">找不到相簿應用程式</string>
-
+    <string name="leaderboard">排行榜</string>
+    <string name="views">次</string>
+    <string name="click">瀏覽</string>
 </resources>

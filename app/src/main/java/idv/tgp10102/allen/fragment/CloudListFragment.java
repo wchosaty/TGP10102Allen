@@ -107,6 +107,7 @@ public class CloudListFragment extends Fragment {
         super.onStart();
         activity.findViewById(R.id.cloudListFragment).setVisibility(View.VISIBLE);
         activity.findViewById(R.id.mitList).setVisibility(View.VISIBLE);
+        activity.findViewById(R.id.leaderboardFragment).setVisibility(View.VISIBLE);
         load();
     }
 

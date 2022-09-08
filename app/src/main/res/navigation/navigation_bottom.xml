@@ -43,4 +43,9 @@
             android:id="@+id/action_cloudListFragment_to_mitDetail"
             app:destination="@id/mitDetail" />
     </fragment>
+    <fragment
+        android:id="@+id/leaderboardFragment"
+        android:name="idv.tgp10102.allen.fragment.LeaderboardFragment"
+        android:label="fragment_leaderboard"
+        tools:layout="@layout/fragment_leaderboard" />
 </navigation>

@@ -98,7 +98,6 @@ public class ListFragment extends Fragment {
     private void handleButton() {
         //勾選刪除
         ibDeleteList.setOnClickListener(v -> {
-            List<String> deletePhotosNameList = new ArrayList<>();
             String deletePhotosName = null;
             if (displayCheckBox) {
                 MyAdapter adapter = (MyAdapter) recyclerView.getAdapter();
@@ -189,7 +188,6 @@ public class ListFragment extends Fragment {
                                             Log.d(TAG, "delete :taskDB Fail");
                                         }
                                     });
-
 
 
                         }

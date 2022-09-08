@@ -210,15 +210,18 @@ public class EmailSignUpFragment extends Fragment {
                                             Log.d(TAG,"taskInsertDB : Successful");
                                         }
                                     });
-                            storage.getReference().child(imagePath).putFile(uriUserPicture)
-                                    .addOnCompleteListener(taskNickPic -> {
-                                        if (taskNickPic.isSuccessful()) {
-                                            Log.d(TAG, "task.isSuccessful() ");
-                                        } else {
-                                            Log.d(TAG, "storage.getReference() : Fail ");
-                                        }
-                                        // 無論圖檔上傳成功或失敗都要將文字資料新增至DB
-                                    });
+                            if(uriUserPicture!=null){
+                                storage.getReference().child(imagePath).putFile(uriUserPicture)
+                                        .addOnCompleteListener(taskNickPic -> {
+                                            if (taskNickPic.isSuccessful()) {
+                                                Log.d(TAG, "task.isSuccessful() ");
+                                            } else {
+                                                Log.d(TAG, "storage.getReference() : Fail ");
+                                            }
+                                            // 無論圖檔上傳成功或失敗都要將文字資料新增至DB
+                                        });
+                            }
+
                         }
                         // 註冊成功跳頁
 

@@ -104,7 +104,8 @@
                 android:background="?selectableItemBackground"
                 android:src="@drawable/baseline_file_open_black_24"
                 app:layout_constraintStart_toEndOf="@+id/ibCreateNewMember"
-                app:layout_constraintTop_toTopOf="@+id/ibSaveMember" />
+                app:layout_constraintTop_toTopOf="@+id/ibSaveMember"
+                android:visibility="invisible"/>
 
             <ImageButton
                 android:id="@+id/ibDeleteMember"
@@ -134,7 +135,8 @@
                 android:background="?selectableItemBackground"
                 android:src="@drawable/baseline_post_add_black_24"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/ibDeleteMember" />
+                app:layout_constraintTop_toTopOf="@+id/ibDeleteMember"
+                android:visibility="invisible"/>
 
             <CheckBox
                 android:id="@+id/cbAutoSyncCloud"

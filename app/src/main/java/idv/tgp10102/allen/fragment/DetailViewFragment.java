@@ -3,9 +3,10 @@ package idv.tgp10102.allen.fragment;
 
 import static idv.tgp10102.allen.MainActivity.NAME;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -13,7 +14,6 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
@@ -21,24 +21,33 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LinearInterpolator;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import idv.tgp10102.allen.AccessCallable;
 import idv.tgp10102.allen.ComMethod;
+import idv.tgp10102.allen.LoginActivity;
+import idv.tgp10102.allen.MainActivity;
 import idv.tgp10102.allen.Member;
 import idv.tgp10102.allen.R;
 import idv.tgp10102.allen.User;
@@ -49,14 +58,13 @@ public class DetailViewFragment extends Fragment {
     private ImageView ivCurrentPhotoNick;
     private TextView tvCurrentPhotoNick;
     private RecyclerView recyclerViewDetail;
-    private List<Member> detailObjectsList;
     private List<Member> currentCloudMemberList;
     public static List<String> selectPhotosPathList;
     private String currentPhotoNickname;
     private ImageButton ibBack;
-    private ExecutorService executorRecyc,executorPicture;
-
-
+    private ExecutorService executorPicture;
+    public ProgressDialog mProgressDialog;
+    private FirebaseAuth auth;
     private FirebaseFirestore db;
     private FirebaseStorage storage;
 
@@ -68,7 +76,7 @@ public class DetailViewFragment extends Fragment {
         int numProcess = Runtime.getRuntime().availableProcessors();
         Log.d(TAG, "JVM可用的處理器數量: " + numProcess);
         // 建立固定量的執行緒放入執行緒池內並重複利用它們來執行任務
-        executorPicture = executorRecyc = Executors.newFixedThreadPool(numProcess/2);
+        executorPicture = Executors.newFixedThreadPool(numProcess/2);
     }
 
     @Override
@@ -96,30 +104,43 @@ public class DetailViewFragment extends Fragment {
                 if(currentPhotoNickname != null){
                     // 取得該相簿的Nickname 圖示
 
-                    db.collection(getString(R.string.app_name)+"users")
-                            .get().addOnCompleteListener(taskNick -> {
-                                if(taskNick.isSuccessful() && taskNick.getResult()!= null) {
-                                    String nickUid;
-                                    Log.d(TAG, "taskUserData : Successful");
-                                    for (QueryDocumentSnapshot snapshot : taskNick.getResult()) {
-                                        User userNick = snapshot.toObject(User.class);
-                                        if (Objects.equals(userNick.getNickName(),currentPhotoNickname)) {
-                                            nickUid = userNick.getUid();
-                                            final int MEGABYTE = 10 * 1024 * 1024;
-                                            storage.getReference(getString(R.string.app_name)+"/userPicture/"+nickUid)
-                                                    .getBytes(MEGABYTE).addOnCompleteListener(taskNickPic -> {
-                                                        Log.d(TAG, "taskNickPic : Successful");
-                                                        byte[] bytes = taskNickPic.getResult();
-                                                        Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                                                        ivCurrentPhotoNick.setImageBitmap(bitmap);
-                                                    });
-                                            break;
-                                        }else{
-                                            Log.d(TAG, "taskNickPic : Fail");
-                                        }
-                                    }
+                    db.collection(getString(R.string.app_name)+"users").get().addOnCompleteListener(taskNick -> {
+                        if (taskNick.isSuccessful() && taskNick.getResult() != null) {
+                            String nickUid;
+                            Log.d(TAG, "taskUserData : Successful");
+                            for (QueryDocumentSnapshot snapshot : taskNick.getResult()) {
+                                User userNick = snapshot.toObject(User.class);
+                                if (Objects.equals(userNick.getNickName(), currentPhotoNickname)) {
+                                    // 新增流量計算
+                                    Map<String, Object> mapCount = new HashMap<>();
+
+                                    mapCount.put("user",MainActivity.CURRENTNICKNAME);
+                                    String s = String.valueOf(System.currentTimeMillis());
+                                    mapCount.put("id", s);
+                                    FirebaseFirestore.getInstance().collection(getString(R.string.app_name)).document("CountRQ").collection(userNick.getNickName())
+                                            .document(s).set(mapCount);
+                                    Map<String, Object> data = new HashMap<>();
+                                     data.put("name",currentPhotoNickname);
+                                    FirebaseFirestore.getInstance().collection(getString(R.string.app_name)).document("CountRQ").collection("List")
+                                            .document(currentPhotoNickname).set(data);
+
+                                    // 下載圖像
+                                    nickUid = userNick.getUid();
+                                    final int MEGABYTE = 10 * 1024 * 1024;
+                                    storage.getReference(getString(R.string.app_name) + "/userPicture/" + nickUid)
+                                            .getBytes(MEGABYTE).addOnCompleteListener(taskNickPic -> {
+                                                Log.d(TAG, "taskNickPic : Successful");
+                                                byte[] bytes = taskNickPic.getResult();
+                                                Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                                                ivCurrentPhotoNick.setImageBitmap(bitmap);
+                                            });
+                                    break;
+                                } else {
+                                    Log.d(TAG, "taskNickPic : Fail");
                                 }
-                            });
+                            }
+                        }
+                    });
                 }
                 tvCurrentPhotoNick.setText(bundleRequest);
                 downloadPhotosList();
@@ -127,20 +148,17 @@ public class DetailViewFragment extends Fragment {
         }
     }
 
-
     @Override
     public void onStart() {
         super.onStart();
         activity.findViewById(R.id.cloudListFragment).setVisibility(View.INVISIBLE);
         activity.findViewById(R.id.mitList).setVisibility(View.INVISIBLE);
+        activity.findViewById(R.id.leaderboardFragment).setVisibility(View.INVISIBLE);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if(executorRecyc != null){
-            executorRecyc.shutdownNow();
-        }
         if(executorPicture != null){
             executorPicture.shutdownNow();
         }
@@ -169,7 +187,6 @@ public class DetailViewFragment extends Fragment {
     }
 
     private void handleView() {
-        detailObjectsList = ComMethod.getMemberObjectsList(activity);
         recyclerViewDetail.setAdapter(new MyDetailAdapter(activity, currentCloudMemberList));
         recyclerViewDetail.setLayoutManager(new StaggeredGridLayoutManager(1,StaggeredGridLayoutManager.VERTICAL));
 
@@ -188,17 +205,38 @@ public class DetailViewFragment extends Fragment {
         ivCurrentPhotoNick = view.findViewById(R.id.ivCurrentPhotoNick_Detail);
     }
 
+    protected void showProgressDialog() {
+        if (mProgressDialog == null) {
+            mProgressDialog = new ProgressDialog(requireContext());
+            mProgressDialog.setIndeterminate(true);
+            mProgressDialog.getProgress();
+            mProgressDialog.setMessage("Loading...");
+        }
+
+        mProgressDialog.show();
+    }
+
+    protected void hideProgressDialog() {
+        if (mProgressDialog != null && mProgressDialog.isShowing()) {
+            mProgressDialog.dismiss();
+        }
+    }
+
     class MyDetailAdapter extends RecyclerView.Adapter<MyDetailAdapter.DetailViewHolder> {
         private Context context;
         List<Member> list;
+        boolean[] booleanThumb;
 
         public MyDetailAdapter(Context context, List<Member> list) {
             this.context = context;
             this.list = list;
+//            booleanThumb = new boolean[this.list.size()];
+
         }
 
         public void setMyDetailAdapter(List<Member> list) {
             this.list = list;
+            booleanThumb = new boolean[this.list.size()];
         }
 
         @NonNull
@@ -206,42 +244,39 @@ public class DetailViewFragment extends Fragment {
         public DetailViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             LayoutInflater layoutInflater = LayoutInflater.from(context);
             View itemView = layoutInflater.inflate(R.layout.item_detail,parent,false);
+
             return new DetailViewHolder(itemView);
         }
 
         @Override
         public void onBindViewHolder(@NonNull DetailViewHolder holder, int position) {
             final Member member = list.get(position);
-            File filePicPath = null;
-            StringBuilder s;
 
             holder.nameDetail.setText(member.getStringName());
             holder.contentDetail.setText(member.getStringMessage());
-            Log.d(TAG,"picture List.size :" +member.getCloudChildPhotosPathList().size() );
+            Log.d(TAG,"picture List.size :" + list.size() +" / " +position );
             holder.recyclerPicture.setAdapter(new MyPictureAdapter(context,member.getCloudChildPhotosPathList()) );
             holder.recyclerPicture.setLayoutManager(new StaggeredGridLayoutManager(1,StaggeredGridLayoutManager.HORIZONTAL));
-/*
-            if(member.getCloudChildPhotosPathList().size() > 0){
-                final int MEGABYTE = 10 * 1024 * 1024;
-//                for(int i=0;i<member.getCloudChildPhotosPathList().size();i++){
-                    String imagePath = member.getCloudChildPhotosPathList().get(0);
-//                    new AccessCallable().getRecycImage(imagePath,executorRecyc,holder.ivPicDetail);
-//                    holder.ivPicDetail.setImageBitmap(bitmap);
-                    StorageReference imageRef = storage.getReference().child(imagePath);
-                    imageRef.getBytes(MEGABYTE)
-                            .addOnCompleteListener(task -> {
-                                if (task.isSuccessful() && task.getResult() != null){
-                                    byte[] bytes = task.getResult();
-                                    Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-//                                    holder.ivPicDetail.setImageBitmap(bitmap);
-                                }else {
-                                    Log.e(TAG, "onBindViewHolder : downloadStorage Fail");
-                                }
-                            });
 
-//                    }
+            if(booleanThumb.length > 0){
+                holder.ivThumbUp.setVisibility(booleanThumb[position] ? View.VISIBLE :View.INVISIBLE);
             }
-*/
+
+            holder.itemView.setOnClickListener(v -> {
+                booleanThumb[position] = true;
+                holder.ivThumbUp.setVisibility(View.VISIBLE);
+//                this.notifyItemChanged(position);
+
+                Map<String, Object> data = new HashMap<>();
+                data.put("nickname",member.getNickname());
+                data.put("photo",member.getStringName());
+                data.put("user",MainActivity.CURRENTNICKNAME);
+                String s = String.valueOf(System.currentTimeMillis());
+                data.put("id",s);
+                FirebaseFirestore.getInstance().collection(getString(R.string.app_name)).document("ThumbRQ").collection("ThumbRQ")
+                        .document(s).set(data);
+            });
+
         }
 
         @Override
@@ -253,15 +288,19 @@ public class DetailViewFragment extends Fragment {
             TextView nameDetail;
             TextView contentDetail;
             RecyclerView recyclerPicture;
+            ImageView ivThumbUp;
 
             public DetailViewHolder(@NonNull View itemView) {
                 super(itemView);
                 nameDetail = itemView.findViewById(R.id.tvName_itemDetail);
                 contentDetail = itemView.findViewById(R.id.tvContent_itemDetail);
                 recyclerPicture = itemView.findViewById(R.id.recyclerPicture);
+                ivThumbUp = itemView.findViewById(R.id.ivThumbUp);
             }
         }
     }
+
+    // recyclerView picture
     class MyPictureAdapter extends RecyclerView.Adapter<MyPictureAdapter.PictureViewHolder> {
         private Context context;
         private List<String> list;
@@ -274,7 +313,6 @@ public class DetailViewFragment extends Fragment {
         @NonNull
         @Override
         public PictureViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            Log.d(TAG,"picture : 啟動");
             LayoutInflater layoutInflater = LayoutInflater.from(context);
             View itemView = layoutInflater.inflate(R.layout.fragment_add_photos,parent,false);
             return new PictureViewHolder(itemView);
@@ -283,6 +321,9 @@ public class DetailViewFragment extends Fragment {
         @Override
         public void onBindViewHolder(@NonNull PictureViewHolder holder, int position) {
             new AccessCallable().getViewPicture(list.get(position),executorPicture,holder.ivAddPhoto);
+
+//            showProgressDialog();
+
         }
 
         @Override

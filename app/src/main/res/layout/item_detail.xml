@@ -47,7 +47,7 @@
                     android:id="@+id/tvContent_itemDetail"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
+                    android:layout_marginBottom="24dp"
                     android:textColor="@color/black"
                     android:textSize="20sp"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -67,6 +67,17 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/tvName_itemDetail"
                     app:layout_constraintVertical_bias="0.181" />
+
+                <ImageView
+                    android:id="@+id/ivThumbUp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="24dp"
+                    android:layout_marginBottom="24dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    android:visibility="invisible"
+                    app:srcCompat="@drawable/baseline_thumb_up_alt_black_24" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
