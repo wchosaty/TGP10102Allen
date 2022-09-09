@@ -13,6 +13,9 @@
         <action
             android:id="@+id/action_mitDetail_to_cloudListFragment"
             app:destination="@id/cloudListFragment" />
+        <action
+            android:id="@+id/action_mitDetail_to_editCommentFragment"
+            app:destination="@id/editCommentFragment" />
     </fragment>
 
 
@@ -48,4 +51,13 @@
         android:name="idv.tgp10102.allen.fragment.LeaderboardFragment"
         android:label="fragment_leaderboard"
         tools:layout="@layout/fragment_leaderboard" />
+    <fragment
+        android:id="@+id/editCommentFragment"
+        android:name="idv.tgp10102.allen.fragment.EditCommentFragment"
+        android:label="fragment_edit_comment"
+        tools:layout="@layout/fragment_edit_comment" >
+        <action
+            android:id="@+id/action_editCommentFragment_to_mitDetail"
+            app:destination="@id/mitDetail" />
+    </fragment>
 </navigation>

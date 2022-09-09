@@ -26,9 +26,9 @@
     <string name="synccloud">SyncCloud</string>
     <string name="tosignUp">To Sign Up</string>
     <string name="textNoImagePickerAppFound">no image picker app found</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="leaderboard">leaderboard</string>
     <string name="views">views</string>
     <string name="click">click</string>
+    <string name="addcommnet">add a commnet...</string>
 
 </resources>

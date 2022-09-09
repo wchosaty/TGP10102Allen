@@ -13,6 +13,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
@@ -23,6 +24,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -53,7 +55,7 @@ public class DetailViewFragment extends Fragment {
     public static List<String> selectPhotosPathList;
     private String currentPhotoNickname;
     private ImageButton ibBack;
-    private ExecutorService executorPicture;
+    private ExecutorService executorPicture,executorCloudContent;
     public ProgressDialog mProgressDialog;
     private FirebaseAuth auth;
     private FirebaseFirestore db;
@@ -67,7 +69,7 @@ public class DetailViewFragment extends Fragment {
         int numProcess = Runtime.getRuntime().availableProcessors();
         Log.d(TAG, "JVM可用的處理器數量: " + numProcess);
         // 建立固定量的執行緒放入執行緒池內並重複利用它們來執行任務
-        executorPicture = Executors.newFixedThreadPool(numProcess/2);
+        executorCloudContent = executorPicture = Executors.newFixedThreadPool(numProcess/2);
     }
 
     @Override
@@ -82,7 +84,6 @@ public class DetailViewFragment extends Fragment {
         currentCloudMemberList = new ArrayList<>();
         findViews(view);
         handleView();
-
 
         // 取Bundle Request
         if (getArguments() != null) {
@@ -153,6 +154,9 @@ public class DetailViewFragment extends Fragment {
         if(executorPicture != null){
             executorPicture.shutdownNow();
         }
+        if(executorCloudContent != null){
+            executorCloudContent.shutdownNow();
+        }
     }
 
     private void downloadPhotosList() {
@@ -216,7 +220,6 @@ public class DetailViewFragment extends Fragment {
     class MyDetailAdapter extends RecyclerView.Adapter<MyDetailAdapter.DetailViewHolder> {
         private Context context;
         List<Member> list;
-        boolean[] booleanThumb;
 
         public MyDetailAdapter(Context context, List<Member> list) {
             this.context = context;
@@ -227,7 +230,6 @@ public class DetailViewFragment extends Fragment {
 
         public void setMyDetailAdapter(List<Member> list) {
             this.list = list;
-            booleanThumb = new boolean[this.list.size()];
         }
 
         @NonNull
@@ -242,32 +244,36 @@ public class DetailViewFragment extends Fragment {
         @Override
         public void onBindViewHolder(@NonNull DetailViewHolder holder, int position) {
             final Member member = list.get(position);
-
             holder.nameDetail.setText(member.getStringName());
             holder.contentDetail.setText(member.getStringMessage());
             Log.d(TAG,"picture List.size :" + list.size() +" / " +position );
             holder.recyclerPicture.setAdapter(new MyPictureAdapter(context,member.getCloudChildPhotosPathList()) );
             holder.recyclerPicture.setLayoutManager(new StaggeredGridLayoutManager(1,StaggeredGridLayoutManager.HORIZONTAL));
 
-            if(booleanThumb.length > 0){
-                holder.ivThumbUp.setVisibility(booleanThumb[position] ? View.VISIBLE :View.INVISIBLE);
-            }
+            holder.ivThumbCloud.setVisibility(View.INVISIBLE);
+            holder.tvThumbCloud.setVisibility(View.INVISIBLE);
+            new AccessCallable().getCloudContent(member.getNickname(),member.getStringName(), holder.ivThumbCloud,holder.tvThumbCloud,executorCloudContent,1);
 
-            holder.itemView.setOnClickListener(v -> {
-                booleanThumb[position] = true;
-                holder.ivThumbUp.setVisibility(View.VISIBLE);
-//                this.notifyItemChanged(position);
-
+            // 按讚
+            holder.ivThumbSet.setOnClickListener(v -> {
                 Map<String, Object> data = new HashMap<>();
-                data.put("nickname",member.getNickname());
-                data.put("photo",member.getStringName());
                 data.put("user",MainActivity.CURRENTNICKNAME);
-                String s = String.valueOf(System.currentTimeMillis());
-                data.put("id",s);
                 FirebaseFirestore.getInstance().collection(getString(R.string.app_name)).document("ThumbRQ").collection("ThumbRQ")
-                        .document(s).set(data);
+                .document(member.getNickname()).collection(member.getStringName()).document(MainActivity.CURRENTNICKNAME).set(data).addOnCompleteListener(
+                        task -> {
+                            if(task.isSuccessful()){
+                                new AccessCallable().getCloudContent(member.getNickname(),member.getStringName(),
+                                        holder.ivThumbCloud,holder.tvThumbCloud,executorCloudContent,1);
+                            }
+                        });
             });
 
+            // 留言
+            holder.ivContentSet.setOnClickListener(v -> {
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("member",member);
+                Navigation.findNavController(v).navigate(R.id.action_mitDetail_to_editCommentFragment,bundle);
+            });
         }
 
         @Override
@@ -276,17 +282,23 @@ public class DetailViewFragment extends Fragment {
         }
 
         class DetailViewHolder extends RecyclerView.ViewHolder {
-            TextView nameDetail;
-            TextView contentDetail;
+            TextView nameDetail,contentDetail;
+            TextView tvThumbCloud,tvContentCloud;
             RecyclerView recyclerPicture;
-            ImageView ivThumbUp;
+            ImageView ivThumbSet,ivThumbCloud,ivContentSet,ivContentSetCloud;
 
             public DetailViewHolder(@NonNull View itemView) {
                 super(itemView);
                 nameDetail = itemView.findViewById(R.id.tvName_itemDetail);
                 contentDetail = itemView.findViewById(R.id.tvContent_itemDetail);
                 recyclerPicture = itemView.findViewById(R.id.recyclerPicture);
-                ivThumbUp = itemView.findViewById(R.id.ivThumbSet);
+                tvThumbCloud = itemView.findViewById(R.id.tvThumbCloud);
+                tvContentCloud = itemView.findViewById(R.id.tvContentCloud);
+
+                ivThumbSet = itemView.findViewById(R.id.ivThumbSet);
+                ivThumbCloud = itemView.findViewById(R.id.ivThumbCloud);
+                ivContentSet = itemView.findViewById(R.id.ivContentSet);
+                ivContentSetCloud =itemView.findViewById(R.id.ivContentCloud);
             }
         }
     }

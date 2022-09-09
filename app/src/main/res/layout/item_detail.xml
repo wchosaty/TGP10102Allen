@@ -71,9 +71,9 @@
                     android:id="@+id/ivThumbSet"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="24dp"
-                    android:layout_marginBottom="3dp"
-                    android:visibility="invisible"
+                    android:layout_marginStart="100dp"
+                    android:layout_marginBottom="8dp"
+                    android:background="@color/white"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:srcCompat="@drawable/baseline_thumb_up_alt_black_24" />
@@ -82,23 +82,60 @@
                     android:id="@+id/ivThumbCloud"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
+                    android:layout_marginStart="16dp"
                     android:layout_marginTop="8dp"
                     android:background="@color/mygreen"
+                    android:visibility="invisible"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/recyclerPicture"
                     app:srcCompat="@drawable/baseline_thumb_up_alt_white_24" />
 
                 <TextView
-                    android:id="@+id/textView2"
+                    android:id="@+id/tvThumbCloud"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:textSize="18sp"
+                    tools:text="12"
+                    android:visibility="invisible"
                     app:layout_constraintBottom_toBottomOf="@+id/ivThumbCloud"
                     app:layout_constraintStart_toEndOf="@+id/ivThumbCloud"
+                    app:layout_constraintTop_toTopOf="@+id/ivThumbCloud" />
+
+                <ImageView
+                    android:id="@+id/ivContentSet"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="100dp"
+                    android:background="@color/white"
+                    app:layout_constraintBottom_toBottomOf="@+id/ivThumbSet"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/ivThumbSet"
+                    app:srcCompat="@drawable/outline_textsms_black_24" />
+
+                <TextView
+                    android:id="@+id/tvContentCloud"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:textSize="18sp"
+                    android:visibility="invisible"
+                    app:layout_constraintBottom_toBottomOf="@+id/ivThumbCloud"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/ivThumbCloud"
                     tools:text="12" />
+
+                <ImageView
+                    android:id="@+id/ivContentCloud"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:background="?attr/colorSecondaryVariant"
+                    android:visibility="invisible"
+                    app:layout_constraintBottom_toBottomOf="@+id/tvContentCloud"
+                    app:layout_constraintEnd_toStartOf="@+id/tvContentCloud"
+                    app:layout_constraintTop_toTopOf="@+id/tvContentCloud"
+                    app:srcCompat="@drawable/outline_textsms_white_24" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
