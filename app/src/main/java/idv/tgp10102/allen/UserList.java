@@ -18,50 +18,44 @@ public class UserList {
     private static final String TAG = "Tag_UserList";
     private ImageView imageView;
     private ExecutorService executorService;
-    private List<Map<String,String>> mapList;
-    private String name;
+    private String content;
 
-    public UserList(ImageView imageView, ExecutorService executorService, String name,int code) {
+    public UserList(String content ,ExecutorService executor,ImageView imageView) {
+        this.content = content;
+        this.executorService = executor;
         this.imageView = imageView;
-        this.executorService = executorService;
-        this.name = name;
-        mapList = new ArrayList<>();
-        switch (code){
-            case 1:
-                searchUser();
-            break;
-        }
+        searchUserPath();
     }
 
-    public void searchUser() {
-        Map<String,String> searchUid = new HashMap<>();
-        Map<String,String> map = new HashMap<>();
-        // 讀取帳戶
-        FirebaseFirestore.getInstance().collection("TGP101 02 Allenusers")
-                .get().addOnCompleteListener(taskUser -> {
-                    if (taskUser.isSuccessful() && taskUser.getResult() != null) {
 
-                        for(QueryDocumentSnapshot documentSnapshot : taskUser.getResult() ){
-                            User userTemp = documentSnapshot.toObject(User.class);
-                            Log.d(TAG , "nickname : " +userTemp.getNickName());
-                            if( Objects.equals(name,userTemp.getNickName()) ){
-                                searchUid.put(name,"TGP101 02 Allen/userPicture/"+userTemp.getUid());
+    public void searchUserPath () {
+            FirebaseFirestore.getInstance().collection("TGP101 02 Allenusers")
+                    .get().addOnCompleteListener(taskUser -> {
+                        if (taskUser.isSuccessful() && taskUser.getResult() != null) {
+                            for (QueryDocumentSnapshot documentSnapshot : taskUser.getResult()) {
+                                User userTemp = documentSnapshot.toObject(User.class);
+//                            Log.d(TAG, "nickname : " + userTemp.getNickName());
+                                if(Objects.equals(content,userTemp.getNickName())){
+                                    toAccessCallable("TGP101 02 Allen/userPicture/"+userTemp.getUid());
+                                }
                             }
-                            map.put("name",userTemp.getNickName());
-                            map.put("uid",userTemp.getUid());
-                            map.put("path","TGP101 02 Allen/userPicture/"+userTemp.getNicknameCloudPic());
-                            mapList.add(map);
+                        } else {
+                            Log.e(TAG, "taskUser : Download Fail");
                         }
-                        String path = searchUid.get(name);
-                        new AccessCallable().getViewPicture(path,executorService,imageView);
-                    } else {
-                        Log.e(TAG, "taskUser : Download Fail");
-                    }
-                });
+                    });
+
     }
 
-    public void AccessCallable(String name,String path){
+//    public String searchUserPath(String searchName) {
+//        for (int i = 0; i < mapList.size(); i++) {
+//            if ( Objects.equals(searchName, mapList.get(i).get("name")) ) {
+//                return "TGP101 02 Allen/userPicture/" + mapList.get(i).get("uid");
+//            }
+//        }
+//        return "";
+//    }
+
+    public void toAccessCallable (String path){
         new AccessCallable().getViewPicture(path,executorService,imageView);
     }
-
 }

@@ -6,7 +6,6 @@ import static idv.tgp10102.allen.MainActivity.NAME;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -21,21 +20,15 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.view.animation.LinearInterpolator;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -45,8 +38,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import idv.tgp10102.allen.AccessCallable;
-import idv.tgp10102.allen.ComMethod;
-import idv.tgp10102.allen.LoginActivity;
 import idv.tgp10102.allen.MainActivity;
 import idv.tgp10102.allen.Member;
 import idv.tgp10102.allen.R;
@@ -295,7 +286,7 @@ public class DetailViewFragment extends Fragment {
                 nameDetail = itemView.findViewById(R.id.tvName_itemDetail);
                 contentDetail = itemView.findViewById(R.id.tvContent_itemDetail);
                 recyclerPicture = itemView.findViewById(R.id.recyclerPicture);
-                ivThumbUp = itemView.findViewById(R.id.ivThumbUp);
+                ivThumbUp = itemView.findViewById(R.id.ivThumbSet);
             }
         }
     }

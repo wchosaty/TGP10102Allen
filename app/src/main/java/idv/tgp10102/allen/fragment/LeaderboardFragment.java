@@ -39,11 +39,12 @@ public class LeaderboardFragment extends Fragment {
     private RecyclerView recyclerView;
     private  List<SortObject> listSort;
     private ExecutorService executorPicture;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         listSort = new ArrayList<SortObject>();
-        int numProcess = Runtime.getRuntime().availableProcessors();
+        int numProcess =  Runtime.getRuntime().availableProcessors() > 3 ? 3 : Runtime.getRuntime().availableProcessors();
         Log.d(TAG, "JVM可用的處理器數量: " + numProcess);
         // 建立固定量的執行緒放入執行緒池內並重複利用它們來執行任務
         executorPicture = Executors.newFixedThreadPool(numProcess);
@@ -71,12 +72,15 @@ public class LeaderboardFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
+        loadUserListSort();
+    }
+
+    public void loadUserListSort () {
         List<String> list = new ArrayList<>();
-        listSort = new ArrayList<SortObject>();
+        listSort = new ArrayList<>();
         // views times計算
         FirebaseFirestore.getInstance().collection(getString(R.string.app_name)).document("CountRQ").collection("List")
-                .get()
-                .addOnCompleteListener(task -> {
+                .get().addOnCompleteListener(task -> {
                     for (int i = 0; i < task.getResult().size(); i++) {
                         QueryDocumentSnapshot document = (QueryDocumentSnapshot) task.getResult().getDocuments().get(i);
                         list.add((String) document.get("name"));
@@ -85,16 +89,16 @@ public class LeaderboardFragment extends Fragment {
                         FirebaseFirestore.getInstance().collection(getString(R.string.app_name)).document("CountRQ")
                                 .collection(stringNickname).get()
                                 .addOnCompleteListener(taskSort -> {
-                                    Log.d(TAG, "taskSort size : " + taskSort.getResult().size()+" / "+ stringNickname);
-                                    SortObject sortObject = new SortObject(taskSort.getResult().size(), ""+stringNickname);
-                                    Log.d(TAG, "sortObject : " + sortObject.getCount() +" / "+ sortObject.getStringContent());
+                                    Log.d(TAG, "taskSort size : " + taskSort.getResult().size() + " / " + stringNickname);
+                                    SortObject sortObject = new SortObject(taskSort.getResult().size(), "" + stringNickname);
+                                    Log.d(TAG, "sortObject : " + sortObject.getCount() + " / " + sortObject.getStringContent());
                                     listSort.add(sortObject);
                                     Log.d(TAG, "taskSort : +1");
                                     if (listSort.size() == task.getResult().size()) {
                                         Log.d(TAG, "taskSort : 完成");
-                                        Log.d(TAG, "taskSort.getResult().size() : " +taskSort.getResult().size());
+                                        Log.d(TAG, "taskSort.getResult().size() : " + taskSort.getResult().size());
                                         Collections.sort(listSort);
-                                        BoardMyAdapter adapterTemp =(BoardMyAdapter) recyclerView.getAdapter();
+                                        BoardMyAdapter adapterTemp = (BoardMyAdapter) recyclerView.getAdapter();
                                         adapterTemp.setAdapter(listSort);
                                         adapterTemp.notifyDataSetChanged();
                                     }
@@ -140,8 +144,7 @@ public class LeaderboardFragment extends Fragment {
         @Override
         public void onBindViewHolder(@NonNull BoardViewHolder holder, int position) {
             SortObject sortObject = list.get(position);
-            String path = getString(R.string.app_name)+"/userPicture/";
-            new UserList(holder.ivPicture,executorPicture,sortObject.getStringContent(),1);
+            new UserList(sortObject.getStringContent(),executorPicture,holder.ivPicture);
             StringBuilder sb = new StringBuilder();
             sb.append(sortObject.getCount().toString());
             holder.tvTimes.setText(sb.toString()+" " + getString(R.string.views) );

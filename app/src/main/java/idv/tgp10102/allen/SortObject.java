@@ -1,6 +1,5 @@
 package idv.tgp10102.allen;
 
-import java.util.Comparator;
 
 public class SortObject implements Comparable<SortObject> {
     private Integer count;
