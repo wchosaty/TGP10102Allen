@@ -20,7 +20,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -473,12 +472,6 @@ public class ListFragment extends Fragment {
                 holder.checkBox.setOnClickListener(v -> {
                     itemChooseInnerMyAdapter[position] = holder.checkBox.isChecked();
                     Log.d(TAG,"itemChoose : index[ "+ position +" ]- " + itemChooseInnerMyAdapter[position] );
-                    // select To Upload cloud
-                    if(itemChooseInnerMyAdapter[position]){
-//                        itemChooseMap.put(member.getStringName(),String.valueOf(position) );
-                    }else {
-//                        itemChooseMap.remove(member.getStringName());
-                    }
 
                 });
 
@@ -498,9 +491,7 @@ public class ListFragment extends Fragment {
                     this.notifyDataSetChanged();
                     return true;
                 });
-
         }
-
     }
 
 }
