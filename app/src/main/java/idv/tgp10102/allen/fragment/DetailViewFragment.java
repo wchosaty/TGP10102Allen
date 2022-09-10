@@ -85,18 +85,26 @@ public class DetailViewFragment extends Fragment {
         findViews(view);
         handleView();
 
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        activity.findViewById(R.id.cloudListFragment).setVisibility(View.INVISIBLE);
+        activity.findViewById(R.id.mitList).setVisibility(View.INVISIBLE);
+        activity.findViewById(R.id.leaderboardFragment).setVisibility(View.INVISIBLE);
         // 取Bundle Request
         if (getArguments() != null) {
             String bundleRequest = getArguments().getString(NAME);
             // 接收update要求
             if (bundleRequest != null) {
-                Log.d(TAG,"bundleRequest : "+ bundleRequest);
+                Log.d(TAG, "bundleRequest : " + bundleRequest);
                 ivCurrentPhotoNick.setImageResource(R.drawable.baseline_account_circle_white_24);
                 currentPhotoNickname = bundleRequest;
-                if(currentPhotoNickname != null){
+                if (currentPhotoNickname != null) {
                     // 取得該相簿的Nickname 圖示
 
-                    db.collection(getString(R.string.app_name)+"users").get().addOnCompleteListener(taskNick -> {
+                    db.collection(getString(R.string.app_name) + "users").get().addOnCompleteListener(taskNick -> {
                         if (taskNick.isSuccessful() && taskNick.getResult() != null) {
                             String nickUid;
                             Log.d(TAG, "taskUserData : Successful");
@@ -106,13 +114,13 @@ public class DetailViewFragment extends Fragment {
                                     // 新增流量計算
                                     Map<String, Object> mapCount = new HashMap<>();
 
-                                    mapCount.put("user",MainActivity.CURRENTNICKNAME);
+                                    mapCount.put("user", MainActivity.CURRENTNICKNAME);
                                     String s = String.valueOf(System.currentTimeMillis());
                                     mapCount.put("id", s);
                                     FirebaseFirestore.getInstance().collection(getString(R.string.app_name)).document("CountRQ").collection(userNick.getNickName())
                                             .document(s).set(mapCount);
                                     Map<String, Object> data = new HashMap<>();
-                                     data.put("name",currentPhotoNickname);
+                                    data.put("name", currentPhotoNickname);
                                     FirebaseFirestore.getInstance().collection(getString(R.string.app_name)).document("CountRQ").collection("List")
                                             .document(currentPhotoNickname).set(data);
 
@@ -138,14 +146,6 @@ public class DetailViewFragment extends Fragment {
                 downloadPhotosList();
             }
         }
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        activity.findViewById(R.id.cloudListFragment).setVisibility(View.INVISIBLE);
-        activity.findViewById(R.id.mitList).setVisibility(View.INVISIBLE);
-        activity.findViewById(R.id.leaderboardFragment).setVisibility(View.INVISIBLE);
     }
 
     @Override
