@@ -4,7 +4,6 @@ package idv.tgp10102.allen.fragment;
 import static idv.tgp10102.allen.MainActivity.NAME;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -24,9 +23,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
@@ -56,8 +53,6 @@ public class DetailViewFragment extends Fragment {
     private String currentPhotoNickname;
     private ImageButton ibBack;
     private ExecutorService executorPicture,executorCloudContent;
-    public ProgressDialog mProgressDialog;
-    private FirebaseAuth auth;
     private FirebaseFirestore db;
     private FirebaseStorage storage;
 
@@ -186,36 +181,15 @@ public class DetailViewFragment extends Fragment {
         recyclerViewDetail.setLayoutManager(new StaggeredGridLayoutManager(1,StaggeredGridLayoutManager.VERTICAL));
 
         selectPhotosPathList = new ArrayList<>();
-
-
     }
 
     private void findViews(View view) {
-
         recyclerViewDetail = view.findViewById(R.id.recyclerView_detail);
-
         ibBack = view.findViewById(R.id.ibBack_Edit);
-
         tvCurrentPhotoNick = view.findViewById(R.id.tvCurrentPhotoNick_Main);
         ivCurrentPhotoNick = view.findViewById(R.id.ivCurrentPhotoNick_Detail);
     }
 
-    protected void showProgressDialog() {
-        if (mProgressDialog == null) {
-            mProgressDialog = new ProgressDialog(requireContext());
-            mProgressDialog.setIndeterminate(true);
-            mProgressDialog.getProgress();
-            mProgressDialog.setMessage("Loading...");
-        }
-
-        mProgressDialog.show();
-    }
-
-    protected void hideProgressDialog() {
-        if (mProgressDialog != null && mProgressDialog.isShowing()) {
-            mProgressDialog.dismiss();
-        }
-    }
 
     class MyDetailAdapter extends RecyclerView.Adapter<MyDetailAdapter.DetailViewHolder> {
         private Context context;
@@ -224,7 +198,6 @@ public class DetailViewFragment extends Fragment {
         public MyDetailAdapter(Context context, List<Member> list) {
             this.context = context;
             this.list = list;
-//            booleanThumb = new boolean[this.list.size()];
 
         }
 
@@ -334,9 +307,6 @@ public class DetailViewFragment extends Fragment {
         @Override
         public void onBindViewHolder(@NonNull PictureViewHolder holder, int position) {
             new AccessCallable().getViewPicture(list.get(position),executorPicture,holder.ivAddPhoto);
-
-//            showProgressDialog();
-
         }
 
         @Override

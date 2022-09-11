@@ -1,13 +1,10 @@
 package idv.tgp10102.allen.fragment;
 
-import static idv.tgp10102.allen.MainActivity.NAME;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -23,22 +20,16 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 
-import java.text.NumberFormat;
 
 import idv.tgp10102.allen.MainActivity;
 import idv.tgp10102.allen.R;
@@ -54,8 +45,6 @@ public class LoginFragment extends Fragment {
     private Button btSingIn,btSignUp;
     private ImageView ivGoogle;
     private User user;
-    private FirebaseFirestore db;
-    private FirebaseStorage storage;
     private boolean flag= false;
 
 
@@ -235,7 +224,7 @@ public class LoginFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-// 重新檢查
+        // 重新檢查
         FirebaseUser user = auth.getCurrentUser();
         if (user != null) {
             startActivity(new Intent().setClass(activity, MainActivity.class) );

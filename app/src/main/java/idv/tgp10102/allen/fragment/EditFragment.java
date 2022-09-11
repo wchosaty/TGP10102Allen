@@ -32,7 +32,6 @@ import android.widget.AutoCompleteTextView;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -85,7 +84,6 @@ public class EditFragment extends Fragment {
     private ContentResolver contentResolver;
     private ActivityResultLauncher<Uri> takePicLauncher;
     private ActivityResultLauncher<Intent> cropPicLauncher;
-    private ImageView imageViewX;
 
 
     ActivityResultLauncher<Intent> pickMultiPicturesLauncher = registerForActivityResult(
@@ -192,7 +190,7 @@ public class EditFragment extends Fragment {
                     load();
                 }
             }
-            // 接收createnew要求
+            // 接收createNew要求
             if(bundleRequest == CREATENEW){
                 Log.d(TAG,"bundleRequest : "+CREATENEW);
                 createNew();
@@ -214,6 +212,7 @@ public class EditFragment extends Fragment {
         super.onStart();
         activity.findViewById(R.id.cloudListFragment).setVisibility(View.INVISIBLE);
         activity.findViewById(R.id.mitList).setVisibility(View.INVISIBLE);
+        activity.findViewById(R.id.leaderboardFragment).setVisibility(View.INVISIBLE);
     }
 
     //1:createNew  2:增加 1 photoPosition 3:LoadSave檔
@@ -349,7 +348,6 @@ public class EditFragment extends Fragment {
             List<String> listTemp = new ArrayList<>();
 
             for(String temp: memberListEdit){
-
                 listTemp.add(temp.toString());
             }
             adapter = new ArrayAdapter<>(activity,R.layout.name_view,listTemp);
@@ -542,7 +540,6 @@ public class EditFragment extends Fragment {
 
             member.setLocalPhotoParentPath(localParentPath);
             member.setCloudPhotosParentPath("/"+CURRENTNICKNAME+"/"+sbNamePath.toString());
-
             member.setLocalChildPathList(stringChildList);
             member.setStringName(sbName.toString());
             member.setStringMessage(sbMessage.toString());

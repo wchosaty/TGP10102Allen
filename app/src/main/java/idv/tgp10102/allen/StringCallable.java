@@ -1,4 +1,4 @@
-package idv.tgp10102.allen.fragment;
+package idv.tgp10102.allen;
 
 import android.view.View;
 import android.widget.ImageView;
@@ -31,7 +31,6 @@ public class StringCallable implements Callable<Boolean> {
                 return getDBThumb();
             case 2:
                 return getDBComment();
-
             default:
                 return true;
         }

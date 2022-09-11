@@ -5,8 +5,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TextView;
 
-import java.util.Objects;
-
 
 public class LoginActivity extends AppCompatActivity {
     private TextView tvMessage;

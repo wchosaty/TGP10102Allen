@@ -2,6 +2,8 @@ package idv.tgp10102.allen.fragment;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.ImageDecoder;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -18,7 +20,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 
-import idv.tgp10102.allen.ComMethod;
 import idv.tgp10102.allen.R;
 
 public class AddLocalPhotoFragment extends Fragment {
@@ -44,6 +45,7 @@ public class AddLocalPhotoFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        activity = getActivity();
         findViews(view);
         updatePhotosView();
     }
@@ -65,7 +67,15 @@ public class AddLocalPhotoFragment extends Fragment {
         }
 
         try {
-            ivAddPhoto_Local.setImageBitmap(ComMethod.bitmapToImageFilePath(bitmap, filePicPath));
+            ImageDecoder.Source source = null;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+                source = ImageDecoder.createSource(filePicPath);
+                bitmap = ImageDecoder.decodeBitmap(source);
+                ivAddPhoto_Local.setImageBitmap(bitmap);
+            }else{
+                bitmap = BitmapFactory.decodeFile(filePicPath.toString());
+                ivAddPhoto_Local.setImageBitmap(bitmap);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

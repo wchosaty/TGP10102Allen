@@ -16,12 +16,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -93,14 +91,13 @@ public class EditCommentFragment extends Fragment {
             if (etComment.getText() != null && etComment.getText().toString() != "") {
                 FirebaseFirestore.getInstance().collection(getString(R.string.app_name)).document("CommentRQ").collection("CommentRQ")
                         .document(member.getNickname()).collection(member.getStringName()).document(String.valueOf(System.currentTimeMillis()))
-                        .set(mapData).addOnCompleteListener(
-                                taskSendComment -> {
+                        .set(mapData).addOnCompleteListener(taskSendComment -> {
                                     if (taskSendComment.isSuccessful()) {
                                         Log.d(TAG,"taskSendComment : isSuccessful");
                                         etComment.setText("");
                                         LoadComment();
                                     }
-                                });
+                        });
             }
         });
     }
@@ -153,7 +150,6 @@ public class EditCommentFragment extends Fragment {
                             QueryDocumentSnapshot queryDocumentSnapshot = (QueryDocumentSnapshot) task.getResult().getDocuments().get(i);
                             mapTemp = queryDocumentSnapshot.getData();
                             commentDataList.add(mapTemp);
-//                            commentObjectList.add(commentObject);
                         }
                         Log.d(TAG,"LoadComment /commentObjectList :"+commentDataList.size());
                         MyCommentAdapter adapter = (MyCommentAdapter) recyclerViewComment.getAdapter();
@@ -188,7 +184,7 @@ public class EditCommentFragment extends Fragment {
         recyclerViewEmoji = view.findViewById(R.id.recyclerView_Emoji);
     }
 
-    // Commnet
+    // Comment
     class MyCommentAdapter extends RecyclerView.Adapter<MyCommentAdapter.MyCommentViewHolder> {
         Context context;
         List<Map<String,Object>> list;
@@ -286,7 +282,6 @@ public class EditCommentFragment extends Fragment {
 
         class MyEmojiViewHolder extends RecyclerView.ViewHolder {
             TextView tvEmoji;
-
 
             public MyEmojiViewHolder(@NonNull View itemView) {
                 super(itemView);

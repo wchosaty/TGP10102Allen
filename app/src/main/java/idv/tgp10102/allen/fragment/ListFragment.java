@@ -5,6 +5,8 @@ import static idv.tgp10102.allen.MainActivity.*;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.ImageDecoder;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -37,10 +39,8 @@ import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
-import idv.tgp10102.allen.ComMethod;
 import idv.tgp10102.allen.MainActivity;
 import idv.tgp10102.allen.Member;
 import idv.tgp10102.allen.R;
@@ -118,7 +118,7 @@ public class ListFragment extends Fragment {
                     memberObjectsList = getMyListToObjectsList();
                     MyAdapter adapterTemp =(MyAdapter) recyclerView.getAdapter();
                     load();
-//                    memberObjectsList
+                    // memberObjectsList
                     adapterTemp.setAdapterMembers(memberObjectsList);
                     adapterTemp.notifyDataSetChanged();
                 }
@@ -187,12 +187,8 @@ public class ListFragment extends Fragment {
                                             Log.d(TAG, "delete :taskDB Fail");
                                         }
                                     });
-
-
                         }
                     });
-
-
     }
 
     private void delete(String sName){
@@ -277,20 +273,6 @@ public class ListFragment extends Fragment {
                 });
     }
 
-    private Member loadMemberFromList(String string) {
-        try(
-                FileInputStream fis = activity.openFileInput(string);
-                ObjectInputStream ois = new ObjectInputStream(fis);
-        )
-        {
-            return (Member) ois.readObject();
-        }catch (Exception e){
-            e.printStackTrace();
-            Log.e(TAG, Arrays.toString(e.getStackTrace()));
-            return null;
-        }
-    }
-
     @Override
     public void onStart() {
         super.onStart();
@@ -298,7 +280,7 @@ public class ListFragment extends Fragment {
         load();
         activity.findViewById(R.id.cloudListFragment).setVisibility(View.VISIBLE);
         activity.findViewById(R.id.mitList).setVisibility(View.VISIBLE);
-
+        activity.findViewById(R.id.leaderboardFragment).setVisibility(View.VISIBLE);
     }
 
     private void load() {
@@ -323,7 +305,6 @@ public class ListFragment extends Fragment {
 
         ibUploadList = view.findViewById(R.id.ibUpload_List);
         ibDeleteList = view.findViewById(R.id.ibDelete_List);
-
     }
 
 
@@ -353,7 +334,6 @@ public class ListFragment extends Fragment {
     }
 
     private void handleView() {
-//        memberObjectsList = ComMethod.getMemberObjectsList(activity);
         memberObjectsList = getMyListToObjectsList();
 
         recyclerView.setLayoutManager(new LinearLayoutManager(activity));
@@ -379,7 +359,6 @@ public class ListFragment extends Fragment {
                     adapter.notifyDataSetChanged();
                     return true;
                 }
-
                 return false;
             }
 
@@ -388,6 +367,7 @@ public class ListFragment extends Fragment {
                 return false;
             }
         });
+
     }
 
 
@@ -413,7 +393,6 @@ public class ListFragment extends Fragment {
             this.context = context;
             this.list = list;
             itemChooseInnerMyAdapter = new boolean[list.size()];
-
         }
 
         @NonNull
@@ -454,7 +433,15 @@ public class ListFragment extends Fragment {
 
                 try {
                     filePicPath = new File(member.getLocalPhotosPathList().get(0).toString() );
-                    holder.ivPic1.setImageBitmap( ComMethod.bitmapToImageFilePath(bitmap,filePicPath) );
+                    ImageDecoder.Source source = null;
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+                        source = ImageDecoder.createSource(filePicPath);
+                        bitmap = ImageDecoder.decodeBitmap(source);
+                        holder.ivPic1.setImageBitmap(bitmap);
+                    }else{
+                        bitmap = BitmapFactory.decodeFile(filePicPath.toString());
+                        holder.ivPic1.setImageBitmap(bitmap);
+                    }
 
                 } catch (IOException e) {
                     e.printStackTrace();

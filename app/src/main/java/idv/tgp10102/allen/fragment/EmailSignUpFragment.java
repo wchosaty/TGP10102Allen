@@ -28,7 +28,6 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
@@ -43,8 +42,6 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Arrays;
 
 import idv.tgp10102.allen.MainActivity;
@@ -54,7 +51,7 @@ import idv.tgp10102.allen.User;
 public class EmailSignUpFragment extends Fragment {
     private final static String TAG = "TAG_EmailSignUpFragment";
     private Activity activity;
-    private EditText etEmail,etPassword,etPhone,etNickname;
+    private EditText etEmail, etPassword, etPhone, etNickname;
     private ImageButton ibBack;
     private ImageView ivNicknamePic;
     private Button btSignUp;
@@ -62,7 +59,6 @@ public class EmailSignUpFragment extends Fragment {
     private TextView tvMessage;
     private Uri uriUserPicture;
     private FirebaseStorage storage;
-    private FirebaseFirestore db;
 
     ActivityResultLauncher<Intent> pickPictureLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -70,10 +66,10 @@ public class EmailSignUpFragment extends Fragment {
 
     private void pickPictureResult(ActivityResult result) {
         if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-            File copyDir = activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS +"/user/");
-            File copyDest = new File(copyDir,"userPicture.jpg");
+            File copyDir = activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS + "/user/");
+            File copyDest = new File(copyDir, "userPicture.jpg");
             Uri uri = result.getData().getData();
-            File uritoFile  = null;
+            File uritoFile = null;
             if (uri != null) {
                 uriUserPicture = uri;
                 // 提供圖檔的URI，ImageView可以直接顯示
@@ -86,7 +82,6 @@ public class EmailSignUpFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         auth = FirebaseAuth.getInstance();
-        db = FirebaseFirestore.getInstance();
         storage = FirebaseStorage.getInstance();
     }
 
@@ -126,7 +121,7 @@ public class EmailSignUpFragment extends Fragment {
             try {
                 pickPictureLauncher.launch(intent);
             } catch (ActivityNotFoundException e) {
-                Log.d(TAG, "pickPictureLauncher : "+ R.string.textNoImagePickerAppFound);
+                Log.d(TAG, "pickPictureLauncher : " + R.string.textNoImagePickerAppFound);
                 tvMessage.setText(R.string.textNoImagePickerAppFound);
             }
         });
@@ -140,37 +135,16 @@ public class EmailSignUpFragment extends Fragment {
             user.setPhone(phone);
             user.setEmail(email);
             user.setNickName(nickName);
-            signUp(email,passWord,nickName,user);
+            signUp(email, passWord, nickName, user);
         });
     }
 
     private boolean checkNickNameEmpty(String nickName) {
-        if (nickName.trim().isEmpty() ) {
+        if (nickName.trim().isEmpty()) {
             tvMessage.setText(R.string.textCheckNicknameEmpty);
             return true;
         } else {
             return false;
-        }
-    }
-    private void copy(File file,StringBuilder sbDest) {
-        if( !file.exists() ){
-            Log.d(TAG,"copy2 : ");
-            return;
-        }
-        Log.d(TAG,"copy2 : ");
-        try(
-                BufferedInputStream bis = new BufferedInputStream(new FileInputStream(String.valueOf(file.toString())));
-                FileOutputStream fos = new FileOutputStream(String.valueOf(sbDest));
-                BufferedOutputStream bos = new BufferedOutputStream(fos);
-        ) {
-            byte[] b = new byte[bis.available()];
-            bis.read(b);
-            bos.write(b);
-            bos.flush();
-
-        }catch (Exception e){
-            Log.e(TAG,e.toString());
-            Log.e(TAG, Arrays.toString(e.getStackTrace()));
         }
     }
 
@@ -201,16 +175,16 @@ public class EmailSignUpFragment extends Fragment {
                             String uid = task.getResult().getUser().getUid();
                             user.setUid(uid);
                             // 大頭照
-                            final String imagePath = getString(R.string.app_name) + "/userPicture/"+user.getUid();
+                            final String imagePath = getString(R.string.app_name) + "/userPicture/" + user.getUid();
                             user.setNicknameCloudPic(imagePath);
                             FirebaseFirestore.getInstance()
-                                    .collection(getString(R.string.app_name)+"users").document(user.getUid())
+                                    .collection(getString(R.string.app_name) + "users").document(user.getUid())
                                     .set(user).addOnCompleteListener(taskInsertDB -> {
                                         if (taskInsertDB.isSuccessful()) {
-                                            Log.d(TAG,"taskInsertDB : Successful");
+                                            Log.d(TAG, "taskInsertDB : Successful");
                                         }
                                     });
-                            if(uriUserPicture!=null){
+                            if (uriUserPicture != null) {
                                 storage.getReference().child(imagePath).putFile(uriUserPicture)
                                         .addOnCompleteListener(taskNickPic -> {
                                             if (taskNickPic.isSuccessful()) {
@@ -224,10 +198,6 @@ public class EmailSignUpFragment extends Fragment {
 
                         }
                         // 註冊成功跳頁
-
-
-
-
                         Intent intent = new Intent();
                         intent.setClass(activity, MainActivity.class);
                         startActivity(intent);

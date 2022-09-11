@@ -18,17 +18,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.Source;
 import com.google.firebase.storage.FirebaseStorage;
 
 import java.util.ArrayList;
@@ -166,7 +163,7 @@ public class CloudListFragment extends Fragment {
             holder.tvNickname.setText(list.get(position).getNickName());
             holder.ivPerson.setImageResource(R.drawable.baseline_account_circle_white_48);
             //下載圖示
-            final int MEGABYTE = 4 * 1024 * 1024;
+            final int MEGABYTE = 5 * 1024 * 1024;
             storage.getReference().child(getString(R.string.app_name)+"/userPicture/"+list.get(position).getUid())
                     .getBytes(MEGABYTE).addOnCompleteListener(task -> {
                         if (task.isSuccessful() && task.getResult() != null){
@@ -174,7 +171,7 @@ public class CloudListFragment extends Fragment {
                             Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
                             holder.ivPerson.setImageBitmap(bitmap);
                         }else {
-                            Log.e(TAG, "nicknamePicture : downloadStrage Fail");
+                            Log.e(TAG, "nicknamePicture : downloadStorage Fail");
                         }
                     });
 

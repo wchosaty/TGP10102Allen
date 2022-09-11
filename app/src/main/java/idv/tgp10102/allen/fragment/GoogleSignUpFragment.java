@@ -39,8 +39,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 
 import java.io.File;
@@ -71,9 +69,7 @@ public class GoogleSignUpFragment extends Fragment {
     private void pickPictureResult(ActivityResult result) {
         if (result.getResultCode() == RESULT_OK && result.getData() != null) {
             File copyDir = activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS +"/user/");
-            File copyDest = new File(copyDir,"userPicture.jpg");
             Uri uri = result.getData().getData();
-            File uritoFile  = null;
             if (uri != null) {
                 uriUserPicture = uri;
                 // 提供圖檔的URI，ImageView可以直接顯示
@@ -94,7 +90,6 @@ public class GoogleSignUpFragment extends Fragment {
                         Log.e(TAG, "GoogleSignInAccount is null");
                     }
                 } catch (ApiException e) {
-                    // Google Sign In failed, update UI appropriately
                     Log.e(TAG, e.toString());
                 }
             }
@@ -157,7 +152,6 @@ public class GoogleSignUpFragment extends Fragment {
                         Log.e(TAG, "GoogleSignInAccount is null");
                     }
                 } catch (ApiException e) {
-                    // Google Sign In failed, update UI appropriately
                     Log.e(TAG, e.toString());
                 }
             }
@@ -184,8 +178,6 @@ public class GoogleSignUpFragment extends Fragment {
                                             Log.d(TAG, "taskGoogleInsertDB signIn : Successful");
                                             }
                                     });
-//                            bundle.putString("UID",uid);
-//                            intent.putExtras(bundle);
                             intent.setClass(activity, MainActivity.class);
                             startActivity(intent);
                             activity.finish();
@@ -198,7 +190,6 @@ public class GoogleSignUpFragment extends Fragment {
                     }
                 });
     }
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
