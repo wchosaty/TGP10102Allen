@@ -14,12 +14,10 @@ public class ImageCallable implements Callable<Boolean> {
     private static final String TAG = "Tag ImageCallable";
     private String path;
     private ImageView imageView;
-    private FirebaseStorage storage;
     final int MEGABYTE = 10 * 1024 * 1024;
     private Context context;
 
     public ImageCallable(String path, ImageView imageView) {
-        storage = FirebaseStorage.getInstance();
         this.path = path;
         this.imageView = imageView;
     }
@@ -30,7 +28,7 @@ public class ImageCallable implements Callable<Boolean> {
     }
 
     private Boolean getStorage() {
-        storage.getReference().child(this.path)
+        FirebaseStorage.getInstance().getReference().child(this.path)
                 .getBytes(MEGABYTE)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && task.getResult() != null){

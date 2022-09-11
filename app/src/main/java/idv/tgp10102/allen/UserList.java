@@ -27,7 +27,6 @@ public class UserList {
         searchUserPath();
     }
 
-
     public void searchUserPath () {
             FirebaseFirestore.getInstance().collection("TGP101 02 Allenusers")
                     .get().addOnCompleteListener(taskUser -> {

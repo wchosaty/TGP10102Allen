@@ -18,13 +18,13 @@ public class AccessCallable {
         ImageCallable imageCallable = new ImageCallable(path, imageView);
         Future<Boolean> future = executor.submit(imageCallable);
     }
-    public void getCloudContent(String nickname, String photoName,ImageView imageView, TextView textView, ExecutorService executor, int code) {
+    public void getCloudThumb(String nickname, String photoName,ImageView imageView, TextView textView, ExecutorService executor, int code) {
         StringCallable stringCallable = new StringCallable(nickname,photoName,imageView,textView,code);
-        Future<Boolean> futureCloudContent = executor.submit(stringCallable);
+        Future<Boolean> futureCloudThumb = executor.submit(stringCallable);
     }
-//    public void setCloudContent(String path, ExecutorService executor) {
-//        StringCallable s = new StringCallable();
-//        Future<Boolean> future = executor.submit();
-//    }
+    public void getCloudComment(String nickname, String photoName,ImageView imageView, TextView textView, ExecutorService executor, int code) {
+        StringCallable stringCallable = new StringCallable(nickname,photoName,imageView,textView,code);
+        Future<Boolean> futureCloudComment = executor.submit(stringCallable);
+    }
 
 }

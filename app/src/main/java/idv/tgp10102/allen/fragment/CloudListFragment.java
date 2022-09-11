@@ -78,7 +78,6 @@ public class CloudListFragment extends Fragment {
 
     private void load() {
         // 讀取帳戶
-        FirebaseUser user = auth.getCurrentUser();
         db.collection(getString(R.string.app_name)+"users")
                 .get().addOnCompleteListener(taskCloudDB -> {
                     if (taskCloudDB.isSuccessful() && taskCloudDB.getResult() != null) {

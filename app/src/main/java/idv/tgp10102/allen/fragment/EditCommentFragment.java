@@ -1,6 +1,5 @@
 package idv.tgp10102.allen.fragment;
 
-import static idv.tgp10102.allen.MainActivity.NAME;
 
 import android.app.Activity;
 import android.content.Context;
@@ -9,7 +8,6 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
@@ -23,18 +21,22 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-import idv.tgp10102.allen.AccessCallable;
-import idv.tgp10102.allen.CommentObject;
 import idv.tgp10102.allen.MainActivity;
 import idv.tgp10102.allen.Member;
 import idv.tgp10102.allen.R;
+import idv.tgp10102.allen.User;
+import idv.tgp10102.allen.UserList;
 
 public class EditCommentFragment extends Fragment {
     private static final String TAG = "Tag EditCommentFragment";
@@ -44,11 +46,18 @@ public class EditCommentFragment extends Fragment {
     private Member member;
     private RecyclerView recyclerViewComment,recyclerViewEmoji;
     private Map<String,Object> mapEmoji;
+    private List<Map<String,Object>> commentDataList;
+    private List<User> userList;
     private StringBuilder sbAddEmojiToComment;
+    private ExecutorService executorCommentNickPicture;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        int numProcess =  Runtime.getRuntime().availableProcessors();
+        Log.d(TAG, "JVM可用的處理器數量: " + numProcess);
+        // 建立固定量的執行緒放入執行緒池內並重複利用它們來執行任務
+        executorCommentNickPicture = Executors.newFixedThreadPool(numProcess/2);
     }
 
     @Override
@@ -62,31 +71,34 @@ public class EditCommentFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         activity = getActivity();
         mapEmoji = new HashMap<>();
+        userList = new ArrayList<>();
+        commentDataList = new ArrayList<>();
         findViews(view);
         handleViews();
     }
 
     private void handleViews() {
         recyclerViewComment.setLayoutManager(new LinearLayoutManager(activity));
-//        recyclerViewComment.setAdapter(new CloudListFragment.MyCloudListAdapter(activity, cloudNicknamePersonList));
+        MyCommentAdapter myCommentAdapter = new MyCommentAdapter(activity,commentDataList);
+        recyclerViewComment.setAdapter(myCommentAdapter);
         recyclerViewEmoji.setLayoutManager(new StaggeredGridLayoutManager(1,StaggeredGridLayoutManager.HORIZONTAL));
         MyEmojiAdapter myEmojiAdapter = new MyEmojiAdapter(activity,mapEmoji);
         recyclerViewEmoji.setAdapter(myEmojiAdapter);
 
         // 送出留言...
         ivSend.setOnClickListener(v -> {
-            Map<String, Object> data = new HashMap<>();
-            data.put("user", MainActivity.CURRENTNICKNAME);
-            if (etComment.getText() != null && etComment.getText().toString() != null) {
-                data.put("comment", etComment.getText().toString());
+            Map<String,Object> mapData = new HashMap<>();
+            mapData.put("user",MainActivity.CURRENTNICKNAME);
+            mapData.put("comment",etComment.getText().toString());
+            if (etComment.getText() != null && etComment.getText().toString() != "") {
                 FirebaseFirestore.getInstance().collection(getString(R.string.app_name)).document("CommentRQ").collection("CommentRQ")
-                        .document(member.getNickname()).collection(member.getStringName()).document(String.valueOf(System.currentTimeMillis())).set(data).addOnCompleteListener(
-                                task -> {
-                                    if (task.isSuccessful()) {
-                                        // Bundle回去顯示
-                                        Bundle bundle = new Bundle();
-                                        bundle.putString(NAME,member.getNickname());
-                                        Navigation.findNavController(v).navigate(R.id.action_editCommentFragment_to_mitDetail,bundle);
+                        .document(member.getNickname()).collection(member.getStringName()).document(String.valueOf(System.currentTimeMillis()))
+                        .set(mapData).addOnCompleteListener(
+                                taskSendComment -> {
+                                    if (taskSendComment.isSuccessful()) {
+                                        Log.d(TAG,"taskSendComment : isSuccessful");
+                                        etComment.setText("");
+                                        LoadComment();
                                     }
                                 });
             }
@@ -99,9 +111,57 @@ public class EditCommentFragment extends Fragment {
         if (getArguments() != null) {
             member = (Member) getArguments().getSerializable("member");
         }
-
         mapEmoji = new HashMap<>();
         loadEmoji();
+        loadUserList();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if(executorCommentNickPicture != null){
+            executorCommentNickPicture.shutdownNow();
+        }
+    }
+
+    private void loadUserList() {
+        userList = new ArrayList<>();
+        FirebaseFirestore.getInstance().collection(getString(R.string.app_name)+"users")
+                .get().addOnCompleteListener(taskCloudDB -> {
+                    if (taskCloudDB.isSuccessful() && taskCloudDB.getResult() != null) {
+                        for(QueryDocumentSnapshot documentSnapshot : taskCloudDB.getResult() ){
+                            User userTemp = documentSnapshot.toObject(User.class);
+                            Log.d(TAG , "nickname : " +userTemp.getNickName());
+                            userList.add(userTemp);
+                        }
+                    LoadComment();
+                    } else {
+                        Log.e(TAG, "Firebase DB : Download Fail");
+                    }
+                });
+    }
+
+    private void LoadComment() {
+        commentDataList = new ArrayList<>();
+        FirebaseFirestore.getInstance().collection(getString(R.string.app_name)).document("CommentRQ")
+                .collection("CommentRQ").document(member.getNickname()).collection(member.getStringName())
+                .get().addOnCompleteListener(task -> {
+                    if(task.isSuccessful()){
+                        Map<String,Object> mapTemp = new HashMap<>();
+                        Log.d(TAG,"LoadComment size : " + task.getResult().size());
+                        for (int i=0;i<task.getResult().size();i++) {
+                            QueryDocumentSnapshot queryDocumentSnapshot = (QueryDocumentSnapshot) task.getResult().getDocuments().get(i);
+                            mapTemp = queryDocumentSnapshot.getData();
+                            commentDataList.add(mapTemp);
+//                            commentObjectList.add(commentObject);
+                        }
+                        Log.d(TAG,"LoadComment /commentObjectList :"+commentDataList.size());
+                        MyCommentAdapter adapter = (MyCommentAdapter) recyclerViewComment.getAdapter();
+                        adapter.setList(commentDataList);
+                        adapter.notifyDataSetChanged();
+                    }
+
+                });
     }
 
     private void loadEmoji() {
@@ -131,11 +191,20 @@ public class EditCommentFragment extends Fragment {
     // Commnet
     class MyCommentAdapter extends RecyclerView.Adapter<MyCommentAdapter.MyCommentViewHolder> {
         Context context;
-        List<CommentObject> list;
+        List<Map<String,Object>> list;
 
         @Override
         public int getItemCount() {
-            return 0;
+            return list == null ? 0 : list.size();
+        }
+
+        public void setList(List<Map<String,Object>> list) {
+            this.list = list;
+        }
+
+        public MyCommentAdapter(Context context,List<Map<String,Object>> list) {
+            this.context = context;
+            this.list = list;
         }
 
         @NonNull
@@ -148,16 +217,26 @@ public class EditCommentFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull MyCommentViewHolder holder, int position) {
+            holder.tvNickname.setText((String) list.get(position).get("user") );
+            holder.tvComment.setText((String) list.get(position).get("comment") );
+            new UserList((String) list.get(position).get("user"),executorCommentNickPicture,holder.ivNickPicture);
+
         }
 
         class MyCommentViewHolder extends RecyclerView.ViewHolder {
+            private ImageView ivNickPicture;
+            private TextView tvNickname,tvComment;
 
             public MyCommentViewHolder(@NonNull View itemView) {
                 super(itemView);
+                ivNickPicture = itemView.findViewById(R.id.ivNickPicture_Comment);
+                tvNickname = itemView.findViewById(R.id.tvNickname_Comment);
+                tvComment = itemView.findViewById(R.id.tvComment_Comment);
             }
         }
     }
 
+    // Emoji
     class MyEmojiAdapter extends RecyclerView.Adapter<MyEmojiAdapter.MyEmojiViewHolder> {
         Context context;
         Map<String,Object> map;
@@ -196,6 +275,12 @@ public class EditCommentFragment extends Fragment {
             holder.tvEmoji.setOnClickListener(v -> {
                 sbAddEmojiToComment = new StringBuilder();
                 sbAddEmojiToComment.append(etComment.getText());
+                char charPos = (char) (97 +position);
+                String sPos = Character.toString(charPos);
+                Log.d(TAG,"onBindViewHolder : "+ s + " / " +position);
+                sbAddEmojiToComment.append((String) map.get(sPos));
+                etComment.setText(sbAddEmojiToComment.toString());
+                sbAddEmojiToComment = new StringBuilder();
             });
         }
 

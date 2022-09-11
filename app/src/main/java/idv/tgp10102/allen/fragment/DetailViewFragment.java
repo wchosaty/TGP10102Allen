@@ -252,8 +252,8 @@ public class DetailViewFragment extends Fragment {
 
             holder.ivThumbCloud.setVisibility(View.INVISIBLE);
             holder.tvThumbCloud.setVisibility(View.INVISIBLE);
-            new AccessCallable().getCloudContent(member.getNickname(),member.getStringName(), holder.ivThumbCloud,holder.tvThumbCloud,executorCloudContent,1);
-
+            new AccessCallable().getCloudThumb(member.getNickname(),member.getStringName(), holder.ivThumbCloud,holder.tvThumbCloud,executorCloudContent,1);
+            new AccessCallable().getCloudComment(member.getNickname(),member.getStringName(), holder.ivContentCloud,holder.tvContentCloud,executorCloudContent,2);
             // 按讚
             holder.ivThumbSet.setOnClickListener(v -> {
                 Map<String, Object> data = new HashMap<>();
@@ -262,7 +262,7 @@ public class DetailViewFragment extends Fragment {
                 .document(member.getNickname()).collection(member.getStringName()).document(MainActivity.CURRENTNICKNAME).set(data).addOnCompleteListener(
                         task -> {
                             if(task.isSuccessful()){
-                                new AccessCallable().getCloudContent(member.getNickname(),member.getStringName(),
+                                new AccessCallable().getCloudThumb(member.getNickname(),member.getStringName(),
                                         holder.ivThumbCloud,holder.tvThumbCloud,executorCloudContent,1);
                             }
                         });
@@ -270,9 +270,13 @@ public class DetailViewFragment extends Fragment {
 
             // 留言
             holder.ivContentSet.setOnClickListener(v -> {
-                Bundle bundle = new Bundle();
-                bundle.putSerializable("member",member);
-                Navigation.findNavController(v).navigate(R.id.action_mitDetail_to_editCommentFragment,bundle);
+                onClickDetail(member,v);
+            });
+            holder.ivContentCloud.setOnClickListener(v -> {
+                onClickDetail(member,v);
+            });
+            holder.tvContentCloud.setOnClickListener(v -> {
+                onClickDetail(member,v);
             });
         }
 
@@ -285,7 +289,7 @@ public class DetailViewFragment extends Fragment {
             TextView nameDetail,contentDetail;
             TextView tvThumbCloud,tvContentCloud;
             RecyclerView recyclerPicture;
-            ImageView ivThumbSet,ivThumbCloud,ivContentSet,ivContentSetCloud;
+            ImageView ivThumbSet,ivThumbCloud,ivContentSet,ivContentCloud;
 
             public DetailViewHolder(@NonNull View itemView) {
                 super(itemView);
@@ -298,9 +302,15 @@ public class DetailViewFragment extends Fragment {
                 ivThumbSet = itemView.findViewById(R.id.ivThumbSet);
                 ivThumbCloud = itemView.findViewById(R.id.ivThumbCloud);
                 ivContentSet = itemView.findViewById(R.id.ivContentSet);
-                ivContentSetCloud =itemView.findViewById(R.id.ivContentCloud);
+                ivContentCloud =itemView.findViewById(R.id.ivContentCloud);
             }
         }
+    }
+    public void onClickDetail(Member member,View v) {
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("member",member);
+        Navigation.findNavController(v).navigate(R.id.action_mitDetail_to_editCommentFragment,bundle);
+
     }
 
     // recyclerView picture
