@@ -35,7 +35,7 @@ public class ImageCallable implements Callable<Boolean> {
                         byte[] bytes = task.getResult();
                         imageView.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
                     }else {
-                        Log.e(TAG, " viewPager2 : downloadStrage Fail");
+                        Log.e(TAG, " viewPager2 : downloadStorage Fail");
                     }
                 });
         return true;
