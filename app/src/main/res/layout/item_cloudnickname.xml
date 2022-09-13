@@ -45,7 +45,7 @@
                     android:id="@+id/cardView"
                     android:layout_width="90dp"
                     android:layout_height="90dp"
-                    android:layout_marginStart="32dp"
+                    android:layout_marginStart="10dp"
                     android:layout_marginTop="16dp"
                     app:cardBackgroundColor="#504B4B"
                     app:cardCornerRadius="50dp"
@@ -79,23 +79,41 @@
                 </androidx.cardview.widget.CardView>
 
                 <ImageView
-                    android:id="@+id/ivPhoto1_CloudList"
-                    android:layout_width="75dp"
-                    android:layout_height="75dp"
-                    android:layout_marginStart="50dp"
+                    android:id="@+id/ivPhoto03"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_marginBottom="8dp"
+                    app:cardElevation="10dp"
+                    android:scaleType="centerCrop"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/cardView"
+                    app:layout_constraintEnd_toEndOf="@+id/ivPhoto02"
+                    tools:srcCompat="@tools:sample/avatars" />
+
+                <ImageView
+                    android:id="@+id/ivPhoto02"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"
+                    app:cardElevation="10dp"
+                    android:scaleType="centerCrop"
+                    app:layout_constraintBottom_toTopOf="@+id/ivPhoto03"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/ivPhoto01"
                     app:layout_constraintTop_toTopOf="parent"
                     tools:srcCompat="@tools:sample/avatars" />
 
                 <ImageView
-                    android:id="@+id/ivPhoto2_CloudList"
-                    android:layout_width="75dp"
-                    android:layout_height="75dp"
+                    android:id="@+id/ivPhoto01"
+                    android:layout_width="90dp"
+                    android:layout_height="90dp"
+                    android:layout_marginStart="16dp"
+                    android:scaleType="centerCrop"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/ivPhoto1_CloudList"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:srcCompat="@tools:sample/avatars" />
+                    app:layout_constraintStart_toEndOf="@+id/cardView"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.cardview.widget.CardView>

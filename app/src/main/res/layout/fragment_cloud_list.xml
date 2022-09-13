@@ -39,4 +39,5 @@
         app:layout_constraintBottom_toTopOf="@+id/recyclerView_CloudList"
         app:layout_constraintStart_toEndOf="@+id/searchView_CloudList"
         app:layout_constraintTop_toTopOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

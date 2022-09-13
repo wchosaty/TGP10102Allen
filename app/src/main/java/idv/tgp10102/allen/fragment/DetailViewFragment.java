@@ -61,10 +61,10 @@ public class DetailViewFragment extends Fragment {
         super.onCreate(savedInstanceState);
         db = FirebaseFirestore.getInstance();
         storage = FirebaseStorage.getInstance();
-        int numProcess = Runtime.getRuntime().availableProcessors();
-        Log.d(TAG, "JVM可用的處理器數量: " + numProcess);
+        int processNumber = Runtime.getRuntime().availableProcessors();
+        Log.d(TAG, "JVM可用的處理器數量: " + processNumber);
         // 建立固定量的執行緒放入執行緒池內並重複利用它們來執行任務
-        executorCloudContent = executorPicture = Executors.newFixedThreadPool(numProcess/2);
+        executorCloudContent = executorPicture = Executors.newFixedThreadPool(processNumber/2);
     }
 
     @Override

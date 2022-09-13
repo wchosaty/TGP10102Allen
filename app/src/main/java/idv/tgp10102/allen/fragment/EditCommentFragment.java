@@ -52,10 +52,10 @@ public class EditCommentFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        int numProcess =  Runtime.getRuntime().availableProcessors();
-        Log.d(TAG, "JVM可用的處理器數量: " + numProcess);
+        int processNumber =  Runtime.getRuntime().availableProcessors();
+        Log.d(TAG, "JVM可用的處理器數量: " + processNumber);
         // 建立固定量的執行緒放入執行緒池內並重複利用它們來執行任務
-        executorCommentNickPicture = Executors.newFixedThreadPool(numProcess/2);
+        executorCommentNickPicture = Executors.newFixedThreadPool(processNumber/2);
     }
 
     @Override

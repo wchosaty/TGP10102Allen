@@ -54,7 +54,7 @@ public class GoogleSignUpFragment extends Fragment {
     private GoogleSignInClient client;
     private User user;
     private TextView tvMessage;
-    private Button btSignIn,btSginUp;
+    private Button btSignIn,btSignUp;
     private EditText etNickname,etPhone;
     private ImageButton ibBack;
     private ImageView ivNicknamePic;
@@ -243,7 +243,7 @@ public class GoogleSignUpFragment extends Fragment {
             signInGoogleLauncher.launch(intent);
         });
 
-        btSginUp.setOnClickListener(v -> {
+        btSignUp.setOnClickListener(v -> {
             String nickName = etNickname.getText().toString();
             if (checkNickNameEmpty(nickName)) {
                 return;
@@ -271,7 +271,7 @@ public class GoogleSignUpFragment extends Fragment {
         etNickname = view.findViewById(R.id.etNickName_google);
         etPhone = view.findViewById(R.id.etPhoneNember_google);
         btSignIn = view.findViewById(R.id.btSignIn_google);
-        btSginUp = view.findViewById(R.id.btSignUp_google);
+        btSignUp = view.findViewById(R.id.btSignUp_google);
         ibBack = view.findViewById(R.id.ibBack_google);
         tvMessage = view.findViewById(R.id.tvMessage_google);
 
