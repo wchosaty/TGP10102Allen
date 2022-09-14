@@ -9,7 +9,7 @@
     app:cardBackgroundColor="#5482DD"
     app:cardCornerRadius="15dp"
     app:cardElevation="10dp"
-    app:contentPadding="5dp">
+    app:contentPadding="4dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -82,32 +82,28 @@
                     android:id="@+id/ivPhoto03"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
-                    android:layout_marginBottom="8dp"
-                    app:cardElevation="10dp"
                     android:scaleType="centerCrop"
-                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:cardElevation="10dp"
                     app:layout_constraintEnd_toEndOf="@+id/ivPhoto02"
+                    app:layout_constraintTop_toBottomOf="@+id/ivPhoto02"
                     tools:srcCompat="@tools:sample/avatars" />
 
                 <ImageView
                     android:id="@+id/ivPhoto02"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginBottom="8dp"
-                    app:cardElevation="10dp"
+                    android:layout_marginStart="2dp"
                     android:scaleType="centerCrop"
-                    app:layout_constraintBottom_toTopOf="@+id/ivPhoto03"
-                    app:layout_constraintEnd_toEndOf="parent"
+                    app:cardElevation="10dp"
                     app:layout_constraintStart_toEndOf="@+id/ivPhoto01"
-                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/ivPhoto01"
                     tools:srcCompat="@tools:sample/avatars" />
 
                 <ImageView
                     android:id="@+id/ivPhoto01"
-                    android:layout_width="90dp"
-                    android:layout_height="90dp"
-                    android:layout_marginStart="16dp"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_marginStart="22dp"
                     android:scaleType="centerCrop"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/cardView"
