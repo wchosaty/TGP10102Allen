@@ -22,14 +22,20 @@ import android.widget.TextView;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import idv.tgp10102.allen.AccessCallable;
 import idv.tgp10102.allen.MainActivity;
 import idv.tgp10102.allen.Member;
 import idv.tgp10102.allen.R;
@@ -46,17 +52,20 @@ public class EditCommentFragment extends Fragment {
     private Map<String,Object> mapEmoji;
     private List<Map<String,Object>> commentDataList;
     private List<User> userList;
+    private Map<String,Object> fcmNicknames;
     private StringBuilder sbAddEmojiToComment;
-    private ExecutorService executorCommentNickPicture;
+    private ExecutorService executorComment;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         int processNumber =  Runtime.getRuntime().availableProcessors();
-        Log.d(TAG, "JVM可用的處理器數量: " + processNumber);
+//        Log.d(TAG, "JVM可用的處理器數量: " + processNumber);
         // 建立固定量的執行緒放入執行緒池內並重複利用它們來執行任務
-        executorCommentNickPicture = Executors.newFixedThreadPool(processNumber/2);
+        executorComment = Executors.newFixedThreadPool(processNumber/2);
     }
+
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -71,6 +80,7 @@ public class EditCommentFragment extends Fragment {
         mapEmoji = new HashMap<>();
         userList = new ArrayList<>();
         commentDataList = new ArrayList<>();
+        fcmNicknames = new HashMap<>();
         findViews(view);
         handleViews();
     }
@@ -95,12 +105,15 @@ public class EditCommentFragment extends Fragment {
                                     if (taskSendComment.isSuccessful()) {
                                         Log.d(TAG,"taskSendComment : isSuccessful");
                                         etComment.setText("");
-                                        LoadComment();
+                                        LoadComment("send");
+
+
                                     }
                         });
             }
         });
     }
+
 
     @Override
     public void onStart() {
@@ -116,8 +129,8 @@ public class EditCommentFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if(executorCommentNickPicture != null){
-            executorCommentNickPicture.shutdownNow();
+        if(executorComment != null){
+            executorComment.shutdownNow();
         }
     }
 
@@ -128,17 +141,17 @@ public class EditCommentFragment extends Fragment {
                     if (taskCloudDB.isSuccessful() && taskCloudDB.getResult() != null) {
                         for(QueryDocumentSnapshot documentSnapshot : taskCloudDB.getResult() ){
                             User userTemp = documentSnapshot.toObject(User.class);
-                            Log.d(TAG , "nickname : " +userTemp.getNickName());
+//                            Log.d(TAG , "nickname : " +userTemp.getNickName());
                             userList.add(userTemp);
                         }
-                    LoadComment();
+                    LoadComment(null);
                     } else {
                         Log.e(TAG, "Firebase DB : Download Fail");
                     }
                 });
     }
 
-    private void LoadComment() {
+    private void LoadComment(String action) {
         commentDataList = new ArrayList<>();
         FirebaseFirestore.getInstance().collection(getString(R.string.app_name)).document("CommentRQ")
                 .collection("CommentRQ").document(member.getNickname()).collection(member.getStringName())
@@ -146,18 +159,75 @@ public class EditCommentFragment extends Fragment {
                     if(task.isSuccessful()){
                         Map<String,Object> mapTemp = new HashMap<>();
                         Log.d(TAG,"LoadComment size : " + task.getResult().size());
+                        fcmNicknames = new HashMap<>();
+
                         for (int i=0;i<task.getResult().size();i++) {
                             QueryDocumentSnapshot queryDocumentSnapshot = (QueryDocumentSnapshot) task.getResult().getDocuments().get(i);
                             mapTemp = queryDocumentSnapshot.getData();
                             commentDataList.add(mapTemp);
+                            if(action == "send"){
+                                // 建立相簿留言user
+                               fcmNicknames.put((String) mapTemp.get("user"), mapTemp.get("user") );
+                                if( (i+1) == task.getResult().size() ){
+
+                                    getTokenUser(member);
+                                }
+                            }
                         }
-                        Log.d(TAG,"LoadComment /commentObjectList :"+commentDataList.size());
+//                        Log.d(TAG,"LoadComment /commentObjectList :"+commentDataList.size());
                         MyCommentAdapter adapter = (MyCommentAdapter) recyclerViewComment.getAdapter();
                         adapter.setList(commentDataList);
                         adapter.notifyDataSetChanged();
                     }
 
                 });
+    }
+
+    private void getTokenUser(Member member) {
+        Set<String> tokens = new HashSet<>();
+            FirebaseFirestore.getInstance().collection(getString(R.string.app_name)+"token")
+                    .get().addOnCompleteListener(task -> {
+                        if(task.isSuccessful()){
+                            if(task.getResult().size() > 0){
+                                for(QueryDocumentSnapshot snapshot : task.getResult() ) {
+                                    // 比對nickname建立tokens
+
+//                                    Log.d(TAG,"成立!");
+//                                    Log.d(TAG,"snapshot.getData().get(\"nickname\") : "+snapshot.getData().get("nickname"));
+//                                    Log.d(TAG,"fcmNicknames.get( snapshot.get(\"nickname\") :"+fcmNicknames.get( snapshot.get("nickname")));
+//                                    Log.d(TAG," member.getNickname() :" +  member.getNickname());
+//                                    Log.d(TAG,"fcmNicknames.get( snapshot.get(\"nickname\") ) :"+fcmNicknames.get( snapshot.get("nickname") ));
+
+                                    if(Objects.equals(snapshot.getData().get("nickname"),fcmNicknames.get( (String) snapshot.getData().get("nickname") )) ||
+                                            Objects.equals( member.getNickname() , snapshot.getData().get("nickname") ) ){
+                                        tokens.add((String) snapshot.getData().get("token"));
+                                        Log.d(TAG,"tokens 內容:" + snapshot.get("token").toString());
+                                    }
+                                }
+//                                int count =0;
+//                                for(String s : tokens){
+//                                    count++;
+//                                    Log.d(TAG,"token "+count+" : " + s);
+//                                }
+
+                                if(tokens.size() > 0){
+                                  //  sendFcmData(member,tokens);
+                                }
+                            }
+                        }
+                    });
+    }
+
+    private void sendFcmData(Member member,Set tokens) {
+        Gson gson = new Gson();
+        String action = "commentFCM";
+        String url = AccessCallable.SERVER_URL+"";
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("action",action);
+        jsonObject.addProperty("nickname",member.getNickname());
+        jsonObject.addProperty("stringName",member.getStringName());
+        jsonObject.addProperty("list",gson.toJson(tokens));
+        new AccessCallable().getJsonData(url,jsonObject.toString(),executorComment);
     }
 
     private void loadEmoji() {
@@ -167,7 +237,7 @@ public class EditCommentFragment extends Fragment {
                             if(task.isSuccessful()){
                                 if(task.getResult() != null){
                                    mapEmoji =  task.getResult().getData();
-                                    Log.d(TAG,"mapEmoji : "+ mapEmoji.get("a") + " size : " + mapEmoji.size());
+//                                    Log.d(TAG,"mapEmoji : "+ mapEmoji.get("a") + " size : " + mapEmoji.size());
 
                                     MyEmojiAdapter emojiAdapter = (MyEmojiAdapter) recyclerViewEmoji.getAdapter();
                                     emojiAdapter.setMyEmojiAdapter(mapEmoji);
@@ -215,7 +285,7 @@ public class EditCommentFragment extends Fragment {
         public void onBindViewHolder(@NonNull MyCommentViewHolder holder, int position) {
             holder.tvNickname.setText((String) list.get(position).get("user") );
             holder.tvComment.setText((String) list.get(position).get("comment") );
-            new UserList((String) list.get(position).get("user"),executorCommentNickPicture,holder.ivNickPicture);
+            new UserList((String) list.get(position).get("user"),executorComment,holder.ivNickPicture);
 
         }
 
@@ -239,7 +309,7 @@ public class EditCommentFragment extends Fragment {
 
         @Override
         public int getItemCount() {
-            Log.d(TAG,"getItemCount  map.size() :" +  map.size() );
+//            Log.d(TAG,"getItemCount  map.size() :" +  map.size() );
             return map == null ? 0 : map.size();
         }
 
@@ -264,7 +334,7 @@ public class EditCommentFragment extends Fragment {
         public void onBindViewHolder(@NonNull MyEmojiViewHolder holder, int position) {
             char ch = (char) (97 +position);
             String s = Character.toString(ch);
-            Log.d(TAG,"onBindViewHolder : "+ s + " / " +position);
+//            Log.d(TAG,"onBindViewHolder : "+ s + " / " +position);
             holder.tvEmoji.setText( (String) map.get(s) );
 
             // 監聽選擇表情圖案
@@ -273,7 +343,7 @@ public class EditCommentFragment extends Fragment {
                 sbAddEmojiToComment.append(etComment.getText());
                 char charPos = (char) (97 +position);
                 String sPos = Character.toString(charPos);
-                Log.d(TAG,"onBindViewHolder : "+ s + " / " +position);
+//                Log.d(TAG,"onBindViewHolder : "+ s + " / " +position);
                 sbAddEmojiToComment.append((String) map.get(sPos));
                 etComment.setText(sbAddEmojiToComment.toString());
                 sbAddEmojiToComment = new StringBuilder();

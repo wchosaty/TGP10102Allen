@@ -18,8 +18,11 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 
@@ -81,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupWithNavController(bottomNavigationView,navController);
     }
 
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -101,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
                             if(!Objects.equals(userNickname,null)){
                                 CURRENTNICKNAME = userNickname.getNickName().trim();
                                 tvUserNickName.setText(userNickname.getNickName());
+                                getTokenToDB();
                             }else {
                                 tvUserNickName.setText(getString(R.string.textCheckNicknameEmpty));
                             }
@@ -122,6 +127,26 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void getTokenToDB() {
+            FirebaseMessaging.getInstance().getToken().addOnCompleteListener(task -> {
+                if(task.isSuccessful()){
+                    if(task.getResult() !=null){
+                        String token = task.getResult();
+                        Map<String,Object> data = new HashMap<>();
+                        data.put("token",token);
+                        data.put("nickname",CURRENTNICKNAME);
+                        FirebaseFirestore.getInstance().collection(getString(R.string.app_name)+"token")
+                                .document(CURRENTNICKNAME).set(data).addOnCompleteListener(taskToken -> {
+                                    if(taskToken.isSuccessful()){
+                                        Log.d(TAG,"save token : Successful");
+                                    }else {
+                                        Log.d(TAG,"save token : Fail");
+                                    }
+                                });
+                    }
+                }
+            });
+    }
 
 
 }
