@@ -11,7 +11,8 @@ import java.util.concurrent.Future;
 
 public class AccessCallable {
     private static final String TAG = "Tag_AccessCallable";
-    public static String SERVER_URL = "XXX";
+    // 官方模擬器
+    public static String SERVER_URL = "http://10.0.2.2:8080/PocketWebFcm/";
 
 
     public void getViewPicture(String path, ExecutorService executor, ImageView imageView) {

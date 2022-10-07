@@ -209,9 +209,8 @@ public class EditCommentFragment extends Fragment {
 //                                    count++;
 //                                    Log.d(TAG,"token "+count+" : " + s);
 //                                }
-
                                 if(tokens.size() > 0){
-                                  //  sendFcmData(member,tokens);
+                                    sendFcmData(member,tokens);
                                 }
                             }
                         }
@@ -220,12 +219,12 @@ public class EditCommentFragment extends Fragment {
 
     private void sendFcmData(Member member,Set tokens) {
         Gson gson = new Gson();
-        String action = "commentFCM";
-        String url = AccessCallable.SERVER_URL+"";
+        String action = "sendFCM";
+        String url = AccessCallable.SERVER_URL+"MyFcmServlet";
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("action",action);
-        jsonObject.addProperty("nickname",member.getNickname());
-        jsonObject.addProperty("stringName",member.getStringName());
+        jsonObject.addProperty("nickname",member.getNickname().toString());
+        jsonObject.addProperty("stringName",member.getStringName().toString());
         jsonObject.addProperty("list",gson.toJson(tokens));
         new AccessCallable().getJsonData(url,jsonObject.toString(),executorComment);
     }

@@ -13,7 +13,7 @@ import java.util.concurrent.Callable;
 
 public class JsonCallable implements Callable<String> {
     private static final String TAG = "Tag_JsonCallable";
-    private String url,outJson;
+    private final String url,outJson;
 
     public JsonCallable(String url, String outJson) {
         this.url = url;
@@ -33,14 +33,18 @@ public class JsonCallable implements Callable<String> {
             connection = (HttpURLConnection) new URL(url).openConnection();
             connection.setDoInput(true);
             connection.setDoOutput(true);
-            connection.setRequestMethod("POST");
             connection.setChunkedStreamingMode(0);
+            connection.setUseCaches(false);
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("content-type","application/json");
             connection.setRequestProperty("charset","UTF-8");
-
-            BufferedWriter bw =
-                    new BufferedWriter(new OutputStreamWriter(connection.getOutputStream()));
-            bw.write(outJson);
-            Log.d(TAG,"OutJson :"+outJson);
+            try(
+                    BufferedWriter bw =
+                            new BufferedWriter(new OutputStreamWriter(connection.getOutputStream()));
+                    ){
+                bw.write(outJson);
+                Log.d(TAG,"OutJson :"+outJson);
+            }
 
             int responseCode = connection.getResponseCode();
             if(responseCode == 200){
@@ -53,8 +57,6 @@ public class JsonCallable implements Callable<String> {
                         stringBuilder.append(line);
                     }
                 }
-
-
             }
 
         } catch (IOException e) {

@@ -31,4 +31,5 @@
     <string name="views">次</string>
     <string name="click">瀏覽</string>
     <string name="addcommnet">留言....</string>
+    <string name="default_notification_channel_id">預設通道ID</string>
 </resources>
