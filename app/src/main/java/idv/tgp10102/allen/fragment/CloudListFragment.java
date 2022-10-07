@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -42,12 +43,11 @@ public class CloudListFragment extends Fragment {
     private RecyclerView recyclerView;
     private List<User> cloudNicknamePersonList;
     private SearchView searchView;
-    private ImageButton ibSync;
+    private SwipeRefreshLayout swipeRefreshLayout;
     private FirebaseAuth auth;
     private FirebaseFirestore db;
     private FirebaseStorage storage;
     private ExecutorService executorPicture;
-    public static Boolean timeDestroyFlag;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -75,11 +75,12 @@ public class CloudListFragment extends Fragment {
         findViews(view);
         handleViews(view);
 
-        ibSync.setOnClickListener(v -> {
+        swipeRefreshLayout.setOnRefreshListener(()->{
+            swipeRefreshLayout.setRefreshing(true);
             load();
+            swipeRefreshLayout.setRefreshing(false);
         });
 
-        timeDestroyFlag = true;
     }
 
     private void load() {
@@ -113,7 +114,6 @@ public class CloudListFragment extends Fragment {
         if(executorPicture != null){
             executorPicture.shutdownNow();
         }
-        timeDestroyFlag = false;
     }
 
     @Override
@@ -123,7 +123,6 @@ public class CloudListFragment extends Fragment {
         activity.findViewById(R.id.mitList).setVisibility(View.VISIBLE);
         activity.findViewById(R.id.leaderboardFragment).setVisibility(View.VISIBLE);
         load();
-        timeDestroyFlag = true;
     }
 
 
@@ -140,8 +139,7 @@ public class CloudListFragment extends Fragment {
     private void findViews(View view) {
         searchView = view.findViewById(R.id.searchView_CloudList);
         recyclerView = view.findViewById(R.id.recyclerView_CloudList);
-
-        ibSync = view.findViewById(R.id.ibSync_CloudList);
+        swipeRefreshLayout = view.findViewById(R.id.swiperRefreshLayout);
 
     }
 

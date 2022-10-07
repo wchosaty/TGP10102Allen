@@ -5,6 +5,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -19,6 +21,7 @@ public class AccessCallable {
         ImageCallable imageCallable = new ImageCallable(path, imageView);
         Future<Boolean> future = executor.submit(imageCallable);
     }
+
     public void getCloudThumb(String nickname, String photoName,ImageView imageView, TextView textView,
                               ExecutorService executor, int code) {
         StringCallable stringCallable = new StringCallable(nickname,photoName,imageView,textView,code);

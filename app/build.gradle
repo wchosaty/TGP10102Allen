@@ -52,6 +52,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-firestore'
     implementation 'com.google.firebase:firebase-messaging'
     implementation 'com.google.code.gson:gson:2.8.9'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
 
     // 1.2 加入依賴
     implementation 'com.github.yalantis:ucrop:2.2.6'
