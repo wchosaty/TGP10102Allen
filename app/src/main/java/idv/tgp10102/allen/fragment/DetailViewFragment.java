@@ -126,14 +126,14 @@ public class DetailViewFragment extends Fragment {
                                     final int MEGABYTE = 10 * 1024 * 1024;
                                     storage.getReference(getString(R.string.app_name) + "/userPicture/" + nickUid)
                                             .getBytes(MEGABYTE).addOnCompleteListener(taskNickPic -> {
-                                                Log.d(TAG, "taskNickPic : Successful");
+//                                                Log.d(TAG, "taskNickPic : Successful");
                                                 byte[] bytes = taskNickPic.getResult();
                                                 Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
                                                 ivCurrentPhotoNick.setImageBitmap(bitmap);
                                             });
                                     break;
                                 } else {
-                                    Log.d(TAG, "taskNickPic : Fail");
+//                                    Log.d(TAG, "taskNickPic : Fail");
                                 }
                             }
                         }
@@ -286,9 +286,9 @@ public class DetailViewFragment extends Fragment {
         sharedPreferences.edit().putString("StringName", member.getStringName()).putString("Nickname", member.getNickname())
                 .putBoolean("status", true).apply();
 
-        Log.d(TAG, "sharedPreferences :"+sharedPreferences.getString("StringName","")+"/"+sharedPreferences.getString("Nickname",""));
+//        Log.d(TAG, "sharedPreferences :"+sharedPreferences.getString("StringName","")+"/"+sharedPreferences.getString("Nickname",""));
 
-        //        Navigation.findNavController(v).navigate(R.id.action_mitDetail_to_editCommentFragment,bundle);
+//        Navigation.findNavController(v).navigate(R.id.action_mitDetail_to_editCommentFragment,bundle);
         Navigation.findNavController(v).navigate(R.id.action_mitDetail_to_editCommentFragment);
 
     }

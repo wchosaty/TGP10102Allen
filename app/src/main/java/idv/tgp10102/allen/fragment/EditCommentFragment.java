@@ -174,7 +174,7 @@ public class EditCommentFragment extends Fragment {
                 .get().addOnCompleteListener(task -> {
                     if(task.isSuccessful()){
                         Map<String,Object> mapTemp = new HashMap<>();
-                        Log.d(TAG,"LoadComment size : " + task.getResult().size());
+//                        Log.d(TAG,"LoadComment size : " + task.getResult().size());
                         fcmNicknames = new HashMap<>();
 
                         for (int i=0;i<task.getResult().size();i++) {
@@ -222,7 +222,7 @@ public class EditCommentFragment extends Fragment {
                                     if(Objects.equals(snapshot.getData().get("nickname"),fcmNicknames.get( (String) snapshot.getData().get("nickname") )) ||
                                             Objects.equals( member.getNickname() , snapshot.getData().get("nickname") ) ){
                                         tokens.add((String) snapshot.getData().get("token"));
-                                        Log.d(TAG,"tokens 內容:" + snapshot.get("token").toString());
+//                                        Log.d(TAG,"tokens 內容:" + snapshot.get("token").toString());
                                     }
                                 }
 //                                int count =0;
@@ -239,9 +239,12 @@ public class EditCommentFragment extends Fragment {
     }
 
     private void sendFcmData(Member member,Set tokens) {
+//        Log.d(TAG,"sendFcmData : Start");
         Gson gson = new Gson();
         String action = "sendFCM";
         String url = AccessCallable.SERVER_URL+"MyFcmServlet";
+//        String url = AccessCallable.SERVER_URL;
+
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("action",action);
         jsonObject.addProperty("nickname",member.getNickname().toString());

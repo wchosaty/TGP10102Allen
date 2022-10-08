@@ -46,7 +46,7 @@ import idv.tgp10102.allen.Member;
 import idv.tgp10102.allen.R;
 
 public class ListFragment extends Fragment {
-    private static final String TAG = "Tag_ListFragment";
+    private static final String TAG = "Tag ListFragment";
     private Activity activity;
     private RecyclerView recyclerView;
     private List<Member> memberObjectsList;
@@ -428,60 +428,60 @@ public class ListFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            Log.d(TAG,"MainActivity.remoteCould : "+ MainActivity.remoteCould);
-                final Member member = list.get(position);
-               itemChooseInnerMyAdapter[position]=false;
-                Bitmap bitmap = null;
-                File filePicPath = null;
-                StringBuilder s;
+//            Log.d(TAG,"MainActivity.remoteCould : "+ MainActivity.remoteCould);
+            final Member member = list.get(position);
+            itemChooseInnerMyAdapter[position] = false;
+            Bitmap bitmap = null;
+            File filePicPath = null;
+            StringBuilder s;
 
-                try {
-                    filePicPath = new File(member.getLocalPhotosPathList().get(0).toString() );
-                    ImageDecoder.Source source = null;
-                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
-                        source = ImageDecoder.createSource(filePicPath);
-                        bitmap = ImageDecoder.decodeBitmap(source);
-                        holder.ivPic1.setImageBitmap(bitmap);
-                    }else{
-                        bitmap = BitmapFactory.decodeFile(filePicPath.toString());
-                        holder.ivPic1.setImageBitmap(bitmap);
-                    }
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                holder.tvName.setText(member.getStringName());
-                //List選擇
-                if(displayCheckBox){
-                    holder.checkBox.setVisibility(View.VISIBLE);
-
-                }else{
-                    holder.checkBox.setVisibility(View.INVISIBLE);
+            try {
+                filePicPath = new File(member.getLocalPhotosPathList().get(0).toString());
+                ImageDecoder.Source source = null;
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+                    source = ImageDecoder.createSource(filePicPath);
+                    bitmap = ImageDecoder.decodeBitmap(source);
+                    holder.ivPic1.setImageBitmap(bitmap);
+                } else {
+                    bitmap = BitmapFactory.decodeFile(filePicPath.toString());
+                    holder.ivPic1.setImageBitmap(bitmap);
                 }
 
-                //挑選 勾選item
-                holder.checkBox.setOnClickListener(v -> {
-                    itemChooseInnerMyAdapter[position] = holder.checkBox.isChecked();
-                    Log.d(TAG,"itemChoose : index[ "+ position +" ]- " + itemChooseInnerMyAdapter[position] );
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            holder.tvName.setText(member.getStringName());
+            //List選擇
+            if (displayCheckBox) {
+                holder.checkBox.setVisibility(View.VISIBLE);
 
-                });
+            } else {
+                holder.checkBox.setVisibility(View.INVISIBLE);
+            }
 
-                holder.itemView.setOnClickListener(v -> {
-                    // ToUpdateMember
-                    if(!displayCheckBox){
-                        Bundle bundle = new Bundle();
-                        bundle.putString(WORKTYPE,UPDATE);
-                        bundle.putString(NAME,member.getStringName());
-                        Navigation.findNavController(v).navigate(R.id.action_mitList_to_mitEdit,bundle);
-                    }
+            //挑選 勾選item
+            holder.checkBox.setOnClickListener(v -> {
+                itemChooseInnerMyAdapter[position] = holder.checkBox.isChecked();
+                Log.d(TAG, "itemChoose : index[ " + position + " ]- " + itemChooseInnerMyAdapter[position]);
 
-                });
+            });
 
-                holder.itemView.setOnLongClickListener(v -> {
-                    displayCheckBox = !displayCheckBox;
-                    this.notifyDataSetChanged();
-                    return true;
-                });
+            holder.itemView.setOnClickListener(v -> {
+                // ToUpdateMember
+                if (!displayCheckBox) {
+                    Bundle bundle = new Bundle();
+                    bundle.putString(WORKTYPE, UPDATE);
+                    bundle.putString(NAME, member.getStringName());
+                    Navigation.findNavController(v).navigate(R.id.action_mitList_to_mitEdit, bundle);
+                }
+
+            });
+
+            holder.itemView.setOnLongClickListener(v -> {
+                displayCheckBox = !displayCheckBox;
+                this.notifyDataSetChanged();
+                return true;
+            });
         }
     }
 
