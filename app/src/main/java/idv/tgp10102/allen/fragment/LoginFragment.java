@@ -28,10 +28,10 @@ import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FirebaseStorage;
 
 
 import idv.tgp10102.allen.MainActivity;
+import idv.tgp10102.allen.Member;
 import idv.tgp10102.allen.R;
 import idv.tgp10102.allen.User;
 
@@ -40,7 +40,7 @@ public class LoginFragment extends Fragment {
     private GoogleSignInClient client;
     private FirebaseAuth auth;
     private Activity activity;
-    private EditText etEmail, etPassword ,etNickName,etPhoneNumber;
+    private EditText etEmail, etPassword;
     private TextView tvMessage;
     private Button btSingIn,btSignUp;
     private ImageView ivGoogle;
@@ -227,8 +227,8 @@ public class LoginFragment extends Fragment {
         // 重新檢查
         FirebaseUser user = auth.getCurrentUser();
         if (user != null) {
-            startActivity(new Intent().setClass(activity, MainActivity.class) );
-            activity.finish();
+                startActivity(new Intent().setClass(activity, MainActivity.class) );
+                activity.finish();
         }
     }
 }

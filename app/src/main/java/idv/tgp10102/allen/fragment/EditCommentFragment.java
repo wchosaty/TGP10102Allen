@@ -3,6 +3,7 @@ package idv.tgp10102.allen.fragment;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -55,6 +56,7 @@ public class EditCommentFragment extends Fragment {
     private Map<String,Object> fcmNicknames;
     private StringBuilder sbAddEmojiToComment;
     private ExecutorService executorComment;
+    private SharedPreferences sharedPreferences;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -106,8 +108,6 @@ public class EditCommentFragment extends Fragment {
                                         Log.d(TAG,"taskSendComment : isSuccessful");
                                         etComment.setText("");
                                         LoadComment("send");
-
-
                                     }
                         });
             }
@@ -118,12 +118,18 @@ public class EditCommentFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        if (getArguments() != null) {
-            member = (Member) getArguments().getSerializable("member");
-        }
+        sharedPreferences = activity.getSharedPreferences("preference", activity.MODE_PRIVATE);
+
+        member = new Member();
+        member.setStringName(sharedPreferences.getString("StringName", ""));
+        member.setNickname(sharedPreferences.getString("Nickname", ""));
+
+        sharedPreferences.edit().putBoolean("status", false).apply();
+
         mapEmoji = new HashMap<>();
         loadEmoji();
         loadUserList();
+
     }
 
     @Override
@@ -154,7 +160,9 @@ public class EditCommentFragment extends Fragment {
     private void LoadComment(String action) {
         commentDataList = new ArrayList<>();
         FirebaseFirestore.getInstance().collection(getString(R.string.app_name)).document("CommentRQ")
-                .collection("CommentRQ").document(member.getNickname()).collection(member.getStringName())
+                .collection("CommentRQ")
+                .document(member.getNickname())
+                .collection(member.getStringName())
                 .get().addOnCompleteListener(task -> {
                     if(task.isSuccessful()){
                         Map<String,Object> mapTemp = new HashMap<>();
@@ -178,6 +186,11 @@ public class EditCommentFragment extends Fragment {
                         MyCommentAdapter adapter = (MyCommentAdapter) recyclerViewComment.getAdapter();
                         adapter.setList(commentDataList);
                         adapter.notifyDataSetChanged();
+
+                        // 顯示最新一筆資料位置 //第一個位置 : 0
+                        if(recyclerViewComment.getAdapter().getItemCount()>0){
+                            recyclerViewComment.scrollToPosition( adapter.getItemCount()-1 );
+                        }
                     }
 
                 });

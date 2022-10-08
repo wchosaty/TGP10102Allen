@@ -59,6 +59,7 @@ public class ListFragment extends Fragment {
     private boolean displayCheckBox = false;
     private File myDirDocument;
 
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,6 +81,7 @@ public class ListFragment extends Fragment {
         myDirDocument = activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
         myDir_list = activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
         currentMyList = new ArrayList<>();
+
         load();
         findViews(view);
         handleView();
@@ -277,6 +279,8 @@ public class ListFragment extends Fragment {
     public void onStart() {
         super.onStart();
         displayCheckBox = false;
+
+
         load();
         activity.findViewById(R.id.cloudListFragment).setVisibility(View.VISIBLE);
         activity.findViewById(R.id.mitList).setVisibility(View.VISIBLE);

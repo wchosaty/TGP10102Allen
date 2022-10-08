@@ -6,6 +6,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -57,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
         storage = FirebaseStorage.getInstance();
         setContentView(R.layout.activity_main);
         remoteCould = false;
+
         findViews();
         handleBottomNavigationView();
 
@@ -82,6 +84,14 @@ public class MainActivity extends AppCompatActivity {
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentContainerView);
         NavController navController = navHostFragment.getNavController();
         NavigationUI.setupWithNavController(bottomNavigationView,navController);
+        SharedPreferences preferences = getSharedPreferences("preference",MODE_PRIVATE);
+        Boolean b = preferences.getBoolean("status",false);
+        String nickname = preferences.getString("Nickname","");
+        String stringName = preferences.getString("StringName","");
+        if( b && !Objects.equals("",nickname) && !Objects.equals("",stringName) ){
+            navController.navigate(R.id.editCommentFragment);
+        }
+
     }
 
 
@@ -91,40 +101,38 @@ public class MainActivity extends AppCompatActivity {
 
         FirebaseUser user = auth.getCurrentUser();
         if (user == null) {
-            startActivity(new Intent().setClass(this, LoginActivity.class) );
+            startActivity(new Intent().setClass(this, LoginActivity.class));
             this.finish();
-        }else {
-
+        }
             // 顯示User
-            String userUid = auth.getUid();
-            db.collection(getString(R.string.app_name)+"users").document(userUid)
-                    .get().addOnCompleteListener(taskUserData -> {
-                        if(taskUserData.isSuccessful() && taskUserData.getResult()!= null){
-                            Log.d(TAG,"taskUserData : Successful");
-                            this.userNickname = taskUserData.getResult().toObject(User.class);
-                            if(!Objects.equals(userNickname,null)){
-                                CURRENTNICKNAME = userNickname.getNickName().trim();
-                                tvUserNickName.setText(userNickname.getNickName());
-                                getTokenToDB();
-                            }else {
-                                tvUserNickName.setText(getString(R.string.textCheckNicknameEmpty));
-                            }
-                        }else {
+        String userUid = auth.getUid();
+        db.collection(getString(R.string.app_name) + "users").document(userUid)
+                .get().addOnCompleteListener(taskUserData -> {
+                    if (taskUserData.isSuccessful() && taskUserData.getResult() != null) {
+                        Log.d(TAG, "taskUserData : Successful");
+                        this.userNickname = taskUserData.getResult().toObject(User.class);
+                        if (!Objects.equals(userNickname, null)) {
+                            CURRENTNICKNAME = userNickname.getNickName().trim();
+                            tvUserNickName.setText(userNickname.getNickName());
+                            getTokenToDB();
+                        } else {
                             tvUserNickName.setText(getString(R.string.textCheckNicknameEmpty));
                         }
-                    });
-            final int MEGABYTE = 4 * 1024 * 1024;
-            storage.getReference().child(getString(R.string.app_name)+"/userPicture/"+userUid)
-                    .getBytes(MEGABYTE).addOnCompleteListener(task -> {
-                        if (task.isSuccessful() && task.getResult() != null){
-                            byte[] bytes = task.getResult();
-                            Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                            ivUser.setImageBitmap(bitmap);
-                        }else {
-                            Log.e(TAG, "nicknamePicture : downloadStrage Fail");
-                        }
-                    });
-        }
+                    } else {
+                        tvUserNickName.setText(getString(R.string.textCheckNicknameEmpty));
+                    }
+                });
+        final int MEGABYTE = 4 * 1024 * 1024;
+        storage.getReference().child(getString(R.string.app_name) + "/userPicture/" + userUid)
+                .getBytes(MEGABYTE).addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        byte[] bytes = task.getResult();
+                        Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                        ivUser.setImageBitmap(bitmap);
+                    } else {
+                        Log.e(TAG, "nicknamePicture : downloadStorage Fail");
+                    }
+                });
     }
 
     private void getTokenToDB() {

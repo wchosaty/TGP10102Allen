@@ -32,4 +32,5 @@
     <string name="click">瀏覽</string>
     <string name="addcommnet">留言....</string>
     <string name="default_notification_channel_id">預設通道ID</string>
+    <string name="default_notification_channel_name">預設通道名稱</string>
 </resources>

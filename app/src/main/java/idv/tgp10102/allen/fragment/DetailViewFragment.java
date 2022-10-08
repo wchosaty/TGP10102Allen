@@ -5,6 +5,7 @@ import static idv.tgp10102.allen.MainActivity.NAME;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -15,7 +16,6 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -56,6 +56,7 @@ public class DetailViewFragment extends Fragment {
     private ExecutorService executorPicture,executorCloudContent;
     private FirebaseFirestore db;
     private FirebaseStorage storage;
+    private SharedPreferences sharedPreferences;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -63,7 +64,7 @@ public class DetailViewFragment extends Fragment {
         db = FirebaseFirestore.getInstance();
         storage = FirebaseStorage.getInstance();
         int processNumber = Runtime.getRuntime().availableProcessors();
-        Log.d(TAG, "JVM可用的處理器數量: " + processNumber);
+//        Log.d(TAG, "JVM可用的處理器數量: " + processNumber);
         // 建立固定量的執行緒放入執行緒池內並重複利用它們來執行任務
         executorCloudContent = executorPicture = Executors.newFixedThreadPool(processNumber/2);
     }
@@ -281,9 +282,14 @@ public class DetailViewFragment extends Fragment {
         }
     }
     public void onClickDetail(Member member,View v) {
-        Bundle bundle = new Bundle();
-        bundle.putSerializable("member",member);
-        Navigation.findNavController(v).navigate(R.id.action_mitDetail_to_editCommentFragment,bundle);
+        sharedPreferences = activity.getSharedPreferences("preference",activity.MODE_PRIVATE);
+        sharedPreferences.edit().putString("StringName", member.getStringName()).putString("Nickname", member.getNickname())
+                .putBoolean("status", true).apply();
+
+        Log.d(TAG, "sharedPreferences :"+sharedPreferences.getString("StringName","")+"/"+sharedPreferences.getString("Nickname",""));
+
+        //        Navigation.findNavController(v).navigate(R.id.action_mitDetail_to_editCommentFragment,bundle);
+        Navigation.findNavController(v).navigate(R.id.action_mitDetail_to_editCommentFragment);
 
     }
 
