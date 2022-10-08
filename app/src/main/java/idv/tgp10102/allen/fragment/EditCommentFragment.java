@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -57,6 +58,7 @@ public class EditCommentFragment extends Fragment {
     private StringBuilder sbAddEmojiToComment;
     private ExecutorService executorComment;
     private SharedPreferences sharedPreferences;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -85,6 +87,12 @@ public class EditCommentFragment extends Fragment {
         fcmNicknames = new HashMap<>();
         findViews(view);
         handleViews();
+
+        swipeRefreshLayout.setOnRefreshListener(()->{
+            swipeRefreshLayout.setRefreshing(true);
+            loadUserList();
+            swipeRefreshLayout.setRefreshing(false);
+        });
     }
 
     private void handleViews() {
@@ -264,6 +272,7 @@ public class EditCommentFragment extends Fragment {
         ivSend = view.findViewById(R.id.ivSend);
         recyclerViewComment = view.findViewById(R.id.recyclerView_Comment);
         recyclerViewEmoji = view.findViewById(R.id.recyclerView_Emoji);
+        swipeRefreshLayout = view.findViewById(R.id.swiperRefreshLayout_Comment);
     }
 
     // Comment
