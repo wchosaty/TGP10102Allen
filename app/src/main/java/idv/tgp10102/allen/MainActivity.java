@@ -2,6 +2,7 @@ package idv.tgp10102.allen;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 
@@ -15,6 +16,9 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -64,10 +68,22 @@ public class MainActivity extends AppCompatActivity {
 
         ibSignOut.setOnClickListener(v -> {
             auth.signOut();
-            Intent intent = new Intent();
-            intent.setClass(this, LoginActivity.class);
-            startActivity(intent);
-            this.finish();
+
+            // 下列程式會登出Google帳號，user再次登入時會再次跳出Google登入畫面
+            // 如果沒有登出，則不會再次跳出Google登入畫面
+            GoogleSignInOptions options = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                    // 由google-services.json轉出
+                    .requestIdToken(getString(R.string.default_web_client_id))
+                    .build();
+            GoogleSignInClient client = GoogleSignIn.getClient(this, options);
+            client.signOut().addOnCompleteListener(this, task -> {
+
+                Intent intent = new Intent();
+                intent.setClass(this, LoginActivity.class);
+                startActivity(intent);
+                this.finish();
+            });
+
         });
 
     }

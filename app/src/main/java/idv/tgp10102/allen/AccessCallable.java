@@ -16,7 +16,7 @@ public class AccessCallable {
     // 官方模擬器
 //    public static String SERVER_URL = "http://10.0.2.2:8080/PocketWebFcm/";
     // ngrok(模擬時機皆可用)
-    public static String SERVER_URL = "https://dc3f-125-230-170-40.jp.ngrok.io/PocketWebFcm/";
+//    public static String SERVER_URL = "https://dc3f-125-230-170-40.jp.ngrok.io/PocketWebFcm/";
     // 區域網路
 //    public static String SERVER_URL = "http://192.168.2.104:8080/PocketWebFcm/";
 

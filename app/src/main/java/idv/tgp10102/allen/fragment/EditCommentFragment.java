@@ -46,6 +46,7 @@ import idv.tgp10102.allen.UserList;
 
 public class EditCommentFragment extends Fragment {
     private static final String TAG = "Tag EditCommentFragment";
+    private static String IP_URL = "";
     private Activity activity;
     private EditText etComment;
     private ImageView ivSend;
@@ -87,12 +88,23 @@ public class EditCommentFragment extends Fragment {
         fcmNicknames = new HashMap<>();
         findViews(view);
         handleViews();
+        loadURL();
 
         swipeRefreshLayout.setOnRefreshListener(()->{
             swipeRefreshLayout.setRefreshing(true);
             loadUserList();
             swipeRefreshLayout.setRefreshing(false);
         });
+    }
+
+    private void loadURL() {
+        FirebaseFirestore.getInstance().collection(getString(R.string.app_name))
+                .document("ngrok").get().addOnCompleteListener(task -> {
+                    if(task.isSuccessful()){
+                        IP_URL =(String) task.getResult().getData().get("ngrok");
+                        Log.d(TAG,"IP_URL : "+IP_URL);
+                    }
+                });
     }
 
     private void handleViews() {
@@ -242,7 +254,8 @@ public class EditCommentFragment extends Fragment {
 //        Log.d(TAG,"sendFcmData : Start");
         Gson gson = new Gson();
         String action = "sendFCM";
-        String url = AccessCallable.SERVER_URL+"MyFcmServlet";
+        String url = IP_URL+"/PocketWebFcm/MyFcmServlet";
+//        String url = AccessCallable.SERVER_URL+"MyFcmServlet";
 //        String url = AccessCallable.SERVER_URL;
 
         JsonObject jsonObject = new JsonObject();
