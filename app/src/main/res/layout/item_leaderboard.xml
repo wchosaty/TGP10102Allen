@@ -29,7 +29,8 @@
             android:layout_height="75dp"
             app:cardCornerRadius="50dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/tvNickName_Board"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.2"
             app:layout_constraintStart_toEndOf="@+id/tvNumber_Board"
             app:layout_constraintTop_toTopOf="parent">
 

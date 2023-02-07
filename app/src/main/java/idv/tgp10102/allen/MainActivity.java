@@ -104,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
         Boolean b = preferences.getBoolean("status",false);
         String nickname = preferences.getString("Nickname","");
         String stringName = preferences.getString("StringName","");
-        if( b && !Objects.equals("",nickname) && !Objects.equals("",stringName) ){
+        if( b && !Objects.equals("",nickname) && !Objects.equals("",stringName)){
             navController.navigate(R.id.editCommentFragment);
         }
 

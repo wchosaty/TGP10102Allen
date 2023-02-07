@@ -19,15 +19,17 @@ public class LoginActivity extends AppCompatActivity {
         tvMessage = findViewById(R.id.tvMessage_LoginMain);
 
         Bundle bundle = getIntent().getExtras();
+        SharedPreferences sharedPreferences = getSharedPreferences("preference",MODE_PRIVATE);
         if (bundle != null) {
             String dataNickname = bundle.getString("Nickname");
             String dataPhotoName = bundle.getString("StringName");
-
             Log.d(TAG, "Nickname: " + dataNickname);
             Log.d(TAG,"PhotoName : "+ dataPhotoName);
-            SharedPreferences sharedPreferences = getSharedPreferences("preference",MODE_PRIVATE);
+            sharedPreferences = getSharedPreferences("preference",MODE_PRIVATE);
             sharedPreferences.edit().putString("Nickname",dataNickname).putString("PhotoName",dataPhotoName)
-                    .putBoolean("status",true).apply();
+                    .putBoolean("fcm",true).putBoolean("status",true).apply();
+        }else{
+            sharedPreferences.edit().putBoolean("fcm",false).putBoolean("status",false).apply();
         }
 
     }

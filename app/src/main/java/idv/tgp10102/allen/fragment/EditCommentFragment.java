@@ -141,10 +141,14 @@ public class EditCommentFragment extends Fragment {
         sharedPreferences = activity.getSharedPreferences("preference", activity.MODE_PRIVATE);
 
         member = new Member();
-        member.setStringName(sharedPreferences.getString("StringName", ""));
+        Boolean fcmFlag = sharedPreferences.getBoolean("fcm",false);
+        if(fcmFlag){
+            member.setStringName(sharedPreferences.getString("PhotoName", ""));
+        }else{
+            member.setStringName(sharedPreferences.getString("StringName", ""));
+        }
         member.setNickname(sharedPreferences.getString("Nickname", ""));
-
-        sharedPreferences.edit().putBoolean("status", false).apply();
+        sharedPreferences.edit().putBoolean("status", false).putBoolean("fcm", false).apply();
 
         mapEmoji = new HashMap<>();
         loadEmoji();
@@ -254,8 +258,9 @@ public class EditCommentFragment extends Fragment {
 //        Log.d(TAG,"sendFcmData : Start");
         Gson gson = new Gson();
         String action = "sendFCM";
-        String url = IP_URL+"/PocketWebFcm/MyFcmServlet";
-//        String url = AccessCallable.SERVER_URL+"MyFcmServlet";
+        // NGROK版
+//        String url = IP_URL+"/PocketWebFcm/MyFcmServlet";
+        String url = AccessCallable.SERVER_URL+"MyFcmServlet";
 //        String url = AccessCallable.SERVER_URL;
 
         JsonObject jsonObject = new JsonObject();
